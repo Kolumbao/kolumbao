@@ -1,0 +1,254 @@
+# NOTE: This is an automatically generated file.
+# Generated on 2021-05-03 11:37:22.430193
+# With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
+
+# ..\..\..\src\bot\__main__.py
+PLURAL: "{values}, and {final}"  # values
+TWO: "{first} and {second}"  # first, second
+ERROR_INSUFFICIENT_KOLUMBAO_PERMISSIONS: "You're missing the following Kolumbao permissions: {permissions}."  # permissions
+ERROR_MISSING_PARAMETER: "Parameter **{name}** is missing."  # name
+ERROR_USER_NOT_FOUND: "User **{name}** not found."  # name
+ERROR_NOT_MANAGING: "You're not currently managing any shared channel. Start with **kb!manage**"
+ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: "You need level {level} to run this command!"  # level
+ERROR_COOLDOWN: "You're going too fast! Retry after {retry_after} seconds."  # retry_after
+ERROR_BOT_MISSING_PERMISSIONS: "The bot is missing the following permissions: {permissions}"  # permissions
+ERROR_USER_MISSING_PERMISSIONS: "You are missing the following server permissions: {permissions}."  # permissions
+ERROR_UNKNOWN: "An unknown error occured. Report it to the developers with the ID `{code}`"  # code
+
+# ..\..\..\src\bot\extensions\blacklist.py
+CREATE_BLACKLIST__ALREADY_EXISTS: "That blacklist already exists"
+CREATE_BLACKLIST__SUCCESS: "Successfully created new blacklist"
+BLACKLIST_NOT_FOUND: "Couldn't find that blacklist"
+DELETE_BLACKLIST__SUCCESS: "Successfully deleted blacklist"
+VIEW_BLACKLIST__CONTENT: "{blacklist}"  # blacklist
+VIEW_BLACKLIST__TITLE: "Blacklist `{name}`"  # name
+BLACKLISTS__TITLE: "Blacklists"
+
+# ..\..\..\src\bot\extensions\channels.py
+INFO__OFFICIAL_CHANNEL: "<:shieldverified:783307418159022081> This is an official Kolumbao channel"
+INFO__UNOFFICIAL_CHANNEL: "This is an unofficial Kolumbao channel. Be safe!"
+INFO__STAFF_CHANNEL: "<:shieldstaff:796049352841101378> This channel was created by a member of Kolumbao's staff team"
+INFO__LOCKED: "<:lockedchannel:796049353022242876> This channel is locked with a password"
+INFO__INSTALLED: "<:installationsuccess:795413869727186964> You have installed this channel: <#{channel_id}>"  # channel_id
+INFO__NAME: "Information for **#{stream_name}**"  # stream_name
+NONE: "No description"
+INFO__DESCRIPTION: "Description"
+INFO__RULES: "Rules"
+INFO__LANGUAGE: "Language"
+INFO__NSFW: "NSFW"
+YES_: "Yes"
+NO_: "No"
+INFO__STATS: "Statistics"
+INFO__MESSAGES_TITLE: "Messages"
+INFO__MESSAGES_CONTENT: "{amount} messages"  # amount
+INFO__NODES_TITLE: "Nodes"
+INFO__NODES_CONTENT: "{amount} nodes"  # amount
+INFO__INSTALL_WITH: "Install this shared channel with kb!join {stream_name}"  # stream_name
+MANAGE__NOW_MANAGING: "Now managing {stream_name}. After 30 minutes, you'll have to redo this command to continue managing"  # stream_name
+MANAGE__NOT_OWNED: "You don't own this shared channel"
+MANAGING__STREAM: "You're managing {stream_name} (ID: {stream_id})"  # stream_name, stream_id
+NAME__CURRENT: "The current name of your shared channel is `{value}`"  # value
+NAME__TAKEN: "That name is already taken"
+NAME__SET: "Your channel now has the name `{value}`"  # value
+DESCRIPTION__CURRENT: |
+    The current description of your channel is the following
+
+    >>> {value}
+
+  # value
+DESCRIPTION__SET: |
+    The description was set to the following
+
+    >>> {value}
+
+  # value
+LANG__CURRENT: "The current language of your channel is `{value}`"  # value
+LANG__NOT_FOUND: "That language wasn't found"
+LANG__SET: "Your channel now has the language `{value}`"  # value
+RULES__CURRENT: |
+    The current rules of your shared channel are the following
+
+    >>> {value}
+
+  # value
+RULES__SET: |
+    The rules were set to the following
+
+    >>> {value}
+
+  # value
+PASSWORD__RESET: "The password has been reset (there is no longer a password on this channel)"
+PASSWORD_SET: "The password has been set. If not deleted, we recommend you delete your message to hide the password"
+NSFW__CURRENT: "Your shared channel has NSFW currently set to `{value}`"  # value
+NSFW__SET: "Your shared channel now has NSFW set to `{value}`"  # value
+CREATE__TOO_MANY: "You have already created the maximum number of shared channels!"
+CREATE__MADE_GUIDANCE: |
+    Congrats, you have your new shared channel, #{stream_name}. This is great.
+
+    Get started by setting up your description with **kb!description**, and your rules with **kb!rules**.
+    If your channel is NSFW, go ahead and set that with **kb!nsfw**. If you need any help, come to the support server.
+
+  # stream_name
+DELETE__CONFIRMATION: "To confirm that you want to delete this shared channel, run the command again followed by the code {code}"  # code
+DELETE__SUCCESS: "Success, your shared channel was deleted."
+DELETE__CODE_INVALID: "Oops, that code is invalid or expired (codes only last 10 seconds)"
+
+# ..\..\..\src\bot\extensions\features.py
+GET_FEATURES__NO_FEATURES: "This shared channel has no features"
+GET_FEATURES__CONTENT: |
+    Features: {features}
+    Suppressed filters: {suppressed_filters}
+
+  # features, suppressed_filters
+ADD_FEATURE__ALREADY_ADDED: "This shared channel already has this feature"
+ADD_FEATURE__SUCCESS: "The feature was added to the shared channel"
+REMOVE_FEATURE__NOT_ADDED: "This shared channel doesn't have this feature"
+REMOVE_FEATURE__SUCCESS: "The feature was successfully removed from the shared channel"
+
+# ..\..\..\src\bot\extensions\installation.py
+INSTALLED__TITLE: "Installed Channel"
+JOIN__NO_STREAM: "That shared channel doesn't exist. Try checking for typos"
+JOIN__ENTER_PASSWORD: "Enter the password for this channel. If you do not respond after 30 seconds, it will time out"
+JOIN__PASSWORD_INCORRECT: "That password is incorrect"
+JOIN__TOO_LONG_TO_RESPOND: "You took too long to respond"
+JOIN__PASSWORD_CORRECT: "That password was correct"
+JOIN__ALREADY_JOINED: "You already have this channel, <#{channel_id}>. If it's not working, leave first and rejoin"  # channel_id
+JOIN__SETUP: "Your channel is all setup. You should see messages straight away. Go ahead and say something!"
+JOIN__SUCCESS: "The channel was succesfully setup, check it out <#{channel_id}>"  # channel_id
+LEAVE__NO_STREAM: "That shared channel doesn't exist. Try checking for typos"
+LEAVE__FORBIDDEN: "I was unable to remove the webhook due to my permissions!"
+LEAVE__NOT_INSTALLED: "You don't have this channel installed"
+LEAVE__DELETE_CHANNEL: "We've removed the webhook, but the channel still exists. We won't remove it, so if you don't want it anymore go ahead and delete it"
+LEAVE__LEFT: "Successfully left the channel, and no longer connected to <#{channel_id}>"  # channel_id
+SEARCH__NOT_FOUND: "No results found for your query"
+DIAGNOSE__WEBHOOK_DELETED: "The webhook was deleted. Try reinstalling!"
+DIAGNOSE__NOT_AUTHORIZED: "The credentials for the webhook somehow changed. You should reinstall the channel."
+DIAGNOSE__OTHER_UNKNOWN: "Another error occured, and we're not sure what is was. Try reinstalling."
+DIAGNOSE__NO_ERROR: "There's no recorded error for your instance of the shared channel. If it continues to fail, feel free to reinstall the channel."
+INVITE__TITLE: "Invite"
+INVITE__CONTENT: "Invite the bot [with this link]({url})"  # url
+INSTALLED: |
+    Welcome to Kolumbao! <:kb:726849082710032484>
+
+    Kolumbao is a bot which connects channels in Discord servers together, creating a network of shared channels.
+    Get started by installing our flagship channel, kb-general: `kb!join kb-general`.
+
+    For any other help:
+    <:shieldstaff:796049352841101378> Contact our support: https://discord.gg/9UBdZHu
+    <:channelssuccess:795415724410535976> Check out our website: https://kolumbao.com/
+
+  # locale
+
+# ..\..\..\src\bot\extensions\kolumbao.py
+DELAY_CONTENT: "The current delays across Kolumbao, measured in milliseconds"
+ERROR_AUTO_MUTED: "You were automatically muted for 5 minutes"
+
+# ..\..\..\src\bot\extensions\moderation.py
+SEARCH_INF__BY_USER: "Searching for user {user_id}"  # user_id
+SEARCH_INF__BY_DURATION: "Searching for duration {duration}"  # duration
+SEARCH_INF__BY_REASON: "Searching for reason {reason}"  # reason
+WARN__ADDED: "Infraction #{inf_id} added"  # inf_id
+MUTE__ALREADY_MUTED: "This user is already muted, infraction #{mute_id}"  # mute_id
+MUTE__ADDED: "Infraction #{inf_id} added"  # inf_id
+UNMUTE__SUCCESS: "Successfully unmuted this user"
+UNMUTE__NOT_MUTED: "This user is not muted"
+SEARCH_INF__ID_NOT_FOUND: "No infraction found with ID {inf_id}"  # inf_id
+INF__ID: "ID"
+INF__START_TIME: "Start time"
+INF__END_TIME: "End time"
+INF__USER: "User"
+INF__MOD: "Moderator"
+SEARCH_INF__NO_RESULTS: "No results for the search query"
+SEARCH_INF__TITLE: "Search Results"
+SEARCH_INF__FIRST_N: "First {n} results of {tot}"  # n, tot
+EDIT_INF__NOT_FOUND: "Infraction not found"
+EDIT_INF__INVALID_FIELD: "Invalid field"
+EDIT_INF__SUCCESS: "Success. `{field}` now set to `{value}`"  # field, value
+LOCKDOWN__LEVEL: "Lockdown now requires level {level} to talk in **{stream}**"  # level, stream, locale
+LOCKDOWN__SLOWMODE: "Lockdown now restricts users to a slowmode of {limit}s in **{stream}**"  # limit, stream, locale
+LOCKDOWN__DISACTIVATED: "Lockdown has been disactivated in **{stream}**"  # stream, locale
+LOCKDOWN__INVALID_TYPE: "Invalid lockdown type"
+
+# ..\..\..\src\bot\extensions\roles.py
+INSPECT_CHANNELS: "Inspect channels"
+MANAGE_ROLES: "Manage roles"
+MANAGE_PERMISSIONS: "Manage permissions"
+MANAGE_SNIPPETS: "Manage snippets"
+MANAGE_FEATURES: "Manage features"
+MANAGE_WARNS: "Manage warns"
+MANAGE_MUTES: "Manage mutes"
+MANAGE_LOCKDOWN: "Manage lockdown"
+MANAGE_BLACKLISTS: "Manage blacklists"
+VIEW_ADVANCED_STATS: "View advanced stats"
+GET_ROLES__NO_ROLES: "This user has no roles"
+GET_ROLES__CONTENT: "This user has the following roles: {roles}"  # roles
+ROLE_NOT_FOUND: "This role {role} was not found"  # name
+ADD_ROLE__ALREADY_ADDED: "This user already appears to have this role"
+ADD_ROLE__SUCCESS: "The role **{role}** was added to this user"  # role
+REMOVE_ROLE__NOT_ADDED: "The user doesn't have this role"
+REMOVE_ROLE__SUCCESS: "The role **{role}** was removed from this user"  # role
+ROLE_STAFF_NOTICE: "*This role represents part of Kolumbao's official staff*"
+ROLE_ID: "Role ID"
+ROLE_NAME: "Role Name"
+ROLE_EMOJI: "Role Emoji"
+ROLE_USERS: "Users"
+ROLE_PERMISSIONS: "Role Permissions"
+CREATE_ROLE__ALREADY_EXISTS: "A role with this name already exists"
+CREATE_ROLE_SUCCESS: "The role **{role}** has been created with the ID #{id}"  # id, role
+DELETE_ROLE__SUCCESS: "Successfully deleted that role"
+PERMISSION_NOT_FOUND: "The permission **{name}** was not found"  # name
+ADD_ROLE_PERMISSION__HEIGHTENED_PERMISSIONS: "You are trying to give the permission **{name}**, that you do not have"  # name
+ADD_ROLE_PERMISSION__SUCCESS: "Permission successfully added. New permissions: {permissions}"  # permissions
+REMOVE_ROLE_PERMISSION__HEIGHTENED_PERMISSIONS: "You are trying to take the permission **{name}**, that you do not have"  # name
+REMOVE_ROLE_PERMISSION__SUCCESS: "Permission successfully removed. New permissions: {permissions}"  # permissions
+CREATE_PERMISSION__ALREADY_EXISTS: "That permission already exists"
+CREATE_PERMISSION__SUCCESS: "Permission successfully created"
+DELETE_PERMISSION__SUCCESS: "Permission successfully deleted"
+LIST_PERMISSIONS__CONTENT: ""  # permissions
+
+# ..\..\..\src\bot\extensions\snippets.py
+CREATE_SNIPPET__ALREADY_EXISTS: "A snippet of this name already exists"
+CREATE_SNIPPET__SUCCESS: "Success! This snippet is now usable"
+SNIPPET_NOT_FOUND: "Snippet not found"
+DELETE_SNIPPET__SUCCESS: "Snippet was successfully deleted"
+VIEW_SNIPPET__CONTENT: "``` {snippet} ```"  # snippet
+VIEW_SNIPPET__TITLE: "Content of `{name}`"  # name
+SNIPPETS__TITLE: "Snippets"
+
+# ..\..\..\src\bot\extensions\users.py
+LANGUAGE__NOT_FOUND: "**{name}** isn't a known language. Supported languages: {languages}"  # name, languages
+LANGUAGE__UPDATED: "Language updated!"
+USER_STAFF_NOTICE: "<:shieldstaff:796049352841101378> This user is a member of the Kolumbao staff team"
+USER_ELEVATED_PERMISSIONS: "<:goldenstar:783414464081952799> This user has elevated permissions"
+PROFILE__LAST_SEEN_NEVER: "Never"
+PROFILE__BASIC_INFO: "Basic Information"
+PROFILE__PROFILE: "Profile"
+PROFILE__ID: "ID"
+PROFILE__MUTUAL: "Mutual Servers"
+PROFILE__KOLUMBAO_INFO: "Kolumbao Information"
+PROFILE__ROLES: "Roles"
+PROFILE__LAST_SEEN: "Last seen"
+PROFILE__NUMBER_MESSAGES: "Number of messages"
+PROFILE__POINTS: "Points"
+POINTS__LEVEL_UP: "**{user}** levelled up! Now level {level}"  # level, user
+POINTS__WELCOME: "**{user}**, welcome to Kolumbao, you appear to be new here."  # user
+POINTS__LEVEL: "Level"
+POINTS__AMOUNT: "Amount"
+LEADERBOARD__TITLE: "Leaderboard"
+
+# ..\..\..\src\core\i18n\i18n.py
+LANGUAGE_NAME: "English"  # locale
+MISSING_TRANSLATION_TITLE: "Missing translations!"
+MISSING_TRANSLATION_CONTENT: |
+    <:missingtranslations:783791460112662538> This command appears to be missing translations/text in **{language}**.
+
+    *<:shieldsuccess:783294498776154142> Contribute by adding them and get a contributor badge today!*
+
+    <:gitrepo:796052700961701909> Repository link: https://github.com/Kolumbao/translations.
+
+  # language
+
+# ..\..\..\src\core\repeater\client.py
+CLICK_TO_SEE: "Click to see message"
+UNKNOWN_MESSAGE: "The original message could not be found"
+REPLYING_TO: "<:reply:797578040292016188> [**{username}** {content}](<{link}>)"  # username, link, content

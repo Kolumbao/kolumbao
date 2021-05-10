@@ -1,0 +1,4 @@
+pre-commit
+prospector[with_everything]
+black
+autoflake
