@@ -1,7 +1,7 @@
 werkzeug==1.0.*
 sqlalchemy==1.3.*
 discord==1.0.*
-python-dotenv==0.15.*
+python-dotenv==0.17.*
 discord-pretty-help==1.2.0
 prettytable==2.0.0
 aio-pika
