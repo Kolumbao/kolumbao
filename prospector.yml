@@ -1,0 +1,55 @@
+strictness: medium
+test-warnings: true
+doc-warnings: false
+output-format: grouped
+
+ignore-patterns:
+  - ^.*__init__\.py$
+
+inherits:
+  - full_pep8
+
+pyroma:
+  run: true
+
+vulture:
+  run: false
+
+pylint:
+  disable:
+    - fixme
+    - bad-continuation
+    - unused-import
+    - import-error
+    - cyclic-import
+    - protected-access
+    - unsubscriptable-object
+
+  options:
+    init-hook: import sys; sys.path.append(".")
+    max-args: 6
+    max-locals: 15
+    max-returns: 6
+    max-branches: 10
+    max-statements: 40
+    max-parents: 7
+    max-attributes: 10
+    min-public-methods: 1
+    max-public-methods: 20
+    max-module-lines: 1200
+    max-line-length: 100
+
+mccabe:
+  options:
+    max-complexity: 8
+
+ignore-paths:
+  - docs
+
+pep8:
+  options:
+    max-line-length: 100
+  disable:
+    - E501
+    - E402
+    - E203

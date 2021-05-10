@@ -1,0 +1,69 @@
+version: "3.8"
+
+x-logging: &logging
+  logging:
+    driver: "json-file"
+    options:
+      max-file: "5"
+      max-size: "10m"
+
+x-restart-policy: &restart_policy
+  restart: always
+
+services:
+  bot:
+    << : *logging
+    << : *restart_policy
+    build:
+      context: .
+      args:
+        FOLDER: bot
+    env_file: .env
+    command: bot
+    networks:
+      - internal
+
+  repeater:
+    << : *logging
+    << : *restart_policy
+    build:
+      context: .
+      args:
+        FOLDER: repeater
+    env_file: .env
+    command: repeater
+    networks:
+      - internal
+
+  rabbitmq:
+    << : *logging
+    << : *restart_policy
+    image: "rabbitmq:3-management"
+    hostname: rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"
+    env_file:
+      - .env
+    volumes:
+      - "./rabbitmq/store:/data"
+      - "./rabbitmq/data:/var/lib/rabbitmq"
+      - "./rabbitmq/etc:/etc/rabbitmq"
+      - "./rabbitmq/logs:/var/log/rabbitmq"
+    networks:
+      - internal
+
+  database:
+    << : *logging
+    << : *restart_policy
+    image: "postgres" # use latest official postgres version
+    env_file:
+      - database.env # configure postgres
+    volumes:
+      - ./database/data:/var/lib/postgresql/data/ # persist data even if container shuts down
+    networks:
+      - internal
+    ports:
+      - 127.0.0.1:5432:5432
+
+networks:
+  internal:

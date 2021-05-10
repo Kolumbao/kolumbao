@@ -1,0 +1,175 @@
+# NOTE: This is an automatically generated file.
+# Generated on 2021-01-07 15:14:00.073021
+# With .\get_text.py -d ..\..\.. -t .\translations\_empty.yml
+
+# ..\..\..\src\bot\__main__.py
+ERROR_INSUFFICIENT_KOLUMBAO_PERMISSIONS: ""  # permissions
+ERROR_MISSING_PARAMETER: ""  # name
+ERROR_USER_NOT_FOUND: ""  # name
+ERROR_NOT_MANAGING: ""
+ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: ""  # level
+ERROR_COOLDOWN: ""  # retry_after
+ERROR_UNKNOWN: ""  # code
+
+# ..\..\..\src\bot\extensions\blacklist.py
+CREATE_BLACKLIST__ALREADY_EXISTS: ""
+CREATE_BLACKLIST__SUCCESS: ""
+BLACKLIST_NOT_FOUND: ""
+DELETE_BLACKLIST__SUCCESS: ""
+VIEW_BLACKLIST__CONTENT: ""  # blacklist
+VIEW_BLACKLIST__TITLE: ""  # name
+BLACKLISTS__TITLE: ""
+
+# ..\..\..\src\bot\extensions\channels.py
+INFO__OFFICIAL_CHANNEL: ""
+INFO__UNOFFICIAL_CHANNEL: ""
+INFO__STAFF_CHANNEL: ""
+INFO__LOCKED: ""
+INFO__NAME: ""  # stream_name
+NONE: ""
+INFO__LANGUAGE: ""
+INFO__RULES: ""
+INFO__NSFW: ""
+YES_: ""
+NO_: ""
+INFO__STATS: ""
+INFO__MESSAGES_TITLE: ""
+INFO__MESSAGES_CONTENT: ""  # amount
+INFO__NODES_TITLE: ""
+INFO__NODES_CONTENT: ""  # amount
+INFO__INSTALL_WITH: ""  # stream_name
+MANAGE__NOW_MANAGING: ""  # stream_name
+MANAGE__NOT_OWNED: ""
+MANAGING__STREAM: ""  # stream_name, stream_id
+NAME__CURRENT: ""  # value
+NAME__TAKEN: ""
+NAME__SET: ""  # value
+DESCRIPTION__CURRENT: ""  # value
+DESCRIPTION__SET: ""  # value
+LANG__CURRENT: ""  # value
+LANG__NOT_FOUND: ""
+LANG__SET: ""  # value
+RULES__CURRENT: ""  # value
+RULES__SET: ""  # value
+PASSWORD__RESET: ""
+PASSWORD_SET: ""
+NSFW__CURRENT: ""  # value
+NSFW__SET: ""  # value
+CREATE__TOO_MANY: ""
+CREATE__MADE_GUIDANCE: ""  # stream_name
+DELETE__CONFIRMATION: ""  # code
+DELETE__SUCCESS: ""
+DELETE__CODE_INVALID: ""
+
+# ..\..\..\src\bot\extensions\features.py
+GET_FEATURES__NO_FEATURES: ""
+GET_FEATURES__CONTENT: ""  # features, suppressed_filters
+ADD_FEATURE__ALREADY_ADDED: ""
+ADD_FEATURE__SUCCESS: ""
+REMOVE_FEATURE__NOT_ADDED: ""
+REMOVE_FEATURE__SUCCESS: ""
+
+# ..\..\..\src\bot\extensions\installation.py
+JOIN__NO_STREAM: ""
+JOIN__ENTER_PASSWORD: ""
+JOIN__PASSWORD_INCORRECT: ""
+JOIN__TOO_LONG_TO_RESPOND: ""
+JOIN__PASSWORD_CORRECT: ""
+JOIN__ALREADY_JOINED: ""  # channel_id
+JOIN__SETUP: ""
+JOIN__SUCCESS: ""  # channel_id
+LEAVE__NO_STREAM: ""
+LEAVE__FORBIDDEN: ""
+LEAVE__NOT_INSTALLED: ""
+LEAVE__DELETE_CHANNEL: ""
+LEAVE__LEFT: ""  # channel_id
+
+# ..\..\..\src\bot\extensions\kolumbao.py
+DELAY_CONTENT: ""
+ERROR_AUTO_MUTED: ""
+
+# ..\..\..\src\bot\extensions\moderation.py
+SEARCH_INF__BY_USER: ""  # user_id
+SEARCH_INF__BY_DURATION: ""  # duration
+SEARCH_INF__BY_REASON: ""  # reason
+WARN__ADDED: ""  # inf_id
+MUTE__ALREADY_MUTED: ""  # mute_id
+MUTE__ADDED: ""  # inf_id
+UNMUTE__SUCCESS: ""
+UNMUTE__NOT_MUTED: ""
+SEARCH_INF__NO_RESULTS: ""
+SEARCH_INF__TITLE: ""
+SEARCH_INF__FIRST_N: ""  # n, tot
+SEARCH_INF__ID_NOT_FOUND: ""  # inf_id
+INF__ID: ""
+INF__START_TIME: ""
+INF__END_TIME: ""
+INF__USER: ""
+INF__MOD: ""
+EDIT_INF__NOT_FOUND: ""
+EDIT_INF__INVALID_FIELD: ""
+EDIT_INF__SUCCESS: ""  # field, value
+LOCKDOWN__LEVEL: ""  # level, stream, locale
+LOCKDOWN__SLOWMODE: ""  # limit, stream, locale
+LOCKDOWN__DISACTIVATED: ""  # stream, locale
+LOCKDOWN__INVALID_TYPE: ""
+
+# ..\..\..\src\bot\extensions\roles.py
+GET_ROLES__NO_ROLES: ""
+GET_ROLES__CONTENT: ""  # roles
+ROLE_NOT_FOUND: ""  # name
+ADD_ROLE__ALREADY_ADDED: ""
+ADD_ROLE__SUCCESS: ""  # role
+REMOVE_ROLE__NOT_ADDED: ""
+REMOVE_ROLE__SUCCESS: ""  # role
+ROLE_STAFF_NOTICE: ""
+ROLE_ID: ""
+ROLE_NAME: ""
+ROLE_EMOJI: ""
+ROLE_USERS: ""
+ROLE_PERMISSIONS: ""
+CREATE_ROLE__ALREADY_EXISTS: ""
+CREATE_ROLE_SUCCESS: ""  # id, role
+DELETE_ROLE__SUCCESS: ""
+PERMISSION_NOT_FOUND: ""  # name
+ADD_ROLE_PERMISSION__HEIGHTENED_PERMISSIONS: ""  # name
+ADD_ROLE_PERMISSION__SUCCESS: ""  # permissions
+REMOVE_ROLE_PERMISSION__HEIGHTENED_PERMISSIONS: ""  # name
+REMOVE_ROLE_PERMISSION__SUCCESS: ""  # permissions
+CREATE_PERMISSION__ALREADY_EXISTS: ""
+CREATE_PERMISSION__SUCCESS: ""
+DELETE_PERMISSION__SUCCESS: ""
+
+# ..\..\..\src\bot\extensions\snippets.py
+CREATE_SNIPPET__ALREADY_EXISTS: ""
+CREATE_SNIPPET__SUCCESS: ""
+SNIPPET_NOT_FOUND: ""
+DELETE_SNIPPET__SUCCESS: ""
+VIEW_SNIPPET__CONTENT: ""  # snippet
+VIEW_SNIPPET__TITLE: ""  # name
+SNIPPETS__TITLE: ""
+
+# ..\..\..\src\bot\extensions\users.py
+LANGUAGE__NOT_FOUND: ""  # name, languages
+LANGUAGE__UPDATED: ""
+USER_STAFF_NOTICE: ""
+USER_ELEVATED_PERMISSIONS: ""
+PROFILE__LAST_SEEN_NEVER: ""
+PROFILE__BASIC_INFO: ""
+PROFILE__PROFILE: ""
+PROFILE__ID: ""
+PROFILE__MUTUAL: ""
+PROFILE__KOLUMBAO_INFO: ""
+PROFILE__ROLES: ""
+PROFILE__LAST_SEEN: ""
+PROFILE__NUMBER_MESSAGES: ""
+PROFILE__POINTS: ""
+POINTS__LEVEL_UP: ""  # level, user
+POINTS__WELCOME: ""  # user
+POINTS__LEVEL: ""
+POINTS__AMOUNT: ""
+
+# ..\..\..\src\core\i18n\i18n.py
+LANGUAGE_NAME: ""  # locale
+MISSING_TRANSLATION_TITLE: ""
+MISSING_TRANSLATION_CONTENT: ""  # language
