@@ -37,7 +37,7 @@ def has_permission(*permissions: list):
             return True
 
         user = User.create(ctx.author)
-        if user.has_permissions(*permissions, bot=ctx.bot):
+        if user.has_permissions(*permissions):
             return True
 
         raise InsufficientPermissions(list(user.missing_permissions(*permissions)))
@@ -47,10 +47,12 @@ def has_permission(*permissions: list):
 
 def requires_level(level: int):
     async def predicate(ctx):
-        user = User.create(ctx.author)
-        if user.level >= level or await ctx.bot.is_owner(ctx.author):
-            return True
+        # While levels are disabled
+        return True
+        # user = User.create(ctx.author)
+        # if user.level >= level or await ctx.bot.is_owner(ctx.author):
+        #     return True
 
-        raise InsufficientLevel(level)
+        # raise InsufficientLevel(level)
 
     return commands.check(predicate)

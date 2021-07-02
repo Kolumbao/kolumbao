@@ -20,7 +20,6 @@ class Guild(Base, SharedAttributes):
     id = Column(Integer, primary_key=True)
 
     discord_id = Column(Snowflake, nullable=False)
-    banned = Column(Boolean, nullable=False, default=False)
     status = Column(Integer, nullable=False, default=0)
 
     nodes = relationship(
@@ -29,4 +28,4 @@ class Guild(Base, SharedAttributes):
 
     @property
     def disabled(self):
-        return self.banned or self.status != 0
+        return self.status != 0
