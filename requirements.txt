@@ -9,3 +9,4 @@ expiring-dict
 psycopg2
 pyyaml
 matplotlib
+tribi==1.0.4

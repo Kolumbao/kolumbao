@@ -44,12 +44,13 @@ EXTENSIONS = [
     "bot.extensions.blacklist",
     "bot.extensions.channels",
     "bot.extensions.statsync",
+    "bot.extensions.help"
 ]
 
 bot = commands.Bot(
     command_prefix=commands.when_mentioned_or("kb!", "Kb!"),
     description="Kolumbao is the bot that lets users talk across servers",
-    help_command=PrettyHelp(color=discord.Color.from_rgb(217, 48, 158)),
+    # help_command=PrettyHelp(color=discord.Color.from_rgb(217, 48, 158)),
     intents=discord.Intents.all(),
     allowed_mentions=discord.AllowedMentions(users=True, roles=True),
 )
@@ -65,6 +66,7 @@ database = db.Database(getenv("DB_URI"))
 async def on_ready():
     bot.logger = create_general_logger("bot", bot=bot, level=logging.INFO)
     bot.logger.info(f"Ready as {bot.user} in {len(bot.guilds)} guilds...")
+    bot.remove_command("help")
 
     database.init_bot(bot)
     SharedAttributes.init_bot(bot)

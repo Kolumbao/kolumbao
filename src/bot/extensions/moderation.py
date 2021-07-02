@@ -17,6 +17,10 @@ from discord.ext import commands, tasks
 
 T = TypeVar('T')
 class Moderation(commands.Cog):
+    __badge__ = "<:moderationdefault:795414665416278046>"
+    __badge_success__ = "<:moderationsuccess:795414701306806282>"
+    __badge_fail__ = "<:moderationfail:795414701310869554>"
+    
     def __init__(self, bot: commands.Bot) -> None:
         """Create a moderation cog
 
