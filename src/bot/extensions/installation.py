@@ -279,9 +279,9 @@ class Installation(commands.Cog):
         node = get_local_node(stream, get_guild(ctx.guild.id))
 
         error = {
-            StatusCode.WEBHOOK_NOT_FOUND.value: _("DIAGNOSE__WEBHOOK_DELETED"),
-            StatusCode.WEBHOOK_NOT_AUTHORIZED.value: _("DIAGNOSE__NOT_AUTHORIZED"),
-            StatusCode.WEBHOOK_HTTP_EXCEPTION.value: _("DIAGNOSE__OTHER_UNKNOWN"),
+            StatusCode.WEBHOOK_NOT_FOUND: _("DIAGNOSE__WEBHOOK_DELETED"),
+            StatusCode.WEBHOOK_NOT_AUTHORIZED: _("DIAGNOSE__NOT_AUTHORIZED"),
+            StatusCode.WEBHOOK_HTTP_EXCEPTION: _("DIAGNOSE__OTHER_UNKNOWN"),
         }
         if node.status != 0:
             return await bad(ctx, error[node.status])
@@ -335,25 +335,6 @@ class Installation(commands.Cog):
             return
 
         await target.send(_("INSTALLED", locale=language))
-
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild: discord.Guild):
-        dbguild = get_guild(guild.id)
-        session.commit()
-        self.bot.logger.info(
-            "{0.name} ({0.id}) kicked the bot ({1})".format(guild, dbguild.id)
-        )
-
-        try:
-            session.delete(dbguild)
-        except sqlalchemy.exc.InvalidRequestError:
-            # Not persisted.
-            pass
-        except psycopg2.errors.ForeignKeyViolation:
-            # Error with foreign keys
-            pass
-        else:
-            session.commit()
 
 
 def setup(bot):

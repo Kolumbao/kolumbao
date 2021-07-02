@@ -6,7 +6,6 @@ from typing import Optional
 import aiohttp
 import discord
 import sqlalchemy
-from discord.enums import Enum
 from discord.webhook import AsyncWebhookAdapter
 from discord.webhook import Webhook
 from expiring_dict.expiringdict import ExpiringDict
@@ -14,15 +13,8 @@ from expiring_dict.expiringdict import ExpiringDict
 from core.db.database import query
 from core.db.database import session
 from core.db.models.message import ResultMessage
-from core.db.models.node import Node
+from core.db.models.node import Node, StatusCode
 from core.webhook_ext import edit_webhook_message
-
-
-class StatusCode(Enum):
-    NONE = 0
-    WEBHOOK_NOT_FOUND = 1
-    WEBHOOK_NOT_AUTHORIZED = 2
-    WEBHOOK_HTTP_EXCEPTION = 3
 
 
 def diagnose(node: Node, err: Optional[Exception] = None):
@@ -41,12 +33,11 @@ def diagnose(node: Node, err: Optional[Exception] = None):
         return
 
     if isinstance(err, discord.errors.NotFound):
-        node.status = StatusCode.WEBHOOK_NOT_FOUND.value
+        node.mark_not_found()
     elif isinstance(err, discord.errors.Forbidden):
-        node.status = StatusCode.WEBHOOK_NOT_AUTHORIZED.value
+        node.mark_not_authorized()
     elif isinstance(err, discord.errors.HTTPException):
-        node.status = StatusCode.WEBHOOK_HTTP_EXCEPTION.value
-
+        node.mark_http_exception()
 
 class Discord:
     max_retries = 5

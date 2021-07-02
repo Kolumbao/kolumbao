@@ -3,10 +3,10 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from . import Base
+from . import Base, SharedAttributes
 
 
-class Announcement(Base):
+class Announcement(Base, SharedAttributes):
     __tablename__ = "announcements"
 
     id = Column(Integer, primary_key=True)

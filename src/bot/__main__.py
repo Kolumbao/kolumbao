@@ -11,6 +11,9 @@ from discord.ext.commands.errors import CommandNotFound
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
 
+from core.db.models import SharedAttributes
+from core.db.models.guild import Guild
+
 from .checks import InsufficientLevel
 from .checks import InsufficientPermissions
 from .errors import ItemNotFound
@@ -20,6 +23,7 @@ from .monkey import multiple_after_invoke
 from .monkey import multiple_before_invoke
 from .response import bad
 from core import db
+from core.db import query, session
 from core.i18n import i18n
 from core.i18n.i18n import _
 from core.i18n.i18n import I18n
@@ -46,7 +50,7 @@ bot = commands.Bot(
     command_prefix=commands.when_mentioned_or("kb!", "Kb!"),
     description="Kolumbao is the bot that lets users talk across servers",
     help_command=PrettyHelp(color=discord.Color.from_rgb(217, 48, 158)),
-    intents=discord.Intents.default(),
+    intents=discord.Intents.all(),
     allowed_mentions=discord.AllowedMentions(users=True, roles=True),
 )
 bot.loop.set_default_executor(concurrent.futures.ThreadPoolExecutor())
@@ -63,6 +67,7 @@ async def on_ready():
     bot.logger.info(f"Ready as {bot.user} in {len(bot.guilds)} guilds...")
 
     database.init_bot(bot)
+    SharedAttributes.init_bot(bot)
 
     bot.client = Client(getenv("RABBITMQ_URL"), "default")
     bot.client.init_bot(bot)
@@ -92,6 +97,13 @@ async def on_ready():
     )
 
     bot._.log_missing()
+
+    # Ensure all guilds exist first
+    guilds = query(Guild.discord_id).all()
+    for guild in bot.guilds:
+        if guild.id not in guilds:
+            Guild.create(guild)
+            session.commit()
 
     for extension in EXTENSIONS:
         bot.logger.debug("Loading extension %s", extension)

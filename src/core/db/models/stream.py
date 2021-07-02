@@ -12,7 +12,7 @@ from sqlalchemy import Table
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
-from . import Base
+from . import Base, SharedAttributes
 from core.db.database import query
 from core.db.models.message import OriginMessage
 
@@ -30,7 +30,7 @@ class Feature(Base):
     name = Column(String, nullable=False)
 
 
-class Stream(Base):
+class Stream(Base, SharedAttributes):
     __tablename__ = "streams"
 
     id = Column(Integer, primary_key=True)

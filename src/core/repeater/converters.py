@@ -8,13 +8,14 @@ import discord
 from discord.ext import commands
 from discord.utils import find
 
+from core.db.models.infraction import Mute
+
 from ..db.utils import get_user
 from ..utils.download import download
 from .filters import FilterError
 from .filters import FILTERS
 from core.db.models.stream import Stream
 from core.db.models.user import User
-from core.moderation.infraction import add_mute
 from core.utils.ratelimit import RateLimit
 
 
@@ -303,10 +304,10 @@ class Discord:
         if excess > 0 and automute:
             try:
                 limit = cls._filter_ratelimit.limit
-                last_mute = add_mute(
+                last_mute = Mute.create(
                     user,
                     user,
-                    datetime.now() + timedelta(minutes=5),
+                    timedelta(minutes=5),
                     f"Violating filter restrictions ({limit+excess}/{limit})"
                     f" - `{filter_name}`",
                 )

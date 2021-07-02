@@ -13,13 +13,15 @@ from discord.ext import commands
 from discord.raw_models import RawMessageUpdateEvent
 from discord.raw_models import RawReactionActionEvent
 
+from core.db.models.user import User
+
 from ..checks import has_permission
 from ..response import bad
 from ..response import raw_resp
 from ..response import resp
 from bot.errors import ItemNotFound
-from bot.format_time import format_time
-from bot.format_time import format_user
+from bot.format import format_time
+from bot.format import format_user
 from core.db import query
 from core.db import session
 from core.db.models import Node
@@ -113,7 +115,7 @@ class Kolumbao(commands.Cog):
 
         body = ""
         for message in messages[::-1]:
-            user = self.bot.get_user(message.user.discord_id)
+            user = message.user.discord
             new = f"[{format_time(message.sent_at)}] {format_user(user)}: *{message.content}*\n"
             if len(body + new) > 2000:
                 await ctx.send(body)
@@ -149,7 +151,7 @@ class Kolumbao(commands.Cog):
             return
 
         # Get and commit just in case it didn't exist
-        user = get_user(message.author.id)
+        user = User.create(message.author)
         session.commit()
 
         if edit:

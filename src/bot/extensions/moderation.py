@@ -1,47 +1,22 @@
-# -*- coding: utf-8 -*-
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from operator import attrgetter
 from os import getenv
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
+from typing import Any, List, Optional, Tuple, TypeVar, Union
 
 import discord
-from discord.ext import commands
-
-from ..response import bad
-from ..response import good
-from ..response import raw_resp
 from bot.checks import has_permission
 from bot.converters import DurationConverter
-from bot.errors import ItemNotFound
-from bot.format_time import format_time
-from bot.format_time import format_user
-from core.db.database import query
-from core.db.database import session
-from core.db.models.infraction import Infraction
-from core.db.models.stream import Stream
-from core.db.utils import get_stream
-from core.db.utils import get_user
+from bot.format import format_user
+from bot.response import bad, good
+from core.db.database import query, session
+from core.db.models.guild import Guild, StatusCode
+from core.db.models.infraction import Ban, BanSeverity, Mute, Warn
+from core.db.models.user import User
 from core.i18n.i18n import _
-from core.moderation.infraction import add_mute
-from core.moderation.infraction import add_warning
-from core.repeater.converters import Discord
+from discord.ext import commands, tasks
 
-
-class ConversionError(TypeError):
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__()
-
-
+T = TypeVar('T')
 class Moderation(commands.Cog):
-    __badge__ = "<:moderationdefault:795414665416278046>"
-    __badge_success__ = "<:moderationsuccess:795414701306806282>"
-    __badge_fail__ = "<:moderationfail:795414701310869554>"
-
     def __init__(self, bot: commands.Bot) -> None:
         """Create a moderation cog
 
@@ -50,80 +25,42 @@ class Moderation(commands.Cog):
         """
         self.bot = bot
         self.channel = self.bot.get_channel(int(getenv("INFRACTION_LOG")))
+        self._ensure_banned_guilds.start()
+        self._ensure_banned_members.start()
 
-    def _find_infractions(self, search) -> Tuple[List[Infraction], str]:
-        found = []
-        body = ""
-        if isinstance(search, discord.User):
-            body = _("SEARCH_INF__BY_USER", user_id=search.id)
-            duser = get_user(search.id)
-            infs = (
-                query(Infraction)
-                .filter(
-                    (Infraction.mod_id == duser.id) | (Infraction.user_id == duser.id)
-                )
-                .all()
-            )
-
-            found.extend(infs)
-        elif isinstance(search, timedelta):
-            body = _("SEARCH_INF__BY_DURATION", duration=search)
-            # 2 hour range
-            infs = (
-                query(Infraction)
-                .filter(
-                    (
-                        Infraction.end_time - Infraction.start_time
-                        < search + timedelta(hours=1)
-                    )
-                    & (
-                        Infraction.end_time - Infraction.start_time
-                        > search - timedelta(hours=1)
-                    )
-                )
-                .all()
-            )
-
-            found.extend(infs)
-        elif isinstance(search, str):
-            body = _("SEARCH_INF__BY_REASON", reason=search)
-            infs = query(Infraction).filter(Infraction.reason.contains(search)).all()
-
-            found.extend(infs)
-
-        return found, body
-
-    async def log_infraction(self, inf: Infraction):
+    async def log_infraction(self, inf: Union[Mute, Warn, Ban]):
         """Log the creation of an infraction. Does this regardless of actual
         creation time
 
         Args:
             inf (Infraction): The infraction
         """
-        is_mute = inf.type_ == "mute"
+        is_severe = isinstance(inf, (Mute, Ban))
         embed = discord.Embed(
-            title=f"`{inf.type_}` added",
-            description=f"New infraction #{inf.id} added",
-            colour=discord.Colour.red() if is_mute else discord.Colour.orange(),
+            title=f"`{inf.__class__.__name__}` added",
+            description=f"#{inf.id} added",
+            colour=discord.Colour.red() if is_severe else discord.Colour.orange(),
         )
 
-        moderator = self.bot.get_user(inf.mod.discord_id)
-        user = self.bot.get_user(inf.user.discord_id)
+        # ADd details
+        moderator = inf.mod.discord
+        user = inf.user.discord
         embed.add_field(name="Moderator", value=f"{moderator} ({inf.mod.discord_id})")
         embed.add_field(name="User", value=f"{user} ({inf.user.discord_id})")
         embed.add_field(name="Reason", value=inf.reason)
 
-        if inf.end_time is not None:
-            embed.set_footer(text="Ends at")
-            embed.timestamp = inf.end_time
-        else:
-            embed.set_footer(text="Never ends")
+        if hasattr(inf, 'end_time'):
+            if inf.end_time is not None:
+                embed.set_footer(text="Ends at")
+                embed.timestamp = inf.end_time
+            else:
+                embed.set_footer(text="Never ends")
 
         await self.channel.send(embed=embed)
 
-    async def log_end(self, inf: Infraction, intended_end: Optional[datetime] = None):
+    async def log_end(self, inf: Union[Mute, Warn, Ban], intended_end: Optional[datetime] = None):
         """Log the end of an infraction. Does this regardless of actual
-        end time
+        end time.
 
         Args:
             inf (Infraction): The infraction to log the end of
@@ -133,8 +70,8 @@ class Moderation(commands.Cog):
                 the given infraction.
         """
         embed = discord.Embed(
-            title=f"`{inf.type_}` ended",
-            description=f"Infraction #{inf.id} ended",
+            title=f"`{inf.__class__.__name__}` ended",
+            description=f"#{inf.id} ended",
             colour=discord.Colour.green(),
         )
 
@@ -144,143 +81,52 @@ class Moderation(commands.Cog):
 
         await self.channel.send(embed=embed)
 
-    @staticmethod
-    def _warn(
-        moderator: discord.User,
-        user: discord.User,
-        duration: Optional[timedelta] = None,
-        reason: Optional[str] = None,
-    ) -> Infraction:
-        """Create an infraction of type ``warning`` given a duration.
-
-        Args:
-            moderator (discord.User): The moderator that initiated the infraction
-            user (discord.User): The user the infraction targets
-            duration (timedelta, optional): The duration. Defaults to None.
-                If the duration is given as ``None``, it is an 'infinite'
-                infraction.
-            reason (str, optional): The reason. Defaults to None.
-
-        Returns:
-            Infraction: The created infraction.
-        """
-        end_time = datetime.now() + duration if duration else None
-        return add_warning(get_user(moderator.id), get_user(user.id), end_time, reason)
-
-    @staticmethod
-    def _mute(
-        moderator: discord.User,
-        user: discord.User,
-        duration: Optional[timedelta] = None,
-        reason: Optional[str] = None,
-    ) -> Infraction:
-        """Create an infraction of type ``mute`` given a duration.
-
-        Args:
-            moderator (discord.User): The moderator that initiated the infraction
-            user (discord.User): The user the infraction targets
-            duration (timedelta, optional): The duration. Defaults to None.
-                If the duration is given as ``None``, it is an 'infinite'
-                infraction.
-            reason (str, optional): The reason. Defaults to None.
-
-        Returns:
-            Infraction: The created infraction.
-        """
-        end_time = datetime.now() + duration if duration else None
-        return add_mute(get_user(moderator.id), get_user(user.id), end_time, reason)
-
-    @has_permission("MANAGE_WARNS")
-    @commands.command()
-    async def warn(
-        self,
-        ctx,
-        user: discord.User,
-        duration: Optional[DurationConverter] = None,
-        *,
-        reason: Optional[str] = None,
-    ):
-        """Warn a user"""
-        inf = self._warn(ctx.author, user, duration, reason)
-        await good(ctx, _("WARN__ADDED", inf_id=inf.id))
-        await self.log_infraction(inf)
-
-    @has_permission("MANAGE_MUTES")
-    @commands.command()
-    async def mute(
-        self,
-        ctx,
-        user: discord.User,
-        duration: Optional[DurationConverter] = None,
-        *,
-        reason: Optional[str] = None,
-    ):
-        """Mute a user"""
-        try:
-            inf = self._mute(ctx.author, user, duration, reason)
-            session.commit()
-        except ValueError:
-            await bad(
-                ctx, _("MUTE__ALREADY_MUTED", mute_id=get_user(user.id).last_mute().id)
-            )
-        else:
-            await good(ctx, _("MUTE__ADDED", inf_id=inf.id))
-            await self.log_infraction(inf)
-
-    @has_permission("MANAGE_MUTES")
-    @commands.command()
-    async def unmute(self, ctx, user: discord.User):
-        """Unmute a user"""
-        duser = get_user(user.id)
-        if duser.is_muted():
-            last_mute = get_user(user.id).last_mute()
-            intended_end = last_mute.end_time
-            last_mute.end_time = datetime.now()
-            session.commit()
-            await good(ctx, _("UNMUTE__SUCCESS"))
-            await self.log_end(last_mute, intended_end)
-        else:
-            await bad(ctx, _("UNMUTE__NOT_MUTED"))
-
-    @has_permission("MANAGE_MUTES", "MANAGE_WARNS")
-    @commands.group("inf", invoke_without_command=True)
-    async def inf(self, ctx, inf_id: int):
-        """Display the details of an infraction"""
-        if ctx.invoked_subcommand is None:
-            inf: Infraction = query(Infraction).get(inf_id)
-            if inf is None:
-                return await bad(ctx, _("SEARCH_INF__ID_NOT_FOUND", inf_id=inf_id))
-
-            embed = discord.Embed(
-                title=f"`{inf.type_}` infraction",
-                description=inf.reason,
-                colour=discord.Colour.invisible(),
+    def _find_of_model(self, model: T, search: Union[discord.User, timedelta, str]) -> Tuple[List[T], str]:
+        found = []
+        body = ""
+        if isinstance(search, discord.User):
+            body = _("SEARCH_INF__BY_USER", user_id=search.id)
+            duser = User.create(search)
+            infs = (
+                query(model)
+                .filter(
+                    (model.mod_id == duser.id) | (model.user_id == duser.id)
+                )
+                .all()
             )
 
-            u = self.bot.get_user(inf.user.discord_id)
-            m = self.bot.get_user(inf.mod.discord_id)
-
-            embed.add_field(name=_("INF__ID"), value=inf.id)
-            embed.add_field(
-                name=_("INF__START_TIME"), value=format_time(inf.start_time)
+            found.extend(infs)
+        elif isinstance(search, timedelta) and hasattr(model, "start_time"):
+            body = _("SEARCH_INF__BY_DURATION", duration=search)
+            # 2 hour range
+            infs = (
+                query(model)
+                .filter(
+                    (
+                        model.end_time - model.start_time
+                        < search + timedelta(hours=1)
+                    )
+                    & (
+                        model.end_time - model.start_time
+                        > search - timedelta(hours=1)
+                    )
+                )
+                .all()
             )
-            embed.add_field(name=_("INF__END_TIME"), value=format_time(inf.end_time))
-            embed.add_field(name=_("INF__USER"), value=format_user(u))
-            embed.add_field(name=_("INF__MOD"), value=format_user(m))
 
-            await ctx.send(embed=embed)
+            found.extend(infs)
+        elif isinstance(search, str):
+            body = _("SEARCH_INF__BY_REASON", reason=search)
+            infs = query(model).filter(model.reason.contains(search)).all()
 
-    @has_permission("MANAGE_MUTES", "MANAGE_WARNS")
-    @inf.command("search")
-    async def inf__search(
-        self, ctx, *, search: Union[DurationConverter, discord.User, int, str]
+            found.extend(infs)
+
+        return found, body
+
+    async def _search(
+        self, model: Any, ctx: commands.Context, search: Union[DurationConverter, discord.User, int, str]
     ):
-        """Search for an infraction
-
-        Args:
-            search (duration | user | int | str): The query
-        """
-        found, body = self._find_infractions(search)
+        found, body = self._find_of_model(model, search)
 
         if len(found) == 0:
             return await bad(ctx, _("SEARCH_INF__NO_RESULTS"))
@@ -304,101 +150,253 @@ class Moderation(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    def _edit_inf(
+    @has_permission("MANAGE_MUTES")
+    @commands.group("mute", invoke_without_command=True)
+    async def mute(
         self,
-        inf: Infraction,
-        field: str,
-        new_value: Optional[Union[DurationConverter, str]] = None,
+        ctx: commands.Context,
+        user: discord.User,
+        duration: Optional[DurationConverter] = None,
+        *,
+        reason: Optional[str] = None,
     ):
-        if field not in ["duration", "reason"] and new_value is None:
-            raise ConversionError("EDIT_INF__CANNOT_SET_FIELD_TO_NONE")
+        if ctx.invoked_subcommand is None:
+            dbuser = User.create(user)
+            
+            # If already muted, don't mute again
+            if dbuser.is_muted():
+                return await bad(
+                    ctx, _("MUTE__ALREADY_MUTED", mute_id=dbuser.last_mute().id)
+                )
 
-        if isinstance(new_value, (str, timedelta)):
-            try:
-                setattr(inf, field, new_value)
-            except AttributeError:
-                raise ConversionError("EDIT_INF__INVALID_FIELD")
-            except ValueError as e:
-                raise ConversionError(e.args[0])
-        else:
-            raise ConversionError("EDIT_INF__INVALID_VALUE_FOR_FIELD")
+            # Create mute
+            mute = Mute.create(
+                dbuser,
+                User.create(ctx.author),
+                reason,
+                duration
+            )
 
-    @has_permission("MANAGE_MUTES", "MANAGE_WARNS")
-    @inf.command("edit")
-    async def inf__edit(
+            # Add to database
+            session.add(mute)
+            session.commit()
+
+            await good(ctx, _("MUTE__ADDED", inf_id=mute.id))
+            await self.log_infraction(mute)
+
+    @has_permission("MANAGE_MUTES")
+    @commands.command()
+    async def unmute(
         self,
-        ctx,
-        ident: int,
-        field: str,
-        new_value: Optional[Union[DurationConverter, str]] = None,
+        ctx: commands.Context,
+        user: discord.User,
     ):
-        """Edit an infraction
+        dbuser = User.create(user)
+        
+        # If not muted, don't unmute
+        if not dbuser.is_muted():
+            return await bad(
+                ctx, _("MUTE__NOT_MUTED")
+            )
+        
+        last_mute = dbuser.last_mute()
+        intended_end = last_mute.end_time
+        last_mute.end_time = datetime.now()
 
-        Args:
-            ident (int): Infraction ID
-            field (str): The attribute to change
-            new_value (str | duration): The new value (duration for 'end', str otherwise)
-        """
-        inf: Infraction = query(Infraction).get(ident)
-        if inf is None:
-            return await bad(ctx, _("EDIT_INF__NOT_FOUND"))
-        if field not in ["duration", "reason", "type"]:
-            return await bad(ctx, _("EDIT_INF__INVALID_FIELD"))
-
-        try:
-            self._edit_inf(inf, field, new_value=new_value)
-        except ConversionError as exc:
-            return await bad(ctx, _(exc.message))
-
+        # Add to database
         session.commit()
-        await good(ctx, _("EDIT_INF__SUCCESS", field=field, value=str(new_value)))
-        await self.channel.send(
-            f"Modification of `#{inf.id}` : **{field}** set to **{new_value}** "
-            f"by {ctx.author} ({ctx.author.id})"
-        )
 
-    @has_permission("MANAGE_LOCKDOWN")
-    @commands.command("lockdown")
-    async def lockdown(
-        self, ctx, stream_name: str, type_: str, value: Optional[int] = 5
+        await good(ctx, _("UNMUTE__SUCCESS", inf_id=last_mute.id))
+        await self.log_end(last_mute, intended_end)
+
+    @has_permission("MANAGE_MUTES")
+    @commands.group("warn", invoke_without_command=True)
+    async def warn(
+        self,
+        ctx: commands.Context,
+        user: discord.User,
+        *,
+        reason: Optional[str] = None,
     ):
-        stream = get_stream(stream_name)
-        if stream is None:
-            raise ItemNotFound(Stream)
+        if ctx.invoked_subcommand is None:
+            dbuser = User.create(user)
 
-        if type_ == "level":
-            stream.lockdown = -value
-            text = _(
-                "LOCKDOWN__LEVEL",
-                level=value,
-                stream=stream.name,
-                locale=stream.language,
+            # Create warn
+            warn = Warn.create(
+                dbuser,
+                User.create(ctx.author),
+                reason,
             )
-        elif type_ == "slow":
-            stream.lockdown = value
-            text = _(
-                "LOCKDOWN__SLOWMODE",
-                limit=value,
-                stream=stream.name,
-                locale=stream.language,
-            )
-        elif type_ == "off":
-            stream.lockdown = 0
-            text = _(
-                "LOCKDOWN__DISACTIVATED", stream=stream.name, locale=stream.language
-            )
-        else:
-            return await bad(ctx, _("LOCKDOWN__INVALID_TYPE"))
 
-        embed = raw_resp(ctx, text)
-        embed.set_thumbnail(
-            url="https://cdn.discordapp.com/emojis/796755138978643988.png?v=1"
-        )
-        await self.bot.client.send_art(
-            "", stream, embeds=[Discord.prepare_embed(embed)]
-        )
+            # Add to database
+            session.add(warn)
+            session.commit()
 
-        await good(ctx, text)
+            await good(ctx, _("WARN__ADDED", inf_id=warn.id))
+            await self.log_infraction(warn)
+
+    @has_permission("MANAGE_MUTES")
+    @commands.group("ban", invoke_without_command=True)
+    async def ban(
+        self,
+        ctx: commands.Context,
+        user: discord.User,
+        duration: Optional[DurationConverter] = None,
+        severity: Optional[Union[int, str]] = BanSeverity.USER,
+        *,
+        reason: Optional[str] = None,
+    ):
+        if ctx.invoked_subcommand is None:
+            dbuser = User.create(user)
+
+            if isinstance(severity, str):
+                if hasattr(BanSeverity, severity.upper()):
+                    severity = getattr(BanSeverity, severity.upper())
+                else:
+                    return await bad(ctx, _("BAN__SEVERITY_UNKNOWN"))
+
+            # Create warn
+            ban = Ban.create(
+                dbuser,
+                User.create(ctx.author),
+                reason,
+                severity,
+                duration
+            )
+
+            # Add to database
+            session.add(ban)
+            session.commit()
+
+            await good(ctx, _("BAN__ADDED", inf_id=ban.id))
+            await self.log_infraction(ban)
+    
+    @has_permission("MANAGE_MUTES")
+    @commands.command()
+    async def unban(
+        self,
+        ctx: commands.Context,
+        user: discord.User,
+    ):
+        dbuser = User.create(user)
+        
+        # If not muted, don't unmute
+        if not dbuser.is_banned():
+            return await bad(
+                ctx, _("BAN__NOT_BANNED")
+            )
+        
+        last_ban = dbuser.last_ban()
+        intended_end = last_ban.end_time
+        last_ban.end_time = datetime.now()
+
+        # Add to database
+        session.commit()
+
+        await good(ctx, _("UNBAN__SUCCESS", inf_id=last_ban.id))
+        await self.log_end(last_ban, intended_end)
+
+    # Search commands
+    @mute.command("search")
+    async def mute__search(
+        self, ctx, *, search: Union[DurationConverter, discord.User, int, str]
+    ):
+        await self._search(Mute, ctx, search)
+    
+    @ban.command("search")
+    async def ban__search(
+        self, ctx, *, search: Union[discord.User, int, str]
+    ):
+        await self._search(Ban, ctx, search)
+    
+    @warn.command("search")
+    async def warn__search(
+        self, ctx, *, search: Union[discord.User, int, str]
+    ):
+        await self._search(Warn, ctx, search)
+
+    #### Community protection
+    @tasks.loop(hours=1)
+    async def _ensure_banned_guilds(self):
+        for dbguild in query(Guild).filter(Guild.status == StatusCode.AWAITING_AUTO_DISABLE).all():
+            dbguild.status = StatusCode.AUTO_USER_DISABLED
+            session.commit()
+
+            # Try to fetch guild
+            if dbguild.discord:
+                for channel in dbguild.discord.text_channels:
+                    if channel.permissions_for(dbguild.discord.me).send_messages:
+                        target = channel
+                        break
+
+                if target is None:
+                    target = dbguild.discord.owner
+                
+                if target:
+                    try:
+                        await target.send(
+                            _("GUILD__BANNED_USER")
+                        )
+                    except:
+                        pass
+    
+    @tasks.loop(minutes=30)
+    async def _ensure_banned_members(self):
+        # Get members
+        query_result = query(Ban).filter(
+            ((Ban.end_time == None) | (Ban.end_time > datetime.now())) & (Ban.severity == BanSeverity.BLANKET)
+        ).all()
+        
+        banned_users = set(map(lambda b: b.user.discord, query_result))
+
+        # Check guilds that aren't already banned
+        for dbguild in query(Guild).filter(Guild.status == StatusCode.NONE).all():
+            if dbguild.discord:
+                members = set(dbguild.discord.members)
+
+                # Get intersection
+                banned_users_in_guild = list(banned_users.intersection(members))
+                if len(banned_users_in_guild) > 0:
+                    # Disable
+                    dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
+                    session.commit()
+
+                    await self.send_user_warning_to_guild(dbguild, banned_users_in_guild)
+
+    async def send_user_warning_to_guild(self, dbguild: Guild, banned_users_in_guild: list):
+        for channel in dbguild.discord.text_channels:
+            if channel.permissions_for(dbguild.discord.me).send_messages:
+                target = channel
+                break
+
+        if target is None:
+            target = dbguild.discord.owner
+                        
+        if target:
+            try:
+                await target.send(
+                    _("GUILD__WARNING_BANNED_USERS_PRESENT",
+                        users=", ".join(map(str, banned_users_in_guild))    
+                    )
+                )
+            except:
+                pass
+
+    
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        dbuser = User.create(member)
+        if dbuser.is_banned():
+            if dbuser.last_ban().severity == BanSeverity.BLANKET:
+                dbguild = Guild.create(member.guild)
+
+                # Set to warning
+                dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
+                session.commit()
+                
+                if dbguild.discord:
+                    await self.send_user_warning_to_guild(dbguild, [member])
+
 
 
 def setup(bot: commands.Bot):

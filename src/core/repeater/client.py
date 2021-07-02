@@ -202,9 +202,7 @@ class Client(RabbitMQClient):
             else:
                 tq = get(quoted_message.result_messages, node=target)
             content = self._message_reply_content(tq)
-            user = self.bot.get_user(
-                quoted_message.user.discord_id
-            ) or await self.bot.fetch_user(quoted_message.user.discord_id)
+            user = quoted_message.user.discord or await self.bot.fetch_user(quoted_message.user.discord_id)
 
             this_body = message_body.copy()
             this_body["content"] = (

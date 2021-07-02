@@ -3,10 +3,10 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from . import Base
+from . import Base, SharedAttributes
 
 
-class Blacklist(Base):
+class Blacklist(Base, SharedAttributes):
     __tablename__ = "blacklists"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
