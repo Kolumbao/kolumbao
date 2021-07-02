@@ -1,14 +1,18 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-01-14 14:23:51.906844
-# With .\get_text.py -d ..\..\.. -t .\translations\fr.yaml -p .\translations\fr.yaml
+# Generated on 2021-07-02 19:32:35.377576
+# With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\__main__.py
+PLURAL: "{values} et {final}"  # values
+TWO: "{first} et {second}"  # first, second
 ERROR_INSUFFICIENT_KOLUMBAO_PERMISSIONS: "Il vous manque les permissions Kolumbao suivantes : {permissions}."  # permissions
 ERROR_MISSING_PARAMETER: "Le paramètre **{name}** est manquant."  # name
 ERROR_USER_NOT_FOUND: "Utilisateur **{name}** introuvable."  # name
 ERROR_NOT_MANAGING: "Vous ne gérez actuellement aucun flux. Commencez avec **kb!manage**"
 ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: "Il vous faut le niveau {level} pour exécuter cette commande !"  # level
 ERROR_COOLDOWN: "Vous allez trop vite. Réessayez après {retry_after} secondes."  # retry_after
+ERROR_BOT_MISSING_PERMISSIONS: "Il manque au bot les permissions suivantes : {permissions}"  # permissions
+ERROR_USER_MISSING_PERMISSIONS: "Il vous manque les permissions suivantes : {permissions}"  # permissions
 ERROR_UNKNOWN: "Une erreur inconnue s'est produite. Signalez-la aux développeurs avec l'ID `{code}`"  # code
 
 # ..\..\..\src\bot\extensions\blacklist.py
@@ -48,30 +52,30 @@ NAME__TAKEN: "Un autre flux utilise déjà ce nom"
 NAME__SET: "Votre flux a désormais le nom `{value}`"  # value
 DESCRIPTION__CURRENT: |
     La description actuelle de votre flux est ci-dessous :
-
+    
     >>> {value}
-
+    
   # value
 DESCRIPTION__SET: |
     La description de votre flux est désormais ci-dessous :
-
+    
     >>> {value}
-
+    
   # value
 LANG__CURRENT: "La langue actuelle de votre flux est `{value}`"  # value
 LANG__NOT_FOUND: "Impossible de trouver cette langue"
 LANG__SET: "La langue de votre flux est désormais `{value}`"  # value
 RULES__CURRENT: |
     Les règles actuelles de votre flux sont ci-dessous :
-
+    
     >>> {value}
-
+    
   # value
 RULES__SET: |
     Les règles de votre flux sont désormais ci-dessous :
-
+    
     >>> {value}
-
+    
   # value
 PASSWORD__RESET: "Votre flux n'a plus de mot de passe"
 PASSWORD_SET: "Le mot de passe a été défini. S'il n'est pas supprimé, nous vous recommandons d'effacer votre message pour cacher le mot de passe"
@@ -80,10 +84,10 @@ NSFW__SET: "Votre flux a désormais NSFW défini comme `{value}`"  # value
 CREATE__TOO_MANY: "Vous avez déjà crée autant de flux que possible"
 CREATE__MADE_GUIDANCE: |
     Félicitations, vous avez votre nouveux flux, #{stream_name}. C'est super.
-
+    
     Commencez par mettre en place votre description avec **kb!description**, et vos règles avec **kb!rules**.
     Si votre flux est NSFW, commencez par la définir avec **kb!nsfw**. Si vous avez besoin d'aide, venez au serveur de support.
-
+    
   # stream_name
 DELETE__CONFIRMATION: "Pour confirmer que vous voulez supprimer ce flux, relancez la commande suivie du code {code}"  # code
 DELETE__SUCCESS: "Votre flux a été supprimé"
@@ -94,14 +98,24 @@ GET_FEATURES__NO_FEATURES: "Ce flux n'a aucune fonctionnalité"
 GET_FEATURES__CONTENT: |
     Fonctionnalités : {features}
     Filtres désactivés : {suppressed_filters}
-
+    
   # features, suppressed_filters
 ADD_FEATURE__ALREADY_ADDED: "Ce flux a déjà cette fonctionnalité"
 ADD_FEATURE__SUCCESS: "Cette fonctionnalité a été ajoutée avec succès"
 REMOVE_FEATURE__NOT_ADDED: "Ce flux n'a pas cette fonctionnalité"
 REMOVE_FEATURE__SUCCESS: "Cette fonctionnalité a été retirée avec succès"
 
+# ..\..\..\src\bot\extensions\help.py
+HELP__DESCRIPTION: "Voici une liste des commandes pour chaque catégorie"
+HELP__TITLE: "Menu d'aide"
+HELP__COMMAND_NOT_FOUND: "Cette commande n'a pas été trouvé"
+HELP__COMMAND_DESCRIPTION: "L'aide pour {name}"  # name
+HELP__SYNTAX: "Syntaxe"
+HELP__SUBCOMMANDS: "Sous-commandes"
+HELP__PARENTS: "Commandes parents"
+
 # ..\..\..\src\bot\extensions\installation.py
+INSTALLED__TITLE: "Salon installé"
 JOIN__NO_STREAM: "Impossible de trouver un flux avec ce nom"
 JOIN__ENTER_PASSWORD: "Il faut saisir le mot de passe de ce flux. Vous n'avez que 30 secondes pour répondre"
 JOIN__PASSWORD_INCORRECT: "Ce mot de passe n'est pas correct"
@@ -120,7 +134,19 @@ DIAGNOSE__WEBHOOK_DELETED: "Le webhook a été supprimé. Essayez de le reinstal
 DIAGNOSE__NOT_AUTHORIZED: "Les autorisations pour le webhook ont changé de manière inattendue. Vous devez reinstaller le flux."
 DIAGNOSE__OTHER_UNKNOWN: "Une autre erreur s'est produite, et nous ne sommes pas sûrs de ce que c'était. Essayez de le reinstaller."
 DIAGNOSE__NO_ERROR: "Il n'y a pas d'erreur enregistrée pour votre instance du flux. Si l'erreur persiste, n'hésitez pas à réinstaller le flux."
-
+INVITE__TITLE: "Invite"
+INVITE__CONTENT: "Inviter le bot [avec ce lien]({url})"  # url
+INSTALLED: |
+    Bienvenue à Kolumbao ! <:kb:726849082710032484>
+    
+    Kolumbao est un bot qui connecte les salons des serveurs Discord entre eux, créant ainsi un réseau de canaux partagés.
+    Commencez par installer notre salon principal, kb-general : `kb!join kb-general`.
+    
+    Pour toute autre aide :
+    <:shieldstaff:796049352841101378> Contactez notre support : https://discord.gg/9UBdZHu
+    <:channelssuccess:795415724410535976> Consultez notre site web : https://kolumbao.com/
+    
+  # locale
 
 # ..\..\..\src\bot\extensions\kolumbao.py
 DELAY_CONTENT: "Les retards actuels à Kolumbao"
@@ -130,14 +156,23 @@ ERROR_AUTO_MUTED: "Vous êtes automatiquement mute pour 5 minutes"
 SEARCH_INF__BY_USER: "Cherche pour l'utilisateur {user_id}"  # user_id
 SEARCH_INF__BY_DURATION: "Cherche pour la durée {user_id}"  # duration
 SEARCH_INF__BY_REASON: "Cherche pour la raison {reason}"  # reason
-WARN__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
-MUTE__ALREADY_MUTED: "Cet utilisateur est déjà mute, #{mute_id}"  # mute_id
-MUTE__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
-UNMUTE__SUCCESS: "Cet utilisateur n'est plus mute"
-UNMUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
 SEARCH_INF__NO_RESULTS: "Aucun résultat"
 SEARCH_INF__TITLE: "Résultats de la recherche"
 SEARCH_INF__FIRST_N: "Les {n} premiers résultats sur {tot}"  # n, tot
+MUTE__ALREADY_MUTED: "Cet utilisateur est déjà mute, #{mute_id}"  # mute_id
+MUTE__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
+MUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
+UNMUTE__SUCCESS: "Cet utilisateur n'est plus mute"  # inf_id
+WARN__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
+BAN__SEVERITY_UNKNOWN: "Sévérité inconnue donnée"
+BAN__ADDED: "Bannisement #{inf_id} ajouté"  # inf_id
+BAN__NOT_BANNED: "Cet utilisateur n'est pas ban"
+UNBAN__SUCCESS: "Débanni avec succès"  # inf_id
+GUILD__BANNED_USER: "Votre guilde a été bannie en raison de la présence d'un membre sévèrement banni."
+GUILD__WARNING_BANNED_USERS_PRESENT: "**Avertissement!** Si vous n'agissez pas rapidement, votre guilde sera bannie en raison de la présence des membres suivants : {users}"  # users
+
+# ..\..\..\src\bot\extensions\old_moderation.py
+UNMUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
 SEARCH_INF__ID_NOT_FOUND: "Aucune infraction trouvée avec l'ID {inf_id}"  # inf_id
 INF__ID: "ID"
 INF__START_TIME: "Début"
@@ -153,6 +188,16 @@ LOCKDOWN__DISACTIVATED: "Le confinement a été désactivé dans **{stream}**"  
 LOCKDOWN__INVALID_TYPE: "Type de confinement non valable"
 
 # ..\..\..\src\bot\extensions\roles.py
+INSPECT_CHANNELS: "Consultez des salons"
+MANAGE_ROLES: "Gérer les rôles"
+MANAGE_PERMISSIONS: "Gérer les permissions"
+MANAGE_SNIPPETS: "Gérer les snippets"
+MANAGE_FEATURES: "Gérer les fonctionnalités"
+MANAGE_WARNS: "Gérer les warns"
+MANAGE_MUTES: "Gérer les mutes"
+MANAGE_LOCKDOWN: "Gérer le lockdown"
+MANAGE_BLACKLISTS: "Gérer le blacklist"
+VIEW_ADVANCED_STATS: "Voir les statistiques avancés"
 GET_ROLES__NO_ROLES: "Cet utilisateur n'a aucun rôle"
 GET_ROLES__CONTENT: "Cet utilisateur a les rôles suivants : {roles}"  # roles
 ROLE_NOT_FOUND: "Le rôle {role} est introuvable"  # name
@@ -177,6 +222,7 @@ REMOVE_ROLE_PERMISSION__SUCCESS: "Permission retirée avec succès. Nouvelles pe
 CREATE_PERMISSION__ALREADY_EXISTS: "Cette permission existe déjà"
 CREATE_PERMISSION__SUCCESS: "Permission créée avec succès"
 DELETE_PERMISSION__SUCCESS: "Permission supprimée avec succès"
+LIST_PERMISSIONS__CONTENT: "{permissions}"  # permissions
 
 # ..\..\..\src\bot\extensions\snippets.py
 CREATE_SNIPPET__ALREADY_EXISTS: "Un texte avec ce nom existe déjà"
@@ -187,7 +233,7 @@ VIEW_SNIPPET__CONTENT: |
     ```
     {snippet}
     ```
-
+    
   # snippet
 VIEW_SNIPPET__TITLE: "Contenu de `{name}`"  # name
 SNIPPETS__TITLE: "Textes"
@@ -207,24 +253,28 @@ PROFILE__ROLES: "Rôles"
 PROFILE__LAST_SEEN: "Vu pour la dernière fois"
 PROFILE__NUMBER_MESSAGES: "Nombre de messages"
 PROFILE__POINTS: "Points"
+PROFILE__OWNS: "Est proprietaire de"
+PROFILE__STAFF_IN: "Est staff dans"
 POINTS__LEVEL_UP: "**{user}** a passé au niveau supérieur. Désormais niveau {level}"  # level, user
 POINTS__WELCOME: "Bienvenue sur Kolumbao, **{user}**. Vous semblez d'être niveau"  # user
 POINTS__LEVEL: "Niveau"
 POINTS__AMOUNT: "Points"
+LEADERBOARD__TITLE: "Classement"
 
 # ..\..\..\src\core\i18n\i18n.py
 LANGUAGE_NAME: "Français"  # locale
 MISSING_TRANSLATION_TITLE: "Traductions manquantes!"
 MISSING_TRANSLATION_CONTENT: |
     <:missingtranslations:783791460112662538> Cette commande semble manquer de traduction / texte en **{language}**.
-
+    
     *<:shieldsuccess:783294498776154142> Contribuez aujourd'hui et obtenez un badge "contributor" !*
-
+    
     <:gitrepo:796052700961701909> Lien du dépôt : https://github.com/Kolumbao/translations.
-
+    
   # language
 
 # ..\..\..\src\core\repeater\client.py
 CLICK_TO_SEE: "Clique pour voir le message"
 UNKNOWN_MESSAGE: "Message inconnu"
-REPLYING_TO: "<:reply:797578040292016188> [**{username}** {content}](<{link}>)"  # username, link, content, locale
+REPLYING_TO: "<:reply:797578040292016188> [**{username}** {content}](<{link}>)"  # username, link, content
+

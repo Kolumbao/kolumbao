@@ -299,7 +299,7 @@ class Roles(commands.Cog):
     @has_permission("MANAGE_PERMISSIONS")
     @commands.command("list-permissions")
     async def list_permissions(self, ctx):
-        """Delete a permission"""
+        """List permissions"""
         permissions = query(Permission.name).all()
 
         permissions_list = ", ".join(p[0] for p in permissions)

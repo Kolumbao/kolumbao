@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-05-03 11:37:22.430193
+# Generated on 2021-07-02 19:32:22.169481
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -52,30 +52,30 @@ NAME__TAKEN: "That name is already taken"
 NAME__SET: "Your channel now has the name `{value}`"  # value
 DESCRIPTION__CURRENT: |
     The current description of your channel is the following
-
+    
     >>> {value}
-
+    
   # value
 DESCRIPTION__SET: |
     The description was set to the following
-
+    
     >>> {value}
-
+    
   # value
 LANG__CURRENT: "The current language of your channel is `{value}`"  # value
 LANG__NOT_FOUND: "That language wasn't found"
 LANG__SET: "Your channel now has the language `{value}`"  # value
 RULES__CURRENT: |
     The current rules of your shared channel are the following
-
+    
     >>> {value}
-
+    
   # value
 RULES__SET: |
     The rules were set to the following
-
+    
     >>> {value}
-
+    
   # value
 PASSWORD__RESET: "The password has been reset (there is no longer a password on this channel)"
 PASSWORD_SET: "The password has been set. If not deleted, we recommend you delete your message to hide the password"
@@ -84,10 +84,10 @@ NSFW__SET: "Your shared channel now has NSFW set to `{value}`"  # value
 CREATE__TOO_MANY: "You have already created the maximum number of shared channels!"
 CREATE__MADE_GUIDANCE: |
     Congrats, you have your new shared channel, #{stream_name}. This is great.
-
+    
     Get started by setting up your description with **kb!description**, and your rules with **kb!rules**.
     If your channel is NSFW, go ahead and set that with **kb!nsfw**. If you need any help, come to the support server.
-
+    
   # stream_name
 DELETE__CONFIRMATION: "To confirm that you want to delete this shared channel, run the command again followed by the code {code}"  # code
 DELETE__SUCCESS: "Success, your shared channel was deleted."
@@ -98,12 +98,21 @@ GET_FEATURES__NO_FEATURES: "This shared channel has no features"
 GET_FEATURES__CONTENT: |
     Features: {features}
     Suppressed filters: {suppressed_filters}
-
+    
   # features, suppressed_filters
 ADD_FEATURE__ALREADY_ADDED: "This shared channel already has this feature"
 ADD_FEATURE__SUCCESS: "The feature was added to the shared channel"
 REMOVE_FEATURE__NOT_ADDED: "This shared channel doesn't have this feature"
 REMOVE_FEATURE__SUCCESS: "The feature was successfully removed from the shared channel"
+
+# ..\..\..\src\bot\extensions\help.py
+HELP__DESCRIPTION: "Here is a list of commands for each category"
+HELP__TITLE: "Help menu"
+HELP__COMMAND_NOT_FOUND: "That command could not be found! Check the spelling?"
+HELP__COMMAND_DESCRIPTION: "Help for {name}"  # name
+HELP__SYNTAX: "Syntax"
+HELP__SUBCOMMANDS: "Subcommands"
+HELP__PARENTS: "Parent commands"
 
 # ..\..\..\src\bot\extensions\installation.py
 INSTALLED__TITLE: "Installed Channel"
@@ -129,14 +138,14 @@ INVITE__TITLE: "Invite"
 INVITE__CONTENT: "Invite the bot [with this link]({url})"  # url
 INSTALLED: |
     Welcome to Kolumbao! <:kb:726849082710032484>
-
+    
     Kolumbao is a bot which connects channels in Discord servers together, creating a network of shared channels.
     Get started by installing our flagship channel, kb-general: `kb!join kb-general`.
-
+    
     For any other help:
     <:shieldstaff:796049352841101378> Contact our support: https://discord.gg/9UBdZHu
     <:channelssuccess:795415724410535976> Check out our website: https://kolumbao.com/
-
+    
   # locale
 
 # ..\..\..\src\bot\extensions\kolumbao.py
@@ -147,10 +156,22 @@ ERROR_AUTO_MUTED: "You were automatically muted for 5 minutes"
 SEARCH_INF__BY_USER: "Searching for user {user_id}"  # user_id
 SEARCH_INF__BY_DURATION: "Searching for duration {duration}"  # duration
 SEARCH_INF__BY_REASON: "Searching for reason {reason}"  # reason
-WARN__ADDED: "Infraction #{inf_id} added"  # inf_id
+SEARCH_INF__NO_RESULTS: "No results for the search query"
+SEARCH_INF__TITLE: "Search Results"
+SEARCH_INF__FIRST_N: "First {n} results of {tot}"  # n, tot
 MUTE__ALREADY_MUTED: "This user is already muted, infraction #{mute_id}"  # mute_id
 MUTE__ADDED: "Infraction #{inf_id} added"  # inf_id
-UNMUTE__SUCCESS: "Successfully unmuted this user"
+MUTE__NOT_MUTED: "That user is not muted"
+UNMUTE__SUCCESS: "Successfully unmuted this user"  # inf_id
+WARN__ADDED: "Infraction #{inf_id} added"  # inf_id
+BAN__SEVERITY_UNKNOWN: "Unknown severity given"
+BAN__ADDED: "Ban #{inf_id} added"  # inf_id
+BAN__NOT_BANNED: "That user is not banned"
+UNBAN__SUCCESS: "Unbanned successfully"  # inf_id
+GUILD__BANNED_USER: "Your guild has been banned due to the presence of a severely banned member."
+GUILD__WARNING_BANNED_USERS_PRESENT: "**Warning!** If you do not act soon, your guild will be banned due to the presence of the following members: {users}"  # users
+
+# ..\..\..\src\bot\extensions\old_moderation.py
 UNMUTE__NOT_MUTED: "This user is not muted"
 SEARCH_INF__ID_NOT_FOUND: "No infraction found with ID {inf_id}"  # inf_id
 INF__ID: "ID"
@@ -158,9 +179,6 @@ INF__START_TIME: "Start time"
 INF__END_TIME: "End time"
 INF__USER: "User"
 INF__MOD: "Moderator"
-SEARCH_INF__NO_RESULTS: "No results for the search query"
-SEARCH_INF__TITLE: "Search Results"
-SEARCH_INF__FIRST_N: "First {n} results of {tot}"  # n, tot
 EDIT_INF__NOT_FOUND: "Infraction not found"
 EDIT_INF__INVALID_FIELD: "Invalid field"
 EDIT_INF__SUCCESS: "Success. `{field}` now set to `{value}`"  # field, value
@@ -204,7 +222,7 @@ REMOVE_ROLE_PERMISSION__SUCCESS: "Permission successfully removed. New permissio
 CREATE_PERMISSION__ALREADY_EXISTS: "That permission already exists"
 CREATE_PERMISSION__SUCCESS: "Permission successfully created"
 DELETE_PERMISSION__SUCCESS: "Permission successfully deleted"
-LIST_PERMISSIONS__CONTENT: ""  # permissions
+LIST_PERMISSIONS__CONTENT: "{permissions}"  # permissions
 
 # ..\..\..\src\bot\extensions\snippets.py
 CREATE_SNIPPET__ALREADY_EXISTS: "A snippet of this name already exists"
@@ -230,6 +248,8 @@ PROFILE__ROLES: "Roles"
 PROFILE__LAST_SEEN: "Last seen"
 PROFILE__NUMBER_MESSAGES: "Number of messages"
 PROFILE__POINTS: "Points"
+PROFILE__OWNS: "Owns the following streams:"
+PROFILE__STAFF_IN: "Is staff in the following streams:"
 POINTS__LEVEL_UP: "**{user}** levelled up! Now level {level}"  # level, user
 POINTS__WELCOME: "**{user}**, welcome to Kolumbao, you appear to be new here."  # user
 POINTS__LEVEL: "Level"
@@ -241,14 +261,15 @@ LANGUAGE_NAME: "English"  # locale
 MISSING_TRANSLATION_TITLE: "Missing translations!"
 MISSING_TRANSLATION_CONTENT: |
     <:missingtranslations:783791460112662538> This command appears to be missing translations/text in **{language}**.
-
+    
     *<:shieldsuccess:783294498776154142> Contribute by adding them and get a contributor badge today!*
-
+    
     <:gitrepo:796052700961701909> Repository link: https://github.com/Kolumbao/translations.
-
+    
   # language
 
 # ..\..\..\src\core\repeater\client.py
 CLICK_TO_SEE: "Click to see message"
 UNKNOWN_MESSAGE: "The original message could not be found"
 REPLYING_TO: "<:reply:797578040292016188> [**{username}** {content}](<{link}>)"  # username, link, content
+
