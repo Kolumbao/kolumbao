@@ -6,7 +6,7 @@ from sqlalchemy import String
 from . import Base, SharedAttributes
 
 
-class Announcement(Base, SharedAttributes):
+class Announcement(Base):
     __tablename__ = "announcements"
 
     id = Column(Integer, primary_key=True)

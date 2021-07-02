@@ -62,8 +62,8 @@ class User(Base, SharedAttributes):
         missing = set(required_perms) - set(permissions)
         return missing
 
-    def has_permissions(self, *required_perms, bot=None) -> bool:
-        if bot and self.is_owner(bot):
+    def has_permissions(self, *required_perms) -> bool:
+        if self._bot and self.is_owner(self.bot):
             return True
 
         if len(self.missing_permissions(*required_perms)) == 0:

@@ -9,11 +9,11 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
-from . import Base, SharedAttributes
+from . import Base
 from ._types import Snowflake
 
 
-class OriginMessage(Base, SharedAttributes):
+class OriginMessage(Base):
     __tablename__ = "origin_messages"
 
     id = Column(Integer, primary_key=True)
@@ -62,7 +62,7 @@ class OriginMessage(Base, SharedAttributes):
         return max(delays), min(delays), sum(delays, timedelta(0)) / len(delays)
 
 
-class ResultMessage(Base, SharedAttributes):
+class ResultMessage(Base):
     __tablename__ = "result_messages"
 
     id = Column(Integer, primary_key=True)

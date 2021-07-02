@@ -6,7 +6,7 @@ from sqlalchemy import String
 from . import Base, SharedAttributes
 
 
-class Blacklist(Base, SharedAttributes):
+class Blacklist(Base):
     __tablename__ = "blacklists"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
