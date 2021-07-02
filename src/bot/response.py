@@ -42,7 +42,7 @@ def raw_resp(
     discord.Embed
         The embed
     """
-    embed = discord.Embed(title=title, colour=colour)
+    embed = discord.Embed(title=title or discord.Embed.Empty, colour=colour)
 
     if badge is None:
         if hasattr(ctx, "cog") and ctx.cog is not None:
