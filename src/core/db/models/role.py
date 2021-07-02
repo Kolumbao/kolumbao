@@ -27,6 +27,30 @@ class Permission(Base):
     name = Column(String, nullable=False)
 
 
+class Permissions:
+    """
+    Basic permissions list
+    """
+    INSPECT_CHANNELS = "INSPECT_CHANNELS"
+    MANAGE_ROLES = "MANAGE_ROLES"
+    MANAGE_MESSAGES = "MANAGE_MESSAGES"
+    MANAGE_PERMISSIONS = "MANAGE_PERMISSIONS"
+    MANAGE_SNIPPETS = "MANAGE_SNIPPETS"
+    MANAGE_FEATURES = "MANAGE_FEATURES"
+    MANAGE_MUTES = "MANAGE_MUTES"
+    MANAGE_BLACKLISTS = "MANAGE_BLACKLISTS"
+    VIEW_ADVANCED_STATS = "VIEW_ADVANCED_STATS"
+
+    def __getattribute__(self, name: str) -> Permission:
+        from .. import query
+
+        try:
+            raw = object.__getattribute__(self, name)
+        except AttributeError as exc:
+            raise exc
+        else:
+            return query(Permission).filter(Permission.name == name).first() or Permission(name=name)
+
 class Role(Base):
     __tablename__ = "roles"
 

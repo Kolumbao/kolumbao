@@ -30,18 +30,6 @@ user_roles = Table(
 class User(Base, SharedAttributes):
     __tablename__ = "users"
 
-    @classmethod
-    def create(cls, user: discord.User, create_default: bool = True) -> Optional["User"]:
-        # Circular import avoiding
-        from .. import query, session
-
-        dbuser = query(cls).filter(cls.discord_id == user.id).first()
-        if dbuser is None and create_default:
-            dbuser = cls(discord_id=user.id)
-            session.add(dbuser)
-        
-        return dbuser
-
     id = Column(Integer, primary_key=True)
     discord_id = Column(Snowflake, unique=True)
 
@@ -53,9 +41,10 @@ class User(Base, SharedAttributes):
     system_name = Column(String)
     system_avatar = Column(String)
 
-    points = Column(Integer, nullable=False, server_default="0")
+    points = Column(Integer, nullable=False, default=0, server_default="0")
 
     streams = relationship("Stream", back_populates="user")
+    staff_in = relationship("Stream", secondary="stream_staff")
 
     def missing_permissions(self, *required_perms):
         permissions = self.permissions

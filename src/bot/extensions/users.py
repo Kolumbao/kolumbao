@@ -56,6 +56,10 @@ class Users(commands.Cog):
 
         if len(dbuser.permissions) > 0:
             content += f"{_('USER_ELEVATED_PERMISSIONS')}\n"
+        
+        if content != "":
+            content += "\n"
+        
         return content
 
     @commands.command()
@@ -68,8 +72,6 @@ class Users(commands.Cog):
 
         dbuser = get_user(user.id)
         content = self._format_user_badges(dbuser)
-        if content != "":
-            content += "\n"
 
         mutual_guilds = filter(lambda g: g.get_member(user.id), self.bot.guilds)
         guild_list = ", ".join(map(lambda g: f"{g.name} (`{g.id}`)", mutual_guilds))
@@ -83,6 +85,9 @@ class Users(commands.Cog):
         m = q.first()
         if m is not None:
             last_seen = str(m.sent_at)
+        
+        streams_list = ", ".join(map(lambda m: m.name, dbuser.streams))
+        staff_in_list = ", ".join(map(lambda m: m.name, dbuser.staff_in))
 
         content += cleandoc(
             f"""
@@ -98,6 +103,8 @@ class Users(commands.Cog):
             **{_('PROFILE__LAST_SEEN')}:** {last_seen}
             **{_('PROFILE__NUMBER_MESSAGES')}:** {q.count()}
             **{_('PROFILE__POINTS')}:** {dbuser.points}
+            **{_('PROFILE__OWNS')}: ** {streams_list}
+            **{_('PROFILE__STAFF_IN')}: ** {staff_in_list}
             """
         )
 
