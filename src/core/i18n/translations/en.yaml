@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-03 12:49:52.935396
+# Generated on 2021-07-03 15:35:57.016893
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -44,6 +44,11 @@ INFO__MESSAGES_CONTENT: "{amount} messages"  # amount
 INFO__NODES_TITLE: "Nodes"
 INFO__NODES_CONTENT: "{amount} nodes"  # amount
 INFO__INSTALL_WITH: "Install this shared channel with kb!join {stream_name}"  # stream_name
+MANAGE__OPTIONS: "Which part of your stream would you like to edit?"
+MANAGE__SETTINGS: "Settings"
+MANAGE__STAFF: "Staff"
+MANAGE__NOT_OWNED: "You don't own this shared channel"
+MANAGE__CLOSED: "The interaction menu has been closed"
 MANAGE__RESET_PASSWORD: "Reset password"
 MANAGE__PICK_OPTION: "Pick an option to manage your stream"
 MANAGE__SELECT: "Select an option..."
@@ -55,10 +60,13 @@ MANAGE__PASSWORD: "Edit password"
 MANAGE__NSFW: "Mark/unmark as NSFW"
 MANAGE__DELETE: "Delete"
 MANAGE__CLOSE: "Close menu"
-MANAGE__CLOSED: "The interaction menu has been closed"
-MANAGE__NOT_OWNED: "You don't own this shared channel"
-MANAGING__STREAM: "You're managing {stream_name} (ID: {stream_id})"  # stream_name, stream_id
-NAME__ENTER: ""
+MANAGE__REMOVE_STAFF: "Click a staff member to remove them, or add another!"
+MANAGE__NEW_STAFF: "Add new staff"
+MANAGE__STAFF_REMOVED: "{staff} was removed from the staff for this stream"  # staff
+NEW_STAFF__MENTION: "Either mention the user or provide their ID"
+NEW_STAFF__USER_NOT_FOUND: "That user was not found!"
+NEW_STAFF__SUCCESS: "Success! Now continue adding staff or close this menu"
+NAME__ENTER: "Enter a name for your channel!"
 NAME__TAKEN: "That name is already taken"
 NAME__SET: "Your channel now has the name `{value}`"  # value
 DESCRIPTION__ENTER: ""

@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-03 12:50:31.278596
+# Generated on 2021-07-03 15:35:59.687959
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -44,7 +44,12 @@ INFO__MESSAGES_CONTENT: "{amount} messages"  # amount
 INFO__NODES_TITLE: "Salons installés"
 INFO__NODES_CONTENT: "{amount} salons"  # amount
 INFO__INSTALL_WITH: "Installez ce salon avec kb!join {stream_name}"  # stream_name
-MANAGE__RESET_PASSWORD: "Réinitialisez le mot de passe du flux"
+MANAGE__OPTIONS: "Quelle partie du flux voulez-vous modifier ?"
+MANAGE__SETTINGS: "Paramètres"
+MANAGE__STAFF: "Staff"
+MANAGE__NOT_OWNED: "Ce salon ne vous appartient pas"
+MANAGE__CLOSED: "Le menu a été fermé"
+MANAGE__RESET_PASSWORD: "Enlevez le mot de passe"
 MANAGE__PICK_OPTION: "Choisissez une option pour configurer votre flux"
 MANAGE__SELECT: "Choisissez une option"
 MANAGE__NAME: "Modifier le nom"
@@ -55,9 +60,12 @@ MANAGE__PASSWORD: "Modifier le mot de passe"
 MANAGE__NSFW: "Marquer comme NSFW"
 MANAGE__DELETE: "Supprimer votre flux"
 MANAGE__CLOSE: "Fermer ce menu"
-MANAGE__CLOSED: "Le menu a été fermé"
-MANAGE__NOT_OWNED: "Ce salon ne vous appartient pas"
-MANAGING__STREAM: "Vous gérez {stream_name} (ID : {stream_id})"  # stream_name, stream_id
+MANAGE__REMOVE_STAFF: "Cliquez sur un membre du staff pour le supprimer ou en ajouter un autre !"
+MANAGE__NEW_STAFF: "Ajouter un staff"
+MANAGE__STAFF_REMOVED: "{staff} ne fait plus partie du staff du flux"  # staff
+NEW_STAFF__MENTION: "Mentionnez ou écrivez l'ID de l'utilisateur pour l'ajouter"
+NEW_STAFF__USER_NOT_FOUND: "Cet utilisateur n'a pas été trouvé"
+NEW_STAFF__SUCCESS: "Succès ! Maintenant, continuez à ajouter du staff ou fermez ce menu"
 NAME__ENTER: "Saisissez un nouveau nom"
 NAME__TAKEN: "Un autre flux utilise déjà ce nom"
 NAME__SET: "Votre flux a désormais le nom `{value}`"  # value

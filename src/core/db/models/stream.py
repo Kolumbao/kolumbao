@@ -12,6 +12,7 @@ from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.sqltypes import LargeBinary
 from core.db.models.role import Permissions
 
 from . import Base, SharedAttributes
@@ -63,7 +64,7 @@ class Stream(Base, SharedAttributes):
     rules = Column(String)
     lockdown = Column(Integer, server_default="0")
     nsfw = Column(Boolean, server_default="0")
-    password = Column(String)
+    password = Column(LargeBinary)
 
     feats = relationship("Feature", secondary=stream_features)
     features = association_proxy("feats", "name")
@@ -112,7 +113,7 @@ class Stream(Base, SharedAttributes):
         key = self.password[32:]
 
         new_key = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100000)
-
+        
         return key == new_key
 
     @property
