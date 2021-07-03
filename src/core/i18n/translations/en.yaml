@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-02 19:32:22.169481
+# Generated on 2021-07-03 12:49:52.935396
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -44,42 +44,45 @@ INFO__MESSAGES_CONTENT: "{amount} messages"  # amount
 INFO__NODES_TITLE: "Nodes"
 INFO__NODES_CONTENT: "{amount} nodes"  # amount
 INFO__INSTALL_WITH: "Install this shared channel with kb!join {stream_name}"  # stream_name
-MANAGE__NOW_MANAGING: "Now managing {stream_name}. After 30 minutes, you'll have to redo this command to continue managing"  # stream_name
+MANAGE__RESET_PASSWORD: "Reset password"
+MANAGE__PICK_OPTION: "Pick an option to manage your stream"
+MANAGE__SELECT: "Select an option..."
+MANAGE__NAME: "Edit name"
+MANAGE__DESCRIPTION: "Edit description"
+MANAGE__RULES: "Edit rules"
+MANAGE__LANG: "Edit language"
+MANAGE__PASSWORD: "Edit password"
+MANAGE__NSFW: "Mark/unmark as NSFW"
+MANAGE__DELETE: "Delete"
+MANAGE__CLOSE: "Close menu"
+MANAGE__CLOSED: "The interaction menu has been closed"
 MANAGE__NOT_OWNED: "You don't own this shared channel"
 MANAGING__STREAM: "You're managing {stream_name} (ID: {stream_id})"  # stream_name, stream_id
-NAME__CURRENT: "The current name of your shared channel is `{value}`"  # value
+NAME__ENTER: ""
 NAME__TAKEN: "That name is already taken"
 NAME__SET: "Your channel now has the name `{value}`"  # value
-DESCRIPTION__CURRENT: |
-    The current description of your channel is the following
-    
-    >>> {value}
-    
-  # value
+DESCRIPTION__ENTER: ""
 DESCRIPTION__SET: |
     The description was set to the following
     
     >>> {value}
     
   # value
-LANG__CURRENT: "The current language of your channel is `{value}`"  # value
+LANG__ENTER: "Enter a new language"
 LANG__NOT_FOUND: "That language wasn't found"
 LANG__SET: "Your channel now has the language `{value}`"  # value
-RULES__CURRENT: |
-    The current rules of your shared channel are the following
-    
-    >>> {value}
-    
-  # value
+RULES__ENTER: "Enter the new rules"
 RULES__SET: |
     The rules were set to the following
     
     >>> {value}
     
   # value
-PASSWORD__RESET: "The password has been reset (there is no longer a password on this channel)"
+PASSWORD__ENTER: "Enter a new password"
 PASSWORD_SET: "The password has been set. If not deleted, we recommend you delete your message to hide the password"
-NSFW__CURRENT: "Your shared channel has NSFW currently set to `{value}`"  # value
+NSFW__OPTIONS: "Would you like your channel to be marked as NSFW?"
+NSFW__YES: "Yes"
+NSFW__NO: "No"
 NSFW__SET: "Your shared channel now has NSFW set to `{value}`"  # value
 CREATE__TOO_MANY: "You have already created the maximum number of shared channels!"
 CREATE__MADE_GUIDANCE: |
@@ -89,9 +92,9 @@ CREATE__MADE_GUIDANCE: |
     If your channel is NSFW, go ahead and set that with **kb!nsfw**. If you need any help, come to the support server.
     
   # stream_name
-DELETE__CONFIRMATION: "To confirm that you want to delete this shared channel, run the command again followed by the code {code}"  # code
-DELETE__SUCCESS: "Success, your shared channel was deleted."
+DELETE__ENTER_CODE: "Enter the following code in order to confirm the deletion of your channel: {code}"  # code
 DELETE__CODE_INVALID: "Oops, that code is invalid or expired (codes only last 10 seconds)"
+DELETE__SUCCESS: "Success, your shared channel was deleted."
 
 # ..\..\..\src\bot\extensions\features.py
 GET_FEATURES__NO_FEATURES: "This shared channel has no features"

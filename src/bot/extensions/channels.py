@@ -4,7 +4,9 @@ from typing import Optional
 from uuid import uuid4
 
 import discord
+from discord.errors import NotFound
 from discord.ext import commands
+from discord_components.component import ButtonStyle
 from discord_components.interaction import Interaction, InteractionType
 from expiring_dict import ExpiringDict
 
@@ -96,7 +98,7 @@ class Channels(commands.Cog):
     __badge_success__ = "<:channelssuccess:795415724410535976>"
     __badge_fail__ = "<:channelsfail:795415724356927498>"
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self._management_dict = ExpiringDict(30 * 60)
         self._delete = ExpiringDict(10)
@@ -144,7 +146,7 @@ class Channels(commands.Cog):
             await ctx.send(
                 _("MANAGE__PICK_OPTION"),
                 components = [
-                    Select(placeholder="select something!", options=[
+                    Select(placeholder = _("MANAGE__SELECT"), options=[
                         SelectOption(label=_("MANAGE__NAME"), value="name"),
                         SelectOption(label=_("MANAGE__DESCRIPTION"), value="description"),
                         SelectOption(label=_("MANAGE__RULES"), value="rules"),
@@ -294,10 +296,10 @@ class Channels(commands.Cog):
         interaction: Interaction
     ):
         await interaction.respond(
-            content=_("NSFW__OPTIONS"),
+            content = _("NSFW__OPTIONS"),
             components=[
-                Button(label = _("NSFW__YES"), custom_id="yes"),
-                Button(label = _("NSFW__NO"), custom_id="no")
+                Button(emoji = self.bot.get_emoji(860846678944776212), style = ButtonStyle.green, label = _("NSFW__YES"), custom_id="yes"),
+                Button(emoji = self.bot.get_emoji(860846700360105984), style = ButtonStyle.red, label = _("NSFW__NO"), custom_id="no")
             ],
             ephemeral=False
         )

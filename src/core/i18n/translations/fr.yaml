@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-02 19:32:35.377576
+# Generated on 2021-07-03 12:50:31.278596
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -44,42 +44,45 @@ INFO__MESSAGES_CONTENT: "{amount} messages"  # amount
 INFO__NODES_TITLE: "Salons installés"
 INFO__NODES_CONTENT: "{amount} salons"  # amount
 INFO__INSTALL_WITH: "Installez ce salon avec kb!join {stream_name}"  # stream_name
-MANAGE__NOW_MANAGING: "Vous gérez actuellement {stream_name}. Après 30 minutes, vous aurez besoin de refaire cette commande pour continuer"  # stream_name
+MANAGE__RESET_PASSWORD: "Réinitialisez le mot de passe du flux"
+MANAGE__PICK_OPTION: "Choisissez une option pour configurer votre flux"
+MANAGE__SELECT: "Choisissez une option"
+MANAGE__NAME: "Modifier le nom"
+MANAGE__DESCRIPTION: "Modifier la description"
+MANAGE__RULES: "Modifier les règles"
+MANAGE__LANG: "Modifier la langue"
+MANAGE__PASSWORD: "Modifier le mot de passe"
+MANAGE__NSFW: "Marquer comme NSFW"
+MANAGE__DELETE: "Supprimer votre flux"
+MANAGE__CLOSE: "Fermer ce menu"
+MANAGE__CLOSED: "Le menu a été fermé"
 MANAGE__NOT_OWNED: "Ce salon ne vous appartient pas"
 MANAGING__STREAM: "Vous gérez {stream_name} (ID : {stream_id})"  # stream_name, stream_id
-NAME__CURRENT: "Le nom actuel de votre flux est `{value}`"  # value
+NAME__ENTER: "Saisissez un nouveau nom"
 NAME__TAKEN: "Un autre flux utilise déjà ce nom"
 NAME__SET: "Votre flux a désormais le nom `{value}`"  # value
-DESCRIPTION__CURRENT: |
-    La description actuelle de votre flux est ci-dessous :
-    
-    >>> {value}
-    
-  # value
+DESCRIPTION__ENTER: ""
 DESCRIPTION__SET: |
     La description de votre flux est désormais ci-dessous :
     
     >>> {value}
     
   # value
-LANG__CURRENT: "La langue actuelle de votre flux est `{value}`"  # value
+LANG__ENTER: "Saisissez la langue souhaitée"
 LANG__NOT_FOUND: "Impossible de trouver cette langue"
 LANG__SET: "La langue de votre flux est désormais `{value}`"  # value
-RULES__CURRENT: |
-    Les règles actuelles de votre flux sont ci-dessous :
-    
-    >>> {value}
-    
-  # value
+RULES__ENTER: "Saisissez les nouvelles règles"
 RULES__SET: |
     Les règles de votre flux sont désormais ci-dessous :
     
     >>> {value}
     
   # value
-PASSWORD__RESET: "Votre flux n'a plus de mot de passe"
+PASSWORD__ENTER: "Saisissez le nouveau mot de passe"
 PASSWORD_SET: "Le mot de passe a été défini. S'il n'est pas supprimé, nous vous recommandons d'effacer votre message pour cacher le mot de passe"
-NSFW__CURRENT: "Votre flux a NSFW défini comme `{value}`"  # value
+NSFW__OPTIONS: "Voulez-vous que votre salon soit marqué comme NSFW ?"
+NSFW__YES: "Oui"
+NSFW__NO: "Non"
 NSFW__SET: "Votre flux a désormais NSFW défini comme `{value}`"  # value
 CREATE__TOO_MANY: "Vous avez déjà crée autant de flux que possible"
 CREATE__MADE_GUIDANCE: |
@@ -89,9 +92,9 @@ CREATE__MADE_GUIDANCE: |
     Si votre flux est NSFW, commencez par la définir avec **kb!nsfw**. Si vous avez besoin d'aide, venez au serveur de support.
     
   # stream_name
-DELETE__CONFIRMATION: "Pour confirmer que vous voulez supprimer ce flux, relancez la commande suivie du code {code}"  # code
-DELETE__SUCCESS: "Votre flux a été supprimé"
+DELETE__ENTER_CODE: "Saisissez le code suivant pour confirmer la suppression du flux : {code}"  # code
 DELETE__CODE_INVALID: "Le code fourni est soit invalide soit expiré (les codes ne durent que 10 secondes)"
+DELETE__SUCCESS: "Votre flux a été supprimé"
 
 # ..\..\..\src\bot\extensions\features.py
 GET_FEATURES__NO_FEATURES: "Ce flux n'a aucune fonctionnalité"
