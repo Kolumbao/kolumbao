@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import discord
+from discord_components.interaction import Interaction
 
 
 @classmethod
@@ -93,8 +94,11 @@ async def resp(  # pylint: disable=too-many-arguments
         Text to show if an embed is used in the normal text, by default None
     """
     try:
+        if isinstance(ctx, Interaction):
+            ctx.send = lambda *args, **kwargs: ctx.respond(*args, ephemeral=False, **kwargs)
+
         await ctx.send(
-            supplementary_text, embed=raw_resp(ctx, text, title, badge, colour, fields)
+            content=supplementary_text, embed=raw_resp(ctx, text, title, badge, colour, fields)
         )
     except discord.Forbidden:
         await ctx.send(f"{badge if badge else ''} {text}")

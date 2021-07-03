@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands.core import is_owner
 from discord.ext.commands.errors import CommandNotFound
+from discord_components.client import DiscordComponents
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
 
@@ -70,6 +71,7 @@ async def on_ready():
 
     database.init_bot(bot)
     SharedAttributes.init_bot(bot)
+    DiscordComponents(bot)
 
     bot.client = Client(getenv("RABBITMQ_URL"), "default")
     bot.client.init_bot(bot)

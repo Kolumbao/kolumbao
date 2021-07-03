@@ -44,6 +44,18 @@ class Feature(Base):
 class Stream(Base, SharedAttributes):
     __tablename__ = "streams"
 
+    @classmethod
+    def create(cls, name: str, create_default: bool = False) -> "Stream":
+        # Circular import avoiding
+        from .. import query, session
+
+        dbobject = query(cls).filter(cls.name == name).first()
+        if dbobject is None and create_default:
+            dbobject = cls(name=name)
+            session.add(dbobject)
+        
+        return dbobject
+
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(String)
