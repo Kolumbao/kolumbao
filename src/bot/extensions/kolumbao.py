@@ -292,11 +292,11 @@ class Kolumbao(commands.Cog):
         guild = quoted_message.node.guild.discord_id
         target = self.bot.get_channel(payload.channel_id)
         try:
-            if (real_user := self.bot.get_user(user)) :
+            if real_user := self.bot.get_user(user):
                 user = f"{real_user} ({user})"
-            if (real_channel := self.bot.get_channel(channel)) :
+            if real_channel := self.bot.get_channel(channel):
                 channel = f"#{real_channel.name} ({channel})"
-            if (real_guild := self.bot.get_guild(guild)) :
+            if real_guild := self.bot.get_guild(guild):
                 guild = f"{real_guild.name} ({guild})"
         except Exception:
             pass
@@ -314,7 +314,11 @@ Guild: {guild}
     async def _handle_delete_reaction(
         self, payload: RawReactionActionEvent, quoted_message: OriginMessage
     ):
-        manage_messages = get_user(payload.user_id).has_permissions("MANAGE_MESSAGES")
+        # Does the user have the right to manage messages in this channel?
+        # Checks staff status and general permissions.
+        manage_messages = quoted_message.stream.has_permissions(
+            User.create(discord.Object(payload.user_id)), "MANAGE_MESSAGES"
+        )
         if quoted_message.user.discord_id != payload.user_id and not manage_messages:
             return
 
@@ -333,7 +337,7 @@ Guild: {guild}
             if manage_messages:
                 text = (
                     "<@{}> I queued {} messages for deletion. "
-                    "{} messages are in the queue"
+                    "{} 'messages' are in the queue"
                 )
                 await message.channel.send(
                     text.format(payload.user_id, amount, self.delete_queue.qsize())
