@@ -277,6 +277,8 @@ class Installation(commands.Cog):
             raise ItemNotFound(Stream)
 
         node = get_local_node(stream, get_guild(ctx.guild.id))
+        if node is None:
+            raise ItemNotFound(Node)
 
         error = {
             StatusCode.WEBHOOK_NOT_FOUND: _("DIAGNOSE__WEBHOOK_DELETED"),
