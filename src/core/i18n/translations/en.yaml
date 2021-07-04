@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-03 15:35:57.016893
+# Generated on 2021-07-04 23:08:12.458284
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -9,6 +9,7 @@ ERROR_INSUFFICIENT_KOLUMBAO_PERMISSIONS: "You're missing the following Kolumbao 
 ERROR_MISSING_PARAMETER: "Parameter **{name}** is missing."  # name
 ERROR_USER_NOT_FOUND: "User **{name}** not found."  # name
 ERROR_NOT_MANAGING: "You're not currently managing any shared channel. Start with **kb!manage**"
+ERROR_BANNED: "You're banned from the bot (severity: {severity}). You can hence not run any command."  # severity
 ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: "You need level {level} to run this command!"  # level
 ERROR_COOLDOWN: "You're going too fast! Retry after {retry_after} seconds."  # retry_after
 ERROR_BOT_MISSING_PERMISSIONS: "The bot is missing the following permissions: {permissions}"  # permissions

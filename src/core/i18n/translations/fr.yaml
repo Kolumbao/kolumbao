@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-03 15:35:59.687959
+# Generated on 2021-07-04 23:08:18.709571
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -9,6 +9,7 @@ ERROR_INSUFFICIENT_KOLUMBAO_PERMISSIONS: "Il vous manque les permissions Kolumba
 ERROR_MISSING_PARAMETER: "Le paramètre **{name}** est manquant."  # name
 ERROR_USER_NOT_FOUND: "Utilisateur **{name}** introuvable."  # name
 ERROR_NOT_MANAGING: "Vous ne gérez actuellement aucun flux. Commencez avec **kb!manage**"
+ERROR_BANNED: "Vous êtes banni du bot (sévérité : {severity}). Vous ne pouvez donc exécuter aucune commande."  # severity
 ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: "Il vous faut le niveau {level} pour exécuter cette commande !"  # level
 ERROR_COOLDOWN: "Vous allez trop vite. Réessayez après {retry_after} secondes."  # retry_after
 ERROR_BOT_MISSING_PERMISSIONS: "Il manque au bot les permissions suivantes : {permissions}"  # permissions
