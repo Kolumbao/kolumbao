@@ -17,7 +17,7 @@ from core.db.models.guild import Guild
 
 from .checks import InsufficientLevel
 from .checks import InsufficientPermissions
-from .errors import ItemNotFound
+from .errors import BannedUser, ItemNotFound
 from .errors import NotManaging
 from .monkey import cache_users_self
 from .monkey import multiple_after_invoke
@@ -25,6 +25,7 @@ from .monkey import multiple_before_invoke
 from .response import bad
 from core import db
 from core.db import query, session
+from core.db.models.user import User
 from core.i18n import i18n
 from core.i18n.i18n import _
 from core.i18n.i18n import I18n
@@ -161,6 +162,7 @@ errors_messages = {
     commands.UserNotFound: lambda error: _("ERROR_USER_NOT_FOUND", name=error.argument),
     ItemNotFound: lambda error: _(error.message),
     NotManaging: lambda error: _("ERROR_NOT_MANAGING"),
+    BannedUser: lambda error: _("ERROR_BANNED", severity=error.level),
     InsufficientLevel: lambda error: _(
         "ERROR_INSUFFICIENT_KOLUMBAO_LEVEL", level=error.level
     ),
@@ -190,12 +192,25 @@ async def on_command_error(ctx: commands.Context, error):
     if create_message:
         await bad(ctx, create_message(error))
         return
+    
     try:
         raise error
     except Exception:
         bot.logger.exception("Unknown command error")
         # Include current UUID for testing
         await bad(ctx, _("ERROR_UNKNOWN", code=UUIDFilter.get_current_uuid()))
+
+
+@bot.check
+async def forbid_banned(ctx: commands.Context):
+    if await ctx.bot.is_owner(ctx.author):
+        return True
+
+    dbuser = User.create(ctx.author)
+    if dbuser.is_banned():
+        raise BannedUser(level=dbuser.last_ban().severity)
+    
+    return True
 
 
 bot.run(getenv("TOKEN"))

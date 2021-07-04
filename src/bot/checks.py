@@ -33,7 +33,7 @@ def has_permission(*permissions: list):
             session.commit()
 
     async def predicate(ctx):
-        if len(permissions) == 0:
+        if len(permissions) == 0 or await ctx.bot.is_owner(ctx.author):
             return True
 
         user = User.create(ctx.author)
