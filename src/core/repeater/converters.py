@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-from datetime import datetime
 from datetime import timedelta
 from typing import Optional
 
@@ -182,7 +181,7 @@ class Discord:
         dict
             The message body
         """
-        user = get_user(message.author.id)
+        user = User.create(message.author)
 
         await cls.check_filters(user, message, stream)
 

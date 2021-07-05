@@ -23,6 +23,8 @@ class FilterError(ValueError):
 async def _mute_filter(user: User, _, __, ___):
     return not user.is_muted()
 
+async def _ban_filter(user: User, _, __, ___):
+    return not user.is_banned()
 
 def _is_invite_allowed(invite: discord.Invite):
     # Kolumbao
@@ -93,6 +95,7 @@ async def _blacklist_filter(_, message: discord.Message, __, stream: Stream):
 
 FILTERS = {
     "MUTE_FILTER": _mute_filter,
+    "BAN_FILTER": _ban_filter,
     "INVITE_FILTER": _invite_filter,
     "CONTENT_RATELIMIT_FILTER": _content_ratelimit_filter,
     "USER_RATELIMIT_FILTER": _user_ratelimit_filter,
