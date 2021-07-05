@@ -6,21 +6,26 @@ from typing import Any, List, Optional, Tuple, TypeVar, Union
 import discord
 from bot.checks import has_permission
 from bot.converters import DurationConverter
+from bot.errors import ItemNotFound
 from bot.format import format_user
-from bot.response import bad, good
+from bot.response import bad, good, raw_resp
 from core.db.database import query, session
 from core.db.models.guild import Guild, StatusCode
 from core.db.models.infraction import Ban, BanSeverity, Mute, Warn
+from core.db.models.stream import Stream
 from core.db.models.user import User
 from core.i18n.i18n import _
+from core.repeater.converters import Discord
 from discord.ext import commands, tasks
 
-T = TypeVar('T')
+T = TypeVar("T")
+
+
 class Moderation(commands.Cog):
     __badge__ = "<:moderationdefault:795414665416278046>"
     __badge_success__ = "<:moderationsuccess:795414701306806282>"
     __badge_fail__ = "<:moderationfail:795414701310869554>"
-    
+
     def __init__(self, bot: commands.Bot) -> None:
         """Create a moderation cog
 
@@ -53,7 +58,7 @@ class Moderation(commands.Cog):
         embed.add_field(name="User", value=f"{user} ({inf.user.discord_id})")
         embed.add_field(name="Reason", value=inf.reason)
 
-        if hasattr(inf, 'end_time'):
+        if hasattr(inf, "end_time"):
             if inf.end_time is not None:
                 embed.set_footer(text="Ends at")
                 embed.timestamp = inf.end_time
@@ -62,7 +67,9 @@ class Moderation(commands.Cog):
 
         await self.channel.send(embed=embed)
 
-    async def log_end(self, inf: Union[Mute, Warn, Ban], intended_end: Optional[datetime] = None):
+    async def log_end(
+        self, inf: Union[Mute, Warn, Ban], intended_end: Optional[datetime] = None
+    ):
         """Log the end of an infraction. Does this regardless of actual
         end time.
 
@@ -85,7 +92,9 @@ class Moderation(commands.Cog):
 
         await self.channel.send(embed=embed)
 
-    def _find_of_model(self, model: T, search: Union[discord.User, timedelta, str]) -> Tuple[List[T], str]:
+    def _find_of_model(
+        self, model: T, search: Union[discord.User, timedelta, str]
+    ) -> Tuple[List[T], str]:
         found = []
         body = ""
         if isinstance(search, discord.User):
@@ -93,9 +102,7 @@ class Moderation(commands.Cog):
             duser = User.create(search)
             infs = (
                 query(model)
-                .filter(
-                    (model.mod_id == duser.id) | (model.user_id == duser.id)
-                )
+                .filter((model.mod_id == duser.id) | (model.user_id == duser.id))
                 .all()
             )
 
@@ -106,14 +113,8 @@ class Moderation(commands.Cog):
             infs = (
                 query(model)
                 .filter(
-                    (
-                        model.end_time - model.start_time
-                        < search + timedelta(hours=1)
-                    )
-                    & (
-                        model.end_time - model.start_time
-                        > search - timedelta(hours=1)
-                    )
+                    (model.end_time - model.start_time < search + timedelta(hours=1))
+                    & (model.end_time - model.start_time > search - timedelta(hours=1))
                 )
                 .all()
             )
@@ -128,7 +129,10 @@ class Moderation(commands.Cog):
         return found, body
 
     async def _search(
-        self, model: Any, ctx: commands.Context, search: Union[DurationConverter, discord.User, int, str]
+        self,
+        model: Any,
+        ctx: commands.Context,
+        search: Union[DurationConverter, discord.User, int, str],
     ):
         found, body = self._find_of_model(model, search)
 
@@ -166,7 +170,7 @@ class Moderation(commands.Cog):
     ):
         if ctx.invoked_subcommand is None:
             dbuser = User.create(user)
-            
+
             # If already muted, don't mute again
             if dbuser.is_muted():
                 return await bad(
@@ -174,12 +178,7 @@ class Moderation(commands.Cog):
                 )
 
             # Create mute
-            mute = Mute.create(
-                dbuser,
-                User.create(ctx.author),
-                reason,
-                duration
-            )
+            mute = Mute.create(dbuser, User.create(ctx.author), reason, duration)
 
             # Add to database
             session.add(mute)
@@ -196,13 +195,11 @@ class Moderation(commands.Cog):
         user: discord.User,
     ):
         dbuser = User.create(user)
-        
+
         # If not muted, don't unmute
         if not dbuser.is_muted():
-            return await bad(
-                ctx, _("MUTE__NOT_MUTED")
-            )
-        
+            return await bad(ctx, _("MUTE__NOT_MUTED"))
+
         last_mute = dbuser.last_mute()
         intended_end = last_mute.end_time
         last_mute.end_time = datetime.now()
@@ -261,11 +258,7 @@ class Moderation(commands.Cog):
 
             # Create warn
             ban = Ban.create(
-                dbuser,
-                User.create(ctx.author),
-                reason,
-                severity,
-                duration
+                dbuser, User.create(ctx.author), reason, severity, duration
             )
 
             # Add to database
@@ -274,7 +267,7 @@ class Moderation(commands.Cog):
 
             await good(ctx, _("BAN__ADDED", inf_id=ban.id))
             await self.log_infraction(ban)
-    
+
     @has_permission("MANAGE_MUTES")
     @commands.command()
     async def unban(
@@ -283,13 +276,11 @@ class Moderation(commands.Cog):
         user: discord.User,
     ):
         dbuser = User.create(user)
-        
+
         # If not muted, don't unmute
         if not dbuser.is_banned():
-            return await bad(
-                ctx, _("BAN__NOT_BANNED")
-            )
-        
+            return await bad(ctx, _("BAN__NOT_BANNED"))
+
         last_ban = dbuser.last_ban()
         intended_end = last_ban.end_time
         last_ban.end_time = datetime.now()
@@ -306,23 +297,67 @@ class Moderation(commands.Cog):
         self, ctx, *, search: Union[DurationConverter, discord.User, int, str]
     ):
         await self._search(Mute, ctx, search)
-    
+
     @ban.command("search")
-    async def ban__search(
-        self, ctx, *, search: Union[discord.User, int, str]
-    ):
+    async def ban__search(self, ctx, *, search: Union[discord.User, int, str]):
         await self._search(Ban, ctx, search)
-    
+
     @warn.command("search")
-    async def warn__search(
-        self, ctx, *, search: Union[discord.User, int, str]
-    ):
+    async def warn__search(self, ctx, *, search: Union[discord.User, int, str]):
         await self._search(Warn, ctx, search)
+
+    @has_permission("MANAGE_LOCKDOWN")
+    @commands.command("lockdown")
+    async def lockdown(
+        self, ctx, stream_name: str, type_: str, value: Optional[int] = 5
+    ):
+        stream = Stream.create(stream_name)
+        if stream is None:
+            raise ItemNotFound(Stream)
+
+        if type_ == "level":
+            stream.lockdown = -value
+            text = _(
+                "LOCKDOWN__LEVEL",
+                level=value,
+                stream=stream.name,
+                locale=stream.language,
+            )
+        elif type_ == "slow":
+            stream.lockdown = value
+            text = _(
+                "LOCKDOWN__SLOWMODE",
+                limit=value,
+                stream=stream.name,
+                locale=stream.language,
+            )
+        elif type_ == "off":
+            stream.lockdown = 0
+            text = _(
+                "LOCKDOWN__DISACTIVATED", stream=stream.name, locale=stream.language
+            )
+        else:
+            return await bad(ctx, _("LOCKDOWN__INVALID_TYPE"))
+
+        embed = raw_resp(ctx, text)
+        embed.set_thumbnail(
+            url="https://cdn.discordapp.com/emojis/796755138978643988.png?v=1"
+        )
+        await self.bot.client.send_art(
+            "", stream, embeds=[Discord.prepare_embed(embed)]
+        )
+
+        await good(ctx, text)
 
     #### Community protection
     @tasks.loop(hours=1)
     async def _ensure_banned_guilds(self):
-        for dbguild in query(Guild).filter(Guild.status == StatusCode.AWAITING_AUTO_DISABLE).all():
+        self.bot.logger.info(
+            "Auditing all guilds to ensure disables are enforced"
+        )
+        for dbguild in (
+            query(Guild).filter(Guild.status == StatusCode.AWAITING_AUTO_DISABLE).all()
+        ):
             dbguild.status = StatusCode.AUTO_USER_DISABLED
             session.commit()
 
@@ -335,22 +370,32 @@ class Moderation(commands.Cog):
 
                 if target is None:
                     target = dbguild.discord.owner
-                
+
                 if target:
                     try:
-                        await target.send(
-                            _("GUILD__BANNED_USER")
-                        )
+                        await target.send(_("GUILD__BANNED_USER"))
                     except:
                         pass
-    
+                    finally:
+                        self.bot.logger.info(
+                            f"Guild {dbguild.discord} ({dbguild.discord_id}) has been disabled"
+                        )
+
     @tasks.loop(minutes=30)
     async def _ensure_banned_members(self):
+        self.bot.logger.info(
+            "Auditing all guilds to ensure banned members are not on servers"
+        )
         # Get members
-        query_result = query(Ban).filter(
-            ((Ban.end_time == None) | (Ban.end_time > datetime.now())) & (Ban.severity == BanSeverity.BLANKET)
-        ).all()
-        
+        query_result = (
+            query(Ban)
+            .filter(
+                ((Ban.end_time == None) | (Ban.end_time > datetime.now()))
+                & (Ban.severity == BanSeverity.BLANKET)
+            )
+            .all()
+        )
+
         banned_users = set(map(lambda b: b.user.discord, query_result))
 
         # Check guilds that aren't already banned
@@ -365,9 +410,17 @@ class Moderation(commands.Cog):
                     dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
                     session.commit()
 
-                    await self.send_user_warning_to_guild(dbguild, banned_users_in_guild)
+                    await self.send_user_warning_to_guild(
+                        dbguild, banned_users_in_guild
+                    )
 
-    async def send_user_warning_to_guild(self, dbguild: Guild, banned_users_in_guild: list):
+    async def send_user_warning_to_guild(
+        self, dbguild: Guild, banned_users_in_guild: list
+    ):
+        self.bot.logger.info(
+            f"Guild {dbguild.discord} ({dbguild.discord_id}) has received a"
+            f"warning for users: {list(map(str, banned_users_in_guild))}"
+        )
         for channel in dbguild.discord.text_channels:
             if channel.permissions_for(dbguild.discord.me).send_messages:
                 target = channel
@@ -375,18 +428,18 @@ class Moderation(commands.Cog):
 
         if target is None:
             target = dbguild.discord.owner
-                        
+
         if target:
             try:
                 await target.send(
-                    _("GUILD__WARNING_BANNED_USERS_PRESENT",
-                        users=", ".join(map(str, banned_users_in_guild))    
+                    _(
+                        "GUILD__WARNING_BANNED_USERS_PRESENT",
+                        users=", ".join(map(str, banned_users_in_guild)),
                     )
                 )
             except:
                 pass
 
-    
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         dbuser = User.create(member)
@@ -397,10 +450,9 @@ class Moderation(commands.Cog):
                 # Set to warning
                 dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
                 session.commit()
-                
+
                 if dbguild.discord:
                     await self.send_user_warning_to_guild(dbguild, [member])
-
 
 
 def setup(bot: commands.Bot):
