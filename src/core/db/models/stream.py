@@ -36,8 +36,20 @@ stream_staff = Table(
 BASIC_PERMISSIONS = [Base]
 
 
-class Feature(Base):
+class Feature(Base, SharedAttributes):
     __tablename__ = "features"
+
+    @classmethod
+    def create(cls, name: str, create_default: bool = True) -> "Feature":
+        from .. import query, session
+
+        dbobject = query(cls).filter(cls.name == name).first()
+        if dbobject is None and create_default:
+            dbobject = cls(name=name)
+            session.add(dbobject)
+        
+        return dbobject
+    
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
