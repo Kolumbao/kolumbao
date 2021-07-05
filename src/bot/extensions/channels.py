@@ -236,6 +236,7 @@ class Channels(commands.Cog):
                 "rules": self.rules,
                 "lang": self.lang,
                 "password": self.password,
+                "reset-password": self.reset_password,
                 "nsfw": self.nsfw,
                 "delete": self.delete,
             }
@@ -393,6 +394,17 @@ class Channels(commands.Cog):
         session.commit()
 
         await good(ctx, _("PASSWORD_SET"))
+        self.bot.logger.info(
+            "Set password to {} for {}".format(stream.password, stream.name)
+        )
+
+    async def reset_password(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        stream.set_password(None)
+        session.commit()
+
+        await good(interaction, _("PASSWORD_RESET"))
         self.bot.logger.info(
             "Set password to {} for {}".format(stream.password, stream.name)
         )
