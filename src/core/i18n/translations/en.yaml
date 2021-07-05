@@ -260,8 +260,8 @@ PROFILE__ROLES: "Roles"
 PROFILE__LAST_SEEN: "Last seen"
 PROFILE__NUMBER_MESSAGES: "Number of messages"
 PROFILE__POINTS: "Points"
-PROFILE__OWNS: "Owns the following streams:"
-PROFILE__STAFF_IN: "Is staff in the following streams:"
+PROFILE__OWNS: "Owns the following streams"
+PROFILE__STAFF_IN: "Is staff in the following streams"
 POINTS__LEVEL_UP: "**{user}** levelled up! Now level {level}"  # level, user
 POINTS__WELCOME: "**{user}**, welcome to Kolumbao, you appear to be new here."  # user
 POINTS__LEVEL: "Level"

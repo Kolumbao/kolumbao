@@ -8,8 +8,12 @@ def invisible(cls: discord.Colour):
     """A factory method that returns a Colour with a value of 0xff6961."""
     return cls(0x2F3136)  # noqa
 
+@classmethod
+def kolumbao(cls: discord.Colour):
+    return cls(0xffb20f)
 
 discord.Colour.invisible = invisible
+discord.Colour.kolumbao = kolumbao
 
 
 def raw_resp(
@@ -17,7 +21,7 @@ def raw_resp(
     text: str,
     title: str = None,
     badge: str = None,
-    colour: discord.Colour = discord.Colour.invisible(),
+    colour: discord.Colour = discord.Colour.kolumbao(),
     fields: list = None,
 ):
     """
