@@ -10,6 +10,7 @@ from operator import attrgetter
 from os import getenv
 from typing import List
 from typing import Tuple
+import discord
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -57,12 +58,25 @@ class StatSync(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.update_top.start()
+        self.update_status.start()
 
     @tasks.loop(seconds=60)
     async def update_top(self):
         await self._update_top_streams()
         await self._update_hot_streams()
         await self._update_message_stats()
+
+    @tasks.loop(minutes=60)
+    async def update_status(self):
+        streams = await self.bot.loop.run_in_executor(None, query(Stream).count)
+        messages = await self.bot.loop.run_in_executor(None, query(OriginMessage).count)
+
+        await self.bot.change_presence(
+            activity=discord.Activity(
+                name=f"{streams} streams | {messages} messages",
+                type=discord.ActivityType.watching,
+            )
+        )
 
     async def _update_hot_streams(self):
         if getenv("HOT_CHANNELS_STATS") is None:
