@@ -9,8 +9,6 @@ from ..response import resp
 from core.db import session
 from core.db.models import Feature
 from core.db.models import Stream
-from core.db.utils import get_feature
-from core.db.utils import get_stream
 from core.i18n.i18n import _
 
 
@@ -25,8 +23,8 @@ class Features(commands.Cog):
     @has_permission("MANAGE_FEATURES")
     @commands.command("get-features")
     async def get_features(self, ctx, name: str):
-        """Get all features available"""
-        stream = get_stream(name)
+        """Get all features available on a stream"""
+        stream = Stream.create(name)
         if stream is None:
             raise ItemNotFound(Stream)
 
@@ -49,14 +47,12 @@ class Features(commands.Cog):
     @has_permission("MANAGE_FEATURES")
     @commands.command("add-feature")
     async def add_feature(self, ctx, stream_name: str, feature_name: str.upper):
-        """Make a new feature"""
-        stream = get_stream(stream_name)
+        """Add a feature to a channel"""
+        stream = Stream.create(stream_name)
         if stream is None:
             raise ItemNotFound(Stream)
 
-        feature = get_feature(feature_name)
-        if feature is None:
-            raise ItemNotFound(Feature)
+        feature = Feature.create(feature_name)
 
         if feature in stream.feats:
             return await bad(ctx, _("ADD_FEATURE__ALREADY_ADDED"))
@@ -69,16 +65,13 @@ class Features(commands.Cog):
     @has_permission("MANAGE_FEATURES")
     @commands.command("remove-feature")
     async def remove_feature(self, ctx, stream_name: str, feature_name: str.upper):
-        """Remove a feature"""
-        stream = get_stream(stream_name)
+        """Remove a feature from a channel"""
+        stream = Stream.create(stream_name)
         if stream is None:
             raise ItemNotFound(Stream)
 
-        feature = get_feature(feature_name)
-        if feature is None:
-            raise ItemNotFound(Feature)
-
-        if feature not in stream.feats:
+        feature = Feature.create(feature_name, create_default=False)
+        if feature is None or feature not in stream.feats:
             return await bad(ctx, _("REMOVE_FEATURE__NOT_ADDED"))
 
         stream.feats.remove(feature)

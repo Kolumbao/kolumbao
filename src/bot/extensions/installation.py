@@ -44,25 +44,29 @@ class Installation(commands.Cog):
 
     @commands.command("all")
     async def all_(self, ctx):
-        streams = query(Stream).all()
-        streams.sort(key=lambda stream: stream.message_count, reverse=True)
+        message = await ctx.send(_("COLLECTING_DATA"))
+        async with ctx.typing():
+            streams = await self.bot.loop.run_in_executor(None, query(Stream).all)
+            streams.sort(key=lambda stream: stream.message_count, reverse=True)
 
-        embeds = []
-        for stream in streams:
-            embed = make_stream_embed(stream, get_guild(ctx.guild.id))
-            embeds.append(embed)
+            embeds = []
+            for stream in streams:
+                embed = make_stream_embed(stream, Guild.create(ctx.guild))
+                embeds.append(embed)
 
-        await EmbedPaginatorSession(ctx, *embeds).run()
+            await EmbedPaginatorSession(ctx, *embeds).run()
+        
+        await message.delete()
 
     @commands.command()
     async def installed(self, ctx):
-        dbguild = get_guild(ctx.guild.id)
-        nodes = (
+        dbguild = Guild.create(ctx.guild)
+        nodes = await self.bot.loop.run_in_executor(None, (
             query(Node)
             .filter(Node.guild_id == dbguild.id)
             .order_by(Node.webhook_id.asc())
-            .all()
-        )
+            .all
+        ))
 
         embeds = []
         for node in nodes:
@@ -263,7 +267,7 @@ class Installation(commands.Cog):
             await EmbedPaginatorSession(
                 ctx,
                 *[
-                    make_stream_embed(stream, get_guild(ctx.guild.id))
+                    make_stream_embed(stream, Guild.create(ctx.guild))
                     for stream in found_streams
                 ],
             ).run()

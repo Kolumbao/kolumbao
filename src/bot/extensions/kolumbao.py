@@ -38,6 +38,7 @@ from core.repeater.filters import FilterError
 
 
 class Kolumbao(commands.Cog):
+    __badge__ = "<:greyedout:861644856837013524>"
     max_retries = 5
 
     def __init__(self, bot: commands.Bot):
