@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-04 23:08:18.709571
+# Generated on 2021-07-05 23:53:20.340377
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -89,6 +89,7 @@ RULES__SET: |
   # value
 PASSWORD__ENTER: "Saisissez le nouveau mot de passe"
 PASSWORD_SET: "Le mot de passe a été défini. S'il n'est pas supprimé, nous vous recommandons d'effacer votre message pour cacher le mot de passe"
+PASSWORD_RESET: "Le mot de passe a été enlevé"
 NSFW__OPTIONS: "Voulez-vous que votre salon soit marqué comme NSFW ?"
 NSFW__YES: "Oui"
 NSFW__NO: "Non"
@@ -127,6 +128,7 @@ HELP__SUBCOMMANDS: "Sous-commandes"
 HELP__PARENTS: "Commandes parents"
 
 # ..\..\..\src\bot\extensions\installation.py
+COLLECTING_DATA: "En cours de collection des informations nécessaires..."
 INSTALLED__TITLE: "Salon installé"
 JOIN__NO_STREAM: "Impossible de trouver un flux avec ce nom"
 JOIN__ENTER_PASSWORD: "Il faut saisir le mot de passe de ce flux. Vous n'avez que 30 secondes pour répondre"
@@ -176,28 +178,18 @@ MUTE__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
 MUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
 UNMUTE__SUCCESS: "Cet utilisateur n'est plus mute"  # inf_id
 WARN__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
+BAN__ALREADY_BANNED: ""  # mute_id
 BAN__SEVERITY_UNKNOWN: "Sévérité inconnue donnée"
 BAN__ADDED: "Bannisement #{inf_id} ajouté"  # inf_id
 BAN__NOT_BANNED: "Cet utilisateur n'est pas ban"
 UNBAN__SUCCESS: "Débanni avec succès"  # inf_id
-GUILD__BANNED_USER: "Votre guilde a été bannie en raison de la présence d'un membre sévèrement banni."
-GUILD__WARNING_BANNED_USERS_PRESENT: "**Avertissement!** Si vous n'agissez pas rapidement, votre guilde sera bannie en raison de la présence des membres suivants : {users}"  # users
-
-# ..\..\..\src\bot\extensions\old_moderation.py
-UNMUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
-SEARCH_INF__ID_NOT_FOUND: "Aucune infraction trouvée avec l'ID {inf_id}"  # inf_id
-INF__ID: "ID"
-INF__START_TIME: "Début"
-INF__END_TIME: "Fin"
-INF__USER: "Utilisateur"
-INF__MOD: "Modérateur"
-EDIT_INF__NOT_FOUND: "Aucune infraction trouvée"
-EDIT_INF__INVALID_FIELD: "Champ invalid"
-EDIT_INF__SUCCESS: "Succès. `{field}` est désormais défini comme `{value}`"  # field, value
 LOCKDOWN__LEVEL: "A cause du nouveau confinement, il faut être du niveau {level} pour que vos messages soient envoyés"  # level, stream, locale
 LOCKDOWN__SLOWMODE: "A cause du nouveau confinement, vous ne pouvez envoyer qu'un message chaque {limit} secondes"  # limit, stream, locale
 LOCKDOWN__DISACTIVATED: "Le confinement a été désactivé dans **{stream}**"  # stream, locale
 LOCKDOWN__INVALID_TYPE: "Type de confinement non valable"
+GUILD__BANNED_USER: "Votre serveur a été banni en raison de la présence d'un membre sévèrement banni. Vous pouvez débannir votre serveur en bannissant l'utilisateur mentionné"
+GUILD__NO_LONGER_BANNED: "Votre serveur ne contient plus de membres bannis. Il est donc débanni !"
+GUILD__WARNING_BANNED_USERS_PRESENT: "**Avertissement!** Si vous n'agissez pas rapidement, votre serveur sera banni en raison de la présence des membres suivants : {users}"  # users
 
 # ..\..\..\src\bot\extensions\roles.py
 INSPECT_CHANNELS: "Consultez des salons"
@@ -256,6 +248,8 @@ LANGUAGE__UPDATED: "Langue mise à jour !"
 USER_STAFF_NOTICE: "*Cet utilisateur fait parti du staff de Kolumbao*"
 USER_ELEVATED_PERMISSIONS: "*Cet utilisateur a des permissions élevées*"
 PROFILE__LAST_SEEN_NEVER: "Jamais"
+PROFILE__NONE: "Aucun"
+PROFILE__KOLUMBAO_STAFF: "Tout (Staff du Kolumbao)"
 PROFILE__BASIC_INFO: "Informations Basiques"
 PROFILE__PROFILE: "Profil"
 PROFILE__ID: "ID"

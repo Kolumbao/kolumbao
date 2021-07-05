@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-04 23:08:12.458284
+# Generated on 2021-07-05 23:53:16.659458
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -89,6 +89,7 @@ RULES__SET: |
   # value
 PASSWORD__ENTER: "Enter a new password"
 PASSWORD_SET: "The password has been set. If not deleted, we recommend you delete your message to hide the password"
+PASSWORD_RESET: "Password has been reset"
 NSFW__OPTIONS: "Would you like your channel to be marked as NSFW?"
 NSFW__YES: "Yes"
 NSFW__NO: "No"
@@ -127,6 +128,7 @@ HELP__SUBCOMMANDS: "Subcommands"
 HELP__PARENTS: "Parent commands"
 
 # ..\..\..\src\bot\extensions\installation.py
+COLLECTING_DATA: "Collecting required data..."
 INSTALLED__TITLE: "Installed Channel"
 JOIN__NO_STREAM: "That shared channel doesn't exist. Try checking for typos"
 JOIN__ENTER_PASSWORD: "Enter the password for this channel. If you do not respond after 30 seconds, it will time out"
@@ -176,28 +178,18 @@ MUTE__ADDED: "Infraction #{inf_id} added"  # inf_id
 MUTE__NOT_MUTED: "That user is not muted"
 UNMUTE__SUCCESS: "Successfully unmuted this user"  # inf_id
 WARN__ADDED: "Infraction #{inf_id} added"  # inf_id
+BAN__ALREADY_BANNED: ""  # mute_id
 BAN__SEVERITY_UNKNOWN: "Unknown severity given"
 BAN__ADDED: "Ban #{inf_id} added"  # inf_id
 BAN__NOT_BANNED: "That user is not banned"
 UNBAN__SUCCESS: "Unbanned successfully"  # inf_id
-GUILD__BANNED_USER: "Your guild has been banned due to the presence of a severely banned member."
-GUILD__WARNING_BANNED_USERS_PRESENT: "**Warning!** If you do not act soon, your guild will be banned due to the presence of the following members: {users}"  # users
-
-# ..\..\..\src\bot\extensions\old_moderation.py
-UNMUTE__NOT_MUTED: "This user is not muted"
-SEARCH_INF__ID_NOT_FOUND: "No infraction found with ID {inf_id}"  # inf_id
-INF__ID: "ID"
-INF__START_TIME: "Start time"
-INF__END_TIME: "End time"
-INF__USER: "User"
-INF__MOD: "Moderator"
-EDIT_INF__NOT_FOUND: "Infraction not found"
-EDIT_INF__INVALID_FIELD: "Invalid field"
-EDIT_INF__SUCCESS: "Success. `{field}` now set to `{value}`"  # field, value
 LOCKDOWN__LEVEL: "Lockdown now requires level {level} to talk in **{stream}**"  # level, stream, locale
 LOCKDOWN__SLOWMODE: "Lockdown now restricts users to a slowmode of {limit}s in **{stream}**"  # limit, stream, locale
 LOCKDOWN__DISACTIVATED: "Lockdown has been disactivated in **{stream}**"  # stream, locale
 LOCKDOWN__INVALID_TYPE: "Invalid lockdown type"
+GUILD__BANNED_USER: "Your guild has been banned due to the presence of a severely banned member. You can unban your server by removing the banned members."
+GUILD__NO_LONGER_BANNED: "Your guild is no longer banned as there are no longer any banned members in it."
+GUILD__WARNING_BANNED_USERS_PRESENT: "**Warning!** If you do not act soon, your guild will be banned due to the presence of the following members: {users}"  # users
 
 # ..\..\..\src\bot\extensions\roles.py
 INSPECT_CHANNELS: "Inspect channels"
@@ -251,6 +243,8 @@ LANGUAGE__UPDATED: "Language updated!"
 USER_STAFF_NOTICE: "<:shieldstaff:796049352841101378> This user is a member of the Kolumbao staff team"
 USER_ELEVATED_PERMISSIONS: "<:goldenstar:783414464081952799> This user has elevated permissions"
 PROFILE__LAST_SEEN_NEVER: "Never"
+PROFILE__NONE: "None"
+PROFILE__KOLUMBAO_STAFF: "All (Kolumbao Staff)"
 PROFILE__BASIC_INFO: "Basic Information"
 PROFILE__PROFILE: "Profile"
 PROFILE__ID: "ID"

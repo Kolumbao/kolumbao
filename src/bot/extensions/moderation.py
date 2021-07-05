@@ -4,11 +4,13 @@ from os import getenv
 from typing import Any, List, Optional, Tuple, TypeVar, Union
 
 import discord
+from discord.ext.commands.errors import DisabledCommand
 from bot.checks import has_permission
 from bot.converters import DurationConverter
 from bot.errors import ItemNotFound
 from bot.format import format_user
 from bot.response import bad, good, raw_resp
+from bot.utils import find_target
 from core.db.database import query, session
 from core.db.models.guild import Guild, StatusCode
 from core.db.models.infraction import Ban, BanSeverity, Mute, Warn
@@ -34,8 +36,7 @@ class Moderation(commands.Cog):
         """
         self.bot = bot
         self.channel = self.bot.get_channel(int(getenv("INFRACTION_LOG")))
-        self._ensure_banned_guilds.start()
-        self._ensure_banned_members.start()
+        self._ensure_banned.start()
 
     async def log_infraction(self, inf: Union[Mute, Warn, Ban]):
         """Log the creation of an infraction. Does this regardless of actual
@@ -250,6 +251,11 @@ class Moderation(commands.Cog):
         if ctx.invoked_subcommand is None:
             dbuser = User.create(user)
 
+            if dbuser.is_banned():
+                return await bad(
+                    ctx, _("BAN__ALREADY_BANNED", mute_id=dbuser.last_ban().id)
+                )
+
             if isinstance(severity, str):
                 if hasattr(BanSeverity, severity.upper()):
                     severity = getattr(BanSeverity, severity.upper())
@@ -349,40 +355,8 @@ class Moderation(commands.Cog):
 
         await good(ctx, text)
 
-    #### Community protection
-    @tasks.loop(hours=1)
-    async def _ensure_banned_guilds(self):
-        self.bot.logger.info(
-            "Auditing all guilds to ensure disables are enforced"
-        )
-        for dbguild in (
-            query(Guild).filter(Guild.status == StatusCode.AWAITING_AUTO_DISABLE).all()
-        ):
-            dbguild.status = StatusCode.AUTO_USER_DISABLED
-            session.commit()
-
-            # Try to fetch guild
-            if dbguild.discord:
-                for channel in dbguild.discord.text_channels:
-                    if channel.permissions_for(dbguild.discord.me).send_messages:
-                        target = channel
-                        break
-
-                if target is None:
-                    target = dbguild.discord.owner
-
-                if target:
-                    try:
-                        await target.send(_("GUILD__BANNED_USER"))
-                    except:
-                        pass
-                    finally:
-                        self.bot.logger.info(
-                            f"Guild {dbguild.discord} ({dbguild.discord_id}) has been disabled"
-                        )
-
     @tasks.loop(minutes=30)
-    async def _ensure_banned_members(self):
+    async def _ensure_banned(self):
         self.bot.logger.info(
             "Auditing all guilds to ensure banned members are not on servers"
         )
@@ -399,20 +373,37 @@ class Moderation(commands.Cog):
         banned_users = set(map(lambda b: b.user.discord, query_result))
 
         # Check guilds that aren't already banned
-        for dbguild in query(Guild).filter(Guild.status == StatusCode.NONE).all():
+        for dbguild in (
+            query(Guild)
+            .filter(
+                (Guild.status == StatusCode.NONE)
+                | (Guild.status == StatusCode.AWAITING_AUTO_DISABLE)
+            )
+            .all()
+        ):
             if dbguild.discord:
+                target = find_target(dbguild.discord)
                 members = set(dbguild.discord.members)
 
                 # Get intersection
                 banned_users_in_guild = list(banned_users.intersection(members))
                 if len(banned_users_in_guild) > 0:
-                    # Disable
-                    dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
-                    session.commit()
+                    if dbguild.status == StatusCode.NONE:
+                        # Disable
+                        dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
+                        session.commit()
 
-                    await self.send_user_warning_to_guild(
-                        dbguild, banned_users_in_guild
-                    )
+                        await self.send_user_warning_to_guild(
+                            dbguild, banned_users_in_guild
+                        )
+                    elif dbguild.status == StatusCode.AWAITING_AUTO_DISABLE:
+                        dbguild.status = StatusCode.AUTO_USER_DISABLED
+                        await target.send(_("GUILD__BANNED_USER"))
+                elif dbguild.status != StatusCode.NONE:
+                    dbguild.status = StatusCode.NONE
+                    await target.send(_("GUILD__NO_LONGER_BANNED"))
+                
+                session.commit()
 
     async def send_user_warning_to_guild(
         self, dbguild: Guild, banned_users_in_guild: list
@@ -421,24 +412,12 @@ class Moderation(commands.Cog):
             f"Guild {dbguild.discord} ({dbguild.discord_id}) has received a"
             f"warning for users: {list(map(str, banned_users_in_guild))}"
         )
-        for channel in dbguild.discord.text_channels:
-            if channel.permissions_for(dbguild.discord.me).send_messages:
-                target = channel
-                break
-
-        if target is None:
-            target = dbguild.discord.owner
-
-        if target:
-            try:
-                await target.send(
-                    _(
-                        "GUILD__WARNING_BANNED_USERS_PRESENT",
-                        users=", ".join(map(str, banned_users_in_guild)),
-                    )
-                )
-            except:
-                pass
+        await find_target(dbguild.discord).send(
+            _(
+                "GUILD__WARNING_BANNED_USERS_PRESENT",
+                users=", ".join(map(str, banned_users_in_guild)),
+            )
+        )
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):

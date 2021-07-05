@@ -86,8 +86,15 @@ class Users(commands.Cog):
         if m is not None:
             last_seen = str(m.sent_at)
         
-        streams_list = ", ".join(map(lambda m: m.name, dbuser.streams))
-        staff_in_list = ", ".join(map(lambda m: m.name, dbuser.staff_in))
+        streams_list = _("PROFILE__NONE")
+        if len(dbuser.streams) > 0:
+            streams_list = ", ".join(map(lambda m: m.name, dbuser.streams))
+
+        staff_in_list = _("PROFILE__NONE")
+        if dbuser.staff:
+            staff_in_list = _("PROFILE__KOLUMBAO_STAFF")
+        elif len(dbuser.staff_in) > 0:
+            staff_in_list = ", ".join(map(lambda m: m.name, dbuser.staff_in))
 
         content += cleandoc(
             f"""
