@@ -30,8 +30,8 @@ class Mute(Base, SharedAttributes):
     mod_id = Column(Integer, ForeignKey("users.id"))
     mod = relationship("User", backref="mutes_made", foreign_keys=[mod_id])
 
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime)
+    start_time = Column("start_time", DateTime(timezone=pytz.utc), nullable=False)
+    end_time = Column("end_time", DateTime(timezone=pytz.utc))
 
     reason = Column("reason", String)
 
@@ -91,8 +91,8 @@ class Ban(Base, SharedAttributes):
     mod_id = Column(Integer, ForeignKey("users.id"))
     mod = relationship("User", backref="bans_made", foreign_keys=[mod_id])
 
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime)
+    start_time = Column("start_time", DateTime(timezone=pytz.utc), nullable=False)
+    end_time = Column("end_time", DateTime(timezone=pytz.utc))
 
     reason = Column("reason", String)
     severity = Column("severity", Integer, default=BanSeverity.USER)
