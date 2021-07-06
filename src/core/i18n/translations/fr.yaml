@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-06 15:00:31.024076
+# Generated on 2021-07-06 21:04:15.612049
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -163,11 +163,19 @@ INSTALLED: |
   # locale
 
 # ..\..\..\src\bot\extensions\kolumbao.py
+ANNOUNCE__PICK_STREAM: "Choisissez un flux auquel on devrait envoyer l'annonce"
+ANNOUNCE__SELECT: "Selection du flux"
+ANNOUNCE__ALL: "Tous les flux"
+ANNOUNCE__CLOSE: "Fermer"
+ANNOUNCE__DONE: "Le message a été envoyé !"
 DELAY_CONTENT: "Les retards actuels à Kolumbao"
 ERROR_AUTO_MUTED: "Vous êtes automatiquement mute pour 5 minutes"
 
 # ..\..\..\src\bot\extensions\moderation.py
-INFRACTION__START: "Vous avez une nouvelle punition (`{name}`) pour la raison suivante. Vous recevrez un nouveau quand elle est finie.\n> {reason}"  # name, locale
+INFRACTION__START: |
+    Vous avez une nouvelle punition (`{name}`) pour la raison suivante. Vous recevrez un nouveau quand elle est finie.
+    > {reason}
+  # name, reason, locale
 INFRACTION__END: "Votre punition pour {reason} qui a commencé le {start} a fini."  # name, start
 SEARCH_INF__BY_USER: "Cherche pour l'utilisateur {user_id}"  # user_id
 SEARCH_INF__BY_DURATION: "Cherche pour la durée {user_id}"  # duration

@@ -12,6 +12,8 @@ from discord.errors import NotFound
 from discord.ext import commands
 from discord.raw_models import RawMessageUpdateEvent
 from discord.raw_models import RawReactionActionEvent
+from discord_components.component import Select, SelectOption
+from discord_components.interaction import Interaction
 
 from core.db.models.user import User
 
@@ -61,6 +63,58 @@ class Kolumbao(commands.Cog):
             r += f"±{error.total_seconds()*1000:.2f} (avg. {mean_latency.total_seconds()*1000:.2f})"
 
         return r
+
+    @has_permission("CREATE_ANNOUNCEMENTS")
+    @commands.command()
+    async def announce(self, ctx: commands.Context, *, content: str):
+        # Find stream...
+        streams = query(Stream).all()
+        streams.sort(key=lambda stream: stream.message_count, reverse=True)
+        stream_to_announce_to = []
+
+        # Use buttons
+        await ctx.send(
+            content=_("ANNOUNCE__PICK_STREAM"),
+            components=[
+                Select(
+                    placeholder=_("ANNOUNCE__SELECT"),
+                    options=[
+                        SelectOption(label=_("ANNOUNCE__ALL"), value="ALL"),
+                        *[
+                            SelectOption(label=stream.name, value=stream.name)
+                            for stream in streams
+                        ],
+                        SelectOption(label=_("ANNOUNCE__CLOSE"), value="close")
+                    ],
+                )
+            ],
+            ephemeral=False
+        )
+        
+        interaction = None
+        try:
+            interaction: Interaction = await self.bot.wait_for(
+                "select_option", check=lambda i: i.user == ctx.author, timeout=60
+            )
+
+            value = interaction.component[0].value
+
+            if value == "close":
+                raise asyncio.TimeoutError()
+        except asyncio.TimeoutError:
+            return
+        else:
+            if value == "ALL":
+                stream_to_announce_to = streams
+            else:
+                stream_to_announce_to = [Stream.create(value)]
+        
+        for stream in stream_to_announce_to:
+            await self.bot.client.send_art(
+                content, stream
+            )
+
+        await interaction.respond(content=_("ANNOUNCE__DONE"), ephemeral=False)
 
     @commands.command()
     async def delay(self, ctx):
@@ -325,8 +379,11 @@ Guild: {guild}
 
         amount = 0
         for message in [quoted_message, *quoted_message.result_messages]:
-            await self.delete_queue.put((message.message_id, message.node.channel_id))
-            amount += 1
+            # Sometimes the node is None, likely because of it being an
+            # artificial message
+            if message.node is not None:
+                await self.delete_queue.put((message.message_id, message.node.channel_id))
+                amount += 1
 
         session.delete(quoted_message)
         session.commit()

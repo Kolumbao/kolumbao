@@ -475,6 +475,7 @@ class Client(RabbitMQClient):
                 user=user or User.create(discord.Object(self._default_user)),
                 message_id=0,
                 content=content,
+                stream_id=target.stream_id if isinstance(target, Node) else target.id
             )
             session.add(original)
             session.commit()
