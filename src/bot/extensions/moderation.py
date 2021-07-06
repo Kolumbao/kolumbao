@@ -4,11 +4,11 @@ from os import getenv
 from typing import Any, List, Optional, Tuple, TypeVar, Union
 
 import discord
-from discord.ext.commands.errors import DisabledCommand
+import pytz
 from bot.checks import has_permission
 from bot.converters import DurationConverter
 from bot.errors import ItemNotFound
-from bot.format import format_user
+from bot.format import format_time, format_user
 from bot.response import bad, good, raw_resp
 from bot.utils import find_target
 from core.db.database import query, session
@@ -19,8 +19,120 @@ from core.db.models.user import User
 from core.i18n.i18n import _
 from core.repeater.converters import Discord
 from discord.ext import commands, tasks
+from discord.utils import sleep_until
 
 T = TypeVar("T")
+
+
+class ModerationNotifier:
+    def __init__(self, bot: commands.Bot, model) -> None:
+        self.bot = bot
+        self.tasks = {}
+        self.model = model
+        if not hasattr(self.model, "end_time"):
+            raise TypeError("Model does not have end time value, which is required")
+        if not hasattr(self.model, "user"):
+            raise TypeError("Model does not have user value, which is required")
+
+        self.notification_loop.start()
+
+    @property
+    def name(self):
+        return self.model.__name__.lower()
+
+    async def queue(self, obj, notify_start: bool = True):
+        """
+        Queue a new object of the model, and send them a message
+
+        Parameters
+        ----------
+        obj : Any
+            The object
+        notify_start : bool, optional
+            Whether to send a message marking the start, by default True
+
+        Returns
+        -------
+        asyncio.Task
+            The task in charge of this
+        """
+        if notify_start and obj.user.discord:
+            await obj.user.discord.send(
+                _("INFRACTION__START", name=self.name, reason=obj.reason, locale=obj.user.language)
+            )
+
+        return self.create_end_task(obj)
+
+    @tasks.loop(hours=1)
+    async def notification_loop(self):
+        # Get all objects that end in less than an hour
+        instances = query(self.model).filter(
+            (self.model.end_time > datetime.now(pytz.utc))
+            & (self.model.end_time < (datetime.now(pytz.utc) + timedelta(hours=1)))
+        )
+
+        for obj in instances:
+            if obj.id not in self.tasks:
+                self.create_end_task(obj)
+
+    async def end_delay(self, obj):
+        """
+        Sleep until the mute/ban's end time then send the ending message
+
+        Parameters
+        ----------
+        obj : Any
+            The mute/ban
+        """
+        await sleep_until(obj.end_time)
+        await self.end(obj)
+
+    def create_end_task(self, obj):
+        if obj.end_time is None or obj.end_time > (
+            datetime.now(pytz.utc) + timedelta(hours=1)
+        ):
+            return
+
+        self.tasks[obj.id] = self.bot.loop.create_task(self.end_delay(obj))
+        return self.tasks[obj.id]
+
+    async def requeue(self, obj):
+        """
+        End a end task prematurely and create a new task with the new
+        end time. This can be used if a user is unmuted early.
+
+        Parameters
+        ----------
+        obj : Any
+            The infraction
+        """
+        # Cancel any pre-existing task
+        if obj.id in self.tasks:
+            self.tasks[obj.id].cancel()
+
+        # Create new task
+        self.create_end_task(obj)
+
+    async def end(self, obj):
+        """
+        Send a message to the user and delete the task
+
+        Parameters
+        ----------
+        obj : Any
+            The mute/ban
+        """
+        await obj.user.discord.send(
+            _(
+                "INFRACTION__END",
+                name=self.name,
+                start=format_time(obj.start_time),
+                reason=obj.reason,
+                locale=obj.user.language,
+            )
+        )
+
+        del self.tasks[obj.id]
 
 
 class Moderation(commands.Cog):
@@ -37,6 +149,10 @@ class Moderation(commands.Cog):
         self.bot = bot
         self.channel = self.bot.get_channel(int(getenv("INFRACTION_LOG")))
         self._ensure_banned.start()
+
+        # Sending messages
+        self.mute_manage = ModerationNotifier(bot, Mute)
+        self.ban_manage = ModerationNotifier(bot, Ban)
 
     async def log_infraction(self, inf: Union[Mute, Warn, Ban]):
         """Log the creation of an infraction. Does this regardless of actual
@@ -187,6 +303,7 @@ class Moderation(commands.Cog):
 
             await good(ctx, _("MUTE__ADDED", inf_id=mute.id))
             await self.log_infraction(mute)
+            await self.mute_manage.queue(mute)
 
     @has_permission("MANAGE_MUTES")
     @commands.command()
@@ -203,13 +320,14 @@ class Moderation(commands.Cog):
 
         last_mute = dbuser.last_mute()
         intended_end = last_mute.end_time
-        last_mute.end_time = datetime.now()
+        last_mute.end_time = datetime.now(pytz.utc)
 
         # Add to database
         session.commit()
 
         await good(ctx, _("UNMUTE__SUCCESS", inf_id=last_mute.id))
         await self.log_end(last_mute, intended_end)
+        await self.mute_manage.requeue(last_mute)
 
     @has_permission("MANAGE_MUTES")
     @commands.group("warn", invoke_without_command=True)
@@ -273,6 +391,7 @@ class Moderation(commands.Cog):
 
             await good(ctx, _("BAN__ADDED", inf_id=ban.id))
             await self.log_infraction(ban)
+            await self.ban_manage.queue(ban)
 
     @has_permission("MANAGE_MUTES")
     @commands.command()
@@ -289,13 +408,14 @@ class Moderation(commands.Cog):
 
         last_ban = dbuser.last_ban()
         intended_end = last_ban.end_time
-        last_ban.end_time = datetime.now()
+        last_ban.end_time = datetime.now(pytz.utc)
 
         # Add to database
         session.commit()
 
         await good(ctx, _("UNBAN__SUCCESS", inf_id=last_ban.id))
         await self.log_end(last_ban, intended_end)
+        await self.ban_manage.requeue(last_ban)
 
     # Search commands
     @mute.command("search")
@@ -364,7 +484,7 @@ class Moderation(commands.Cog):
         query_result = (
             query(Ban)
             .filter(
-                ((Ban.end_time == None) | (Ban.end_time > datetime.now()))
+                ((Ban.end_time == None) | (Ban.end_time > datetime.now(pytz.utc)))
                 & (Ban.severity == BanSeverity.BLANKET)
             )
             .all()
@@ -402,7 +522,7 @@ class Moderation(commands.Cog):
                 elif dbguild.status != StatusCode.NONE:
                     dbguild.status = StatusCode.NONE
                     await target.send(_("GUILD__NO_LONGER_BANNED"))
-                
+
                 session.commit()
 
     async def send_user_warning_to_guild(

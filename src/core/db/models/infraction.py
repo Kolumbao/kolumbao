@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
+import pytz
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -36,7 +37,7 @@ class Mute(Base, SharedAttributes):
 
     @classmethod
     def create(cls, user: "User", mod: "User", reason: str, duration: timedelta):
-        start_time = datetime.now()
+        start_time = datetime.now(pytz.utc)
         end_time = None
         if duration is not None:
             end_time = start_time + duration
@@ -98,7 +99,7 @@ class Ban(Base, SharedAttributes):
 
     @classmethod
     def create(cls, user: "User", mod: "User", reason: str, severity: int, duration: timedelta):
-        start_time = datetime.now()
+        start_time = datetime.now(pytz.utc)
         end_time = None
         if duration is not None:
             end_time = start_time + duration

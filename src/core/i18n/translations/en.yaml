@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-05 23:53:16.659458
+# Generated on 2021-07-06 15:00:24.432249
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\__main__.py
@@ -167,6 +167,8 @@ DELAY_CONTENT: "The current delays across Kolumbao, measured in milliseconds"
 ERROR_AUTO_MUTED: "You were automatically muted for 5 minutes"
 
 # ..\..\..\src\bot\extensions\moderation.py
+INFRACTION__START: "You've received a `{name}` for the following reason. You will receive another message when it's finished.\n> {reason}"  # name, locale
+INFRACTION__END: "Your `{name}` that started on the {start} has ended."  # name, start
 SEARCH_INF__BY_USER: "Searching for user {user_id}"  # user_id
 SEARCH_INF__BY_DURATION: "Searching for duration {duration}"  # duration
 SEARCH_INF__BY_REASON: "Searching for reason {reason}"  # reason
