@@ -374,18 +374,20 @@ class Channels(commands.Cog):
         await interaction.respond(
             content=_("NSFW__OPTIONS"),
             components=[
-                Button(
-                    emoji=self.bot.get_emoji(860846678944776212),
-                    style=ButtonStyle.green,
-                    label=_("NSFW__YES"),
-                    custom_id="yes",
-                ),
-                Button(
-                    emoji=self.bot.get_emoji(860846700360105984),
-                    style=ButtonStyle.red,
-                    label=_("NSFW__NO"),
-                    custom_id="no",
-                ),
+                ActionRow(
+                    Button(
+                        emoji=self.bot.get_emoji(860846678944776212),
+                        style=ButtonStyle.green,
+                        label=_("NSFW__YES"),
+                        custom_id="yes",
+                    ),
+                    Button(
+                        emoji=self.bot.get_emoji(860846700360105984),
+                        style=ButtonStyle.red,
+                        label=_("NSFW__NO"),
+                        custom_id="no",
+                    )
+                )
             ],
             ephemeral=False,
         )
