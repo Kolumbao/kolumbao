@@ -1,14 +1,13 @@
 FROM python:3.8
 
-WORKDIR /bot
+COPY ./kolumbao /kolumbao
 
-COPY requirements.txt requirements.txt
+WORKDIR /kolumbao
 
-RUN pip install -r requirements.txt
+RUN pip install -r ./requirements.txt
 
 ARG FOLDER
 
-COPY ./src/core ./core
-COPY ./src/$FOLDER ./$FOLDER
+WORKDIR /kolumbao/src
 
 ENTRYPOINT ["python", "-m"]

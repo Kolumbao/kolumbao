@@ -11,3 +11,4 @@ pyyaml
 matplotlib
 tribi==1.0.4
 discord-components==1.1.2
+pytz
