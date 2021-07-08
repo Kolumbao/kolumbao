@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import math
 from datetime import datetime
-from typing import Tuple
+from typing import Optional, Tuple
+import discord
 
 from discord.ext import commands
 from sqlalchemy import Boolean
@@ -13,9 +14,10 @@ from sqlalchemy import Table
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
-from . import Base
+from core.db.models.infraction import Ban, Mute
+
+from . import Base, SharedAttributes
 from ._types import Snowflake
-from core.db.models.infraction import Infraction
 
 user_roles = Table(
     "user_roles",
@@ -25,7 +27,7 @@ user_roles = Table(
 )
 
 
-class User(Base):
+class User(Base, SharedAttributes):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
@@ -39,17 +41,18 @@ class User(Base):
     system_name = Column(String)
     system_avatar = Column(String)
 
-    points = Column(Integer, nullable=False, server_default="0")
+    points = Column(Integer, nullable=False, default=0, server_default="0")
 
     streams = relationship("Stream", back_populates="user")
+    staff_in = relationship("Stream", secondary="stream_staff")
 
     def missing_permissions(self, *required_perms):
         permissions = self.permissions
         missing = set(required_perms) - set(permissions)
         return missing
 
-    def has_permissions(self, *required_perms, bot=None) -> bool:
-        if bot and self.is_owner(bot):
+    def has_permissions(self, *required_perms) -> bool:
+        if self._bot and self.is_owner(self.bot):
             return True
 
         if len(self.missing_permissions(*required_perms)) == 0:
@@ -85,9 +88,29 @@ class User(Base):
 
         return last.end_time is None or last.end_time > datetime.now()
 
-    def last_mute(self) -> Infraction:
-        infs = sorted(self.infs, key=lambda i: i.start_time, reverse=True)
-        return next((i for i in infs if i.type_ == "mute"), None)
+    def last_mute(self) -> Mute:
+        mutes = sorted(self.mutes, key=lambda i: i.start_time, reverse=True)
+
+        if len(mutes) == 0:
+            return None
+
+        return mutes[0]
+    
+    def is_banned(self):
+        last = self.last_ban()
+
+        if last is None:
+            return False
+
+        return last.end_time is None or last.end_time > datetime.now()
+
+    def last_ban(self) -> Ban:
+        bans = sorted(self.bans, key=lambda i: i.start_time, reverse=True)
+
+        if len(bans) == 0:
+            return None
+
+        return bans[0]
 
     def last_seen(self):
         messages = sorted(self.messages, key=lambda m: m.sent_at)

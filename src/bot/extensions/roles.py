@@ -204,7 +204,8 @@ class Roles(commands.Cog):
             )
             if permission is None:
                 return await bad(ctx, _("PERMISSION_NOT_FOUND", name=permission_name))
-            if user.has_permissions(permission.name, self.bot):
+            
+            if user.has_permissions(permission.name):
                 return await bad(
                     ctx,
                     _(
@@ -243,7 +244,8 @@ class Roles(commands.Cog):
             )
             if permission is None:
                 return await bad(ctx, _("PERMISSION_NOT_FOUND", name=permission_name))
-            if user.has_permissions(permission.name, self.bot):
+            
+            if user.has_permissions(permission.name):
                 return await bad(
                     ctx,
                     _(
@@ -297,7 +299,7 @@ class Roles(commands.Cog):
     @has_permission("MANAGE_PERMISSIONS")
     @commands.command("list-permissions")
     async def list_permissions(self, ctx):
-        """Delete a permission"""
+        """List permissions"""
         permissions = query(Permission.name).all()
 
         permissions_list = ", ".join(p[0] for p in permissions)

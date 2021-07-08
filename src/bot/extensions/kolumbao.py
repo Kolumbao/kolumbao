@@ -12,14 +12,20 @@ from discord.errors import NotFound
 from discord.ext import commands
 from discord.raw_models import RawMessageUpdateEvent
 from discord.raw_models import RawReactionActionEvent
+from discord_components.component import Select, SelectOption
+from discord_components.interaction import Interaction
+from bot.interactions import selection
+from core.db.models.role import Permissions
+
+from core.db.models.user import User
 
 from ..checks import has_permission
 from ..response import bad
 from ..response import raw_resp
 from ..response import resp
 from bot.errors import ItemNotFound
-from bot.format_time import format_time
-from bot.format_time import format_user
+from bot.format import format_time
+from bot.format import format_user
 from core.db import query
 from core.db import session
 from core.db.models import Node
@@ -27,7 +33,6 @@ from core.db.models import OriginMessage
 from core.db.models.message import ResultMessage
 from core.db.models.stream import Stream
 from core.db.utils import get_stream
-from core.db.utils import get_user
 from core.i18n.i18n import _
 from core.logs.log import GlobalDiscordHandler
 from core.repeater.converters import Discord
@@ -36,6 +41,7 @@ from core.repeater.filters import FilterError
 
 
 class Kolumbao(commands.Cog):
+    __badge__ = "<:greyedout:861644856837013524>"
     max_retries = 5
 
     def __init__(self, bot: commands.Bot):
@@ -58,6 +64,42 @@ class Kolumbao(commands.Cog):
             r += f"±{error.total_seconds()*1000:.2f} (avg. {mean_latency.total_seconds()*1000:.2f})"
 
         return r
+
+    @has_permission("CREATE_ANNOUNCEMENTS")
+    @commands.command()
+    async def announce(self, ctx: commands.Context, *, content: str):
+        # Find stream...
+        streams = query(Stream).all()
+        streams.sort(key=lambda stream: stream.message_count, reverse=True)
+        stream_to_announce_to = []
+
+        values, interaction = await selection(self.bot, ctx, {
+            "ALL": _("ANNOUNCE__ALL"),
+            **{
+                stream.name: stream.name
+                for stream in streams[:22]
+            }
+        }, max_values=len(streams[:22]) + 1)
+
+        if values is None:
+            return
+        
+        if "ALL" in values:
+            stream_to_announce_to = streams
+        else:
+            stream_to_announce_to = [
+                stream for stream in streams
+                if stream.name in values
+            ]
+        
+        tasks = []
+        for stream in stream_to_announce_to:
+            tasks.append(self.bot.client.send_art(
+                content, stream
+            ))
+
+        await interaction.respond(content=_("ANNOUNCE__DONE"), ephemeral=False)
+        await asyncio.gather(*tasks)
 
     @commands.command()
     async def delay(self, ctx):
@@ -113,7 +155,7 @@ class Kolumbao(commands.Cog):
 
         body = ""
         for message in messages[::-1]:
-            user = self.bot.get_user(message.user.discord_id)
+            user = message.user.discord
             new = f"[{format_time(message.sent_at)}] {format_user(user)}: *{message.content}*\n"
             if len(body + new) > 2000:
                 await ctx.send(body)
@@ -149,7 +191,7 @@ class Kolumbao(commands.Cog):
             return
 
         # Get and commit just in case it didn't exist
-        user = get_user(message.author.id)
+        user = User.create(message.author)
         session.commit()
 
         if edit:
@@ -290,11 +332,11 @@ class Kolumbao(commands.Cog):
         guild = quoted_message.node.guild.discord_id
         target = self.bot.get_channel(payload.channel_id)
         try:
-            if (real_user := self.bot.get_user(user)) :
+            if real_user := self.bot.get_user(user):
                 user = f"{real_user} ({user})"
-            if (real_channel := self.bot.get_channel(channel)) :
+            if real_channel := self.bot.get_channel(channel):
                 channel = f"#{real_channel.name} ({channel})"
-            if (real_guild := self.bot.get_guild(guild)) :
+            if real_guild := self.bot.get_guild(guild):
                 guild = f"{real_guild.name} ({guild})"
         except Exception:
             pass
@@ -312,14 +354,21 @@ Guild: {guild}
     async def _handle_delete_reaction(
         self, payload: RawReactionActionEvent, quoted_message: OriginMessage
     ):
-        manage_messages = get_user(payload.user_id).has_permissions("MANAGE_MESSAGES")
+        # Does the user have the right to manage messages in this channel?
+        # Checks staff status and general permissions.
+        manage_messages = quoted_message.stream.has_permissions(
+            User.create(discord.Object(payload.user_id)), Permissions.MANAGE_MESSAGES
+        )
         if quoted_message.user.discord_id != payload.user_id and not manage_messages:
             return
 
         amount = 0
         for message in [quoted_message, *quoted_message.result_messages]:
-            await self.delete_queue.put((message.message_id, message.node.channel_id))
-            amount += 1
+            # Sometimes the node is None, likely because of it being an
+            # artificial message
+            if message.node is not None:
+                await self.delete_queue.put((message.message_id, message.node.channel_id))
+                amount += 1
 
         session.delete(quoted_message)
         session.commit()
@@ -331,7 +380,7 @@ Guild: {guild}
             if manage_messages:
                 text = (
                     "<@{}> I queued {} messages for deletion. "
-                    "{} messages are in the queue"
+                    "{} 'messages' are in the queue"
                 )
                 await message.channel.send(
                     text.format(payload.user_id, amount, self.delete_queue.qsize())

@@ -9,3 +9,5 @@ expiring-dict
 psycopg2
 pyyaml
 matplotlib
+tribi==1.0.4
+discord-components==1.1.2

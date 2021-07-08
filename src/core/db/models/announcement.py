@@ -3,7 +3,7 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from . import Base
+from . import Base, SharedAttributes
 
 
 class Announcement(Base):

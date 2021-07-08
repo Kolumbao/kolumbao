@@ -5,6 +5,8 @@ import discord
 from discord.ext import commands
 from expiring_dict.expiringdict import ExpiringDict
 
+from core.db.models.guild import Guild
+
 from ..db.models import User
 from ..utils.ratelimit import RateLimit
 from core.db.database import query
@@ -23,6 +25,11 @@ class FilterError(ValueError):
 async def _mute_filter(user: User, _, __, ___):
     return not user.is_muted()
 
+async def _ban_filter(user: User, _, __, ___):
+    return not user.is_banned()
+
+async def _guild_ban_filter(user: User, message: discord.Message, _, __):
+    return not Guild.create(message.guild).disabled
 
 def _is_invite_allowed(invite: discord.Invite):
     # Kolumbao
@@ -69,6 +76,10 @@ async def _lockdown_filter(user: User, _, __, stream: Stream):
     if stream.lockdown == 0:
         return True
 
+    # Full lockdown
+    if stream.lockdown == 9999:
+        return False
+
     if stream.lockdown < 0:
         return user.level >= abs(stream.lockdown)
 
@@ -93,6 +104,8 @@ async def _blacklist_filter(_, message: discord.Message, __, stream: Stream):
 
 FILTERS = {
     "MUTE_FILTER": _mute_filter,
+    "BAN_FILTER": _ban_filter,
+    "GUILD_BAN_FILTER": _guild_ban_filter,
     "INVITE_FILTER": _invite_filter,
     "CONTENT_RATELIMIT_FILTER": _content_ratelimit_filter,
     "USER_RATELIMIT_FILTER": _user_ratelimit_filter,

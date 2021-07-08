@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import discord
+from discord_components.interaction import Interaction
 
 
 @classmethod
@@ -7,8 +8,12 @@ def invisible(cls: discord.Colour):
     """A factory method that returns a Colour with a value of 0xff6961."""
     return cls(0x2F3136)  # noqa
 
+@classmethod
+def kolumbao(cls: discord.Colour):
+    return cls(0xffb20f)
 
 discord.Colour.invisible = invisible
+discord.Colour.kolumbao = kolumbao
 
 
 def raw_resp(
@@ -16,7 +21,7 @@ def raw_resp(
     text: str,
     title: str = None,
     badge: str = None,
-    colour: discord.Colour = discord.Colour.invisible(),
+    colour: discord.Colour = discord.Colour.kolumbao(),
     fields: list = None,
 ):
     """
@@ -42,7 +47,7 @@ def raw_resp(
     discord.Embed
         The embed
     """
-    embed = discord.Embed(title=title, colour=colour)
+    embed = discord.Embed(title=title or discord.Embed.Empty, colour=colour)
 
     if badge is None:
         if hasattr(ctx, "cog") and ctx.cog is not None:
@@ -93,8 +98,11 @@ async def resp(  # pylint: disable=too-many-arguments
         Text to show if an embed is used in the normal text, by default None
     """
     try:
+        if isinstance(ctx, Interaction):
+            ctx.send = lambda *args, **kwargs: ctx.respond(*args, ephemeral=False, **kwargs)
+
         await ctx.send(
-            supplementary_text, embed=raw_resp(ctx, text, title, badge, colour, fields)
+            content=supplementary_text, embed=raw_resp(ctx, text, title, badge, colour, fields)
         )
     except discord.Forbidden:
         await ctx.send(f"{badge if badge else ''} {text}")

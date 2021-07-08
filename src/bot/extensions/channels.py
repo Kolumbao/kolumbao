@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
+import asyncio
 from typing import Optional
 from uuid import uuid4
 
 import discord
+from discord.errors import NotFound
 from discord.ext import commands
+from discord.ext.commands.converter import UserConverter
+from discord.ext.commands.errors import UserNotFound
+from discord_components.component import ActionRow, ButtonStyle
+from discord_components.interaction import Interaction, InteractionType
 from expiring_dict import ExpiringDict
+from bot.interactions import selection
+from core.db.models.role import Permissions
+
+from core.db.models.user import User
 
 from ..errors import ItemNotFound
 from ..errors import NotManaging
@@ -21,6 +31,7 @@ from core.db.utils import get_stream
 from core.db.utils import get_user
 from core.i18n.i18n import _
 from core.i18n.i18n import I18n
+from discord_components import Button
 
 
 def get_local_node(stream: Stream, guild: Guild) -> Optional[Node]:
@@ -51,6 +62,11 @@ def make_stream_embed(stream: Stream, guild: Optional[Guild] = None) -> discord.
 
     if stream.password is not None:
         description += "\n" + _("INFO__LOCKED")
+    
+    if stream.public:
+        description += "\n" + _("INFO__PUBLIC")
+    else:
+        description += "\n" + _("INFO__PRIVATE")
 
     if guild:
         node = get_local_node(stream, guild)
@@ -91,7 +107,7 @@ class Channels(commands.Cog):
     __badge_success__ = "<:channelssuccess:795415724410535976>"
     __badge_fail__ = "<:channelsfail:795415724356927498>"
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self._management_dict = ExpiringDict(30 * 60)
         self._delete = ExpiringDict(10)
@@ -115,91 +131,235 @@ class Channels(commands.Cog):
 
         raise NotManaging()
 
-    @commands.command()
+    async def _wait_for_response(self, ctx) -> discord.Message:
+        return await self.bot.wait_for(
+            "message",
+            check=lambda m: m.author == ctx.author and m.channel == ctx.channel,
+        )
+
+    @commands.command(aliases=["edit"])
     async def manage(self, ctx, *, stream_name: str):
-        stream = get_stream(stream_name)
+        stream = Stream.create(stream_name)
         if stream is None:
             raise ItemNotFound(Stream)
 
-        dbuser = get_user(ctx.author.id)
+        dbuser = User.create(ctx.author)
         if stream.user == dbuser or dbuser.has_permissions("MANAGE_STREAMS"):
-            self._management_dict[f"{ctx.author.id}-{ctx.channel.id}"] = stream.id
-            await good(ctx, _("MANAGE__NOW_MANAGING", stream_name=stream.name))
             self.bot.logger.info("Now managing {}".format(stream.name))
+
+            interaction = None
+            await ctx.send(
+                _("MANAGE__OPTIONS"),
+                components=[
+                    ActionRow(
+                        Button(
+                            emoji=self.bot.get_emoji(860880431170453534),
+                            label=_("MANAGE__SETTINGS"),
+                            custom_id="settings",
+                        ),
+                        Button(
+                            emoji=self.bot.get_emoji(860880431050129459),
+                            label=_("MANAGE__STAFF"),
+                            custom_id="staff",
+                        ),
+                    )
+                ],
+                ephemeral=False,
+            )
+
+            try:
+                interaction: Interaction = await self.bot.wait_for(
+                    "button_click", check=lambda i: i.user == ctx.author, timeout=60
+                )
+            except asyncio.TimeoutError:
+                return await self.handle_interaction_end(ctx, interaction)
+            else:
+                if interaction.component.custom_id == "settings":
+                    return await self.manage_stream_settings(ctx, stream, interaction)
+                elif interaction.component.custom_id == "staff":
+                    return await self.manage_stream_staff(ctx, stream, interaction)
         else:
             await bad(ctx, _("MANAGE__NOT_OWNED"))
 
-    @commands.command()
-    async def managing(self, ctx):
-        stream = self._get_managing(ctx)
-        await good(
-            ctx, _("MANAGING__STREAM", stream_name=stream.name, stream_id=stream.id)
+    async def handle_interaction_end(self, ctx: commands.Context, interaction: Interaction):
+        if not interaction or interaction.responded:
+            return await resp(ctx, _("MANAGE__CLOSED"))
+        else:
+            return await resp(interaction, _("MANAGE__CLOSED"))
+
+    async def manage_stream_settings(
+        self,
+        ctx: commands.Context,
+        stream: Stream,
+        interaction: Interaction
+    ):
+        # If the stream has password, give option to reset it
+        extras = {}
+        if stream.password is not None:
+            extras["reset-password"] = _("MANAGE__RESET_PASSWORD")
+        
+        if User.create(ctx.author).has_permissions(Permissions.MANAGE_PUBLICITY):
+            extras["set-public"] = _("MANAGE__PUBLICITY")
+
+        value, interaction = await selection(
+            self.bot,
+            interaction,
+            {
+                "name": _("MANAGE__NAME"),
+                "description": _("MANAGE__DESCRIPTION"),
+                "rules": _("MANAGE__RULES"),
+                "lang": _("MANAGE__LANG"),
+                "password": _("MANAGE__PASSWORD"),
+                **extras,
+                "nsfw": _("MANAGE__NSFW"),
+                "delete": _("MANAGE__DELETE"),
+            }
+        )
+        
+        if value is None:
+            return
+
+        functions = {
+            "name": self.name,
+            "description": self.description,
+            "rules": self.rules,
+            "lang": self.lang,
+            "password": self.password,
+            "reset-password": self.reset_password,
+            "set-public": self.public,
+            "nsfw": self.nsfw,
+            "delete": self.delete,
+        }
+
+        f = functions.get(value)
+        await f(ctx, stream, interaction)
+
+    async def manage_stream_staff(
+        self,
+        ctx: commands.Context,
+        stream: Stream,
+        interaction: Interaction
+    ):
+        staff_options = {
+            str(user.discord.id): str(user.discord)
+            for user in stream.staff
+            if user.discord is not None
+        }
+
+        value, interaction = await selection(
+            self.bot,
+            interaction,
+            {
+                "new": _("MANAGE__NEW_STAFF"),
+                **staff_options
+            }
         )
 
-    @commands.command("set-name")
-    async def name(self, ctx, *, value: str = None):
-        stream = self._get_managing(ctx)
         if value is None:
-            return await resp(ctx, _("NAME__CURRENT", value=stream.name))
+            return
+        
+        if value == "new":
+            await self.new_staff(ctx, stream, interaction)
+        else:
+            user = User.create(discord.Object(value), create_default=False)
+            if user:
+                stream.staff.remove(user)
+            
+            session.commit()
+            await interaction.respond(
+                content=_("MANAGE__STAFF_REMOVED", staff=str(user.discord)), ephemeral=False
+            )
+    
+    async def new_staff(
+        self,
+        ctx: commands.Context,
+        stream: Stream,
+        interaction: Interaction
+    ):
+        await interaction.respond(content=_("NEW_STAFF__MENTION"), ephemeral=False)
 
-        if get_stream(value) is not None:
+        message = await self._wait_for_response(ctx)
+        try:
+            user = await UserConverter().convert(ctx, message.content)
+        except UserNotFound:
+            await bad(ctx, _("NEW_STAFF__USER_NOT_FOUND"))
+        else:
+            dbuser = User.create(user)
+            stream.staff.append(dbuser)
+            session.commit()
+            await good(ctx, _("NEW_STAFF__SUCCESS"))
+
+
+    async def name(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(content=_("NAME__ENTER"), ephemeral=False)
+
+        message = await self._wait_for_response(ctx)
+        if Stream.create(message.content) is not None:
             return await bad(ctx, _("NAME__TAKEN"))
 
-        stream.name = value
+        stream.name = message.content
         session.commit()
 
-        await good(ctx, _("NAME__SET", value=value))
-        self.bot.logger.info("Set name to {} for {}".format(value, stream.name))
+        await good(ctx, _("NAME__SET", value=message.content))
+        self.bot.logger.info(
+            "Set name to {} for {}".format(message.content, stream.name)
+        )
 
-    @commands.command("set-description")
-    async def description_(self, ctx, *, value: str = None):
-        stream = self._get_managing(ctx)
-        if value is None:
-            return await resp(ctx, _("DESCRIPTION__CURRENT", value=stream.description))
+    async def description(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(content=_("DESCRIPTION__ENTER"), ephemeral=False)
 
-        stream.description = value
+        message = await self._wait_for_response(ctx)
+        stream.description = message.content
         session.commit()
 
-        await good(ctx, _("DESCRIPTION__SET", value=value))
-        self.bot.logger.info("Set description to {} for {}".format(value, stream.name))
+        await good(ctx, _("DESCRIPTION__SET", value=message.content))
+        self.bot.logger.info(
+            "Set description to {} for {}".format(message.content, stream.name)
+        )
 
-    @commands.command("set-lang")
-    async def lang(self, ctx, *, value: str = None):
-        stream = self._get_managing(ctx)
-        if value is None:
-            return await resp(ctx, _("LANG__CURRENT", value=stream.language))
+    async def lang(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(content=_("LANG__ENTER"), ephemeral=False)
 
-        locale = I18n.get_locale(value)
+        message = await self._wait_for_response(ctx)
+        locale = I18n.get_locale(message.content)
         if locale is None:
             return await bad(ctx, _("LANG__NOT_FOUND"))
 
         stream.language = locale
         session.commit()
 
-        await good(ctx, _("LANG__SET", value=value))
-        self.bot.logger.info("Set lang to {} for {}".format(value, stream.name))
+        await good(ctx, _("LANG__SET", value=message.content))
+        self.bot.logger.info(
+            "Set lang to {} for {}".format(message.content, stream.name)
+        )
 
-    @commands.command("set-rules")
-    async def rules(self, ctx, *, value: str = None):
-        stream = self._get_managing(ctx)
-        if value is None:
-            return await resp(ctx, _("RULES__CURRENT", value=stream.rules))
+    async def rules(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(content=_("RULES__ENTER"), ephemeral=False)
 
-        stream.rules = value
+        message = await self._wait_for_response(ctx)
+        stream.rules = message.content
         session.commit()
 
-        await good(ctx, _("RULES__SET", value=value))
-        self.bot.logger.info("Set rules to {} for {}".format(value, stream.name))
+        await good(ctx, _("RULES__SET", value=message.content))
+        self.bot.logger.info(
+            "Set rules to {} for {}".format(message.content, stream.name)
+        )
 
-    @commands.command("set-password")
-    async def password(self, ctx, *, value: str = None):
-        stream = self._get_managing(ctx)
-        if value is None:
-            stream.set_password()
-            session.commit()
-            return await resp(ctx, _("PASSWORD__RESET"))
+    async def password(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(content=_("PASSWORD__ENTER"), ephemeral=False)
 
-        stream.set_password(value)
+        message = await self._wait_for_response(ctx)
+        stream.set_password(message.content)
         session.commit()
 
         await good(ctx, _("PASSWORD_SET"))
@@ -207,26 +367,98 @@ class Channels(commands.Cog):
             "Set password to {} for {}".format(stream.password, stream.name)
         )
 
-    @commands.command("set-nsfw")
-    async def nsfw(self, ctx, value: bool = None):
-        stream = self._get_managing(ctx)
-        if value is None:
-            return await resp(ctx, _("NSFW__CURRENT", value=stream.nsfw))
-
-        stream.nsfw = value
+    async def reset_password(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        stream.set_password(None)
         session.commit()
 
-        await good(ctx, _("NSFW__SET", value=value))
-        self.bot.logger.info("Set nsfw to {} for {}".format(value, stream.name))
+        await good(interaction, _("PASSWORD_RESET"))
+        self.bot.logger.info(
+            "Set password to {} for {}".format(stream.password, stream.name)
+        )
 
-    @requires_level(8)
+    async def nsfw(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(
+            content=_("NSFW__OPTIONS"),
+            components=[
+                ActionRow(
+                    Button(
+                        emoji=self.bot.get_emoji(860846678944776212),
+                        style=ButtonStyle.green,
+                        label=_("NSFW__YES"),
+                        custom_id="yes",
+                    ),
+                    Button(
+                        emoji=self.bot.get_emoji(860846700360105984),
+                        style=ButtonStyle.red,
+                        label=_("NSFW__NO"),
+                        custom_id="no",
+                    )
+                )
+            ],
+            ephemeral=False,
+        )
+
+        interaction: Interaction = await self.bot.wait_for(
+            "button_click", check=lambda i: i.user == ctx.author, timeout=60
+        )
+        if interaction.component.custom_id == "yes":
+            stream.nsfw = True
+        else:
+            stream.nsfw = False
+
+        session.commit()
+
+        await good(interaction, _("NSFW__SET", value=stream.nsfw))
+        self.bot.logger.info("Set nsfw to {} for {}".format(stream.nsfw, stream.name))
+
+    async def public(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(
+            content=_("PUBLIC__OPTIONS"),
+            components=[
+                ActionRow(
+                    Button(
+                        emoji=self.bot.get_emoji(860846678944776212),
+                        style=ButtonStyle.green,
+                        label=_("PUBLIC__YES"),
+                        custom_id="yes",
+                    ),
+                    Button(
+                        emoji=self.bot.get_emoji(860846700360105984),
+                        style=ButtonStyle.red,
+                        label=_("PUBLIC__NO"),
+                        custom_id="no",
+                    )
+                )
+            ],
+            ephemeral=False,
+        )
+
+        interaction: Interaction = await self.bot.wait_for(
+            "button_click", check=lambda i: i.user == ctx.author, timeout=60
+        )
+        if interaction.component.custom_id == "yes":
+            stream.public = True
+        else:
+            stream.public = False
+
+        session.commit()
+
+        await good(interaction, _("PUBLIC__SET", value=stream.public))
+        self.bot.logger.info("Set public to {} for {}".format(stream.public, stream.name))
+
     @commands.command()
     async def create(self, ctx, *, stream_name: str):
         if get_stream(stream_name) is not None:
             return await bad(ctx, _("NAME__TAKEN"))
 
         dbuser = get_user(ctx.author.id)
-        if len(dbuser.streams) >= 2 and not dbuser.staff:
+        if len(dbuser.streams) >= 25 and not dbuser.staff:
             return await bad(ctx, _("CREATE__TOO_MANY"))
 
         stream = Stream(name=stream_name, user=dbuser)
@@ -236,22 +468,23 @@ class Channels(commands.Cog):
 
         await good(ctx, _("CREATE__MADE_GUIDANCE", stream_name=stream.name))
 
-    @commands.command()
-    async def delete(self, ctx, code: Optional[str] = None):
-        stream = self._get_managing(ctx)
-        if code is None:
-            self._delete[stream.id] = uuid4().hex
-            return await resp(
-                ctx, _("DELETE__CONFIRMATION", code=self._delete[stream.id])
-            )
+    async def delete(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        code = uuid4().hex
+        await interaction.respond(
+            content=_("DELETE__ENTER_CODE", code=code), ephemeral=False
+        )
 
-        if code == self._delete[stream.id]:
-            session.delete(stream)
-            session.commit()
-            self._management_dict.pop(ctx.author.id + ctx.channel.id)
-            return await good(ctx, _("DELETE__SUCCESS"))
+        message = await self._wait_for_response(ctx)
+        if message.content != code:
+            return await bad(ctx, _("DELETE__CODE_INVALID"))
 
-        return await bad(ctx, _("DELETE__CODE_INVALID"))
+        session.delete(stream)
+        session.commit()
+        await good(ctx, _("DELETE__SUCCESS"))
+
+        self.bot.logger.info("Deleted {}".format(stream.name))
 
 
 def setup(bot):

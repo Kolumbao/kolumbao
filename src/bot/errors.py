@@ -13,3 +13,9 @@ class ItemNotFound(commands.CommandError):
 
 class NotManaging(commands.CommandError):
     pass
+
+
+class BannedUser(commands.CommandError):
+    def __init__(self, level, *args):
+        super().__init__(*args)
+        self.level = level

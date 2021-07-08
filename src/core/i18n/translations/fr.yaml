@@ -1,14 +1,25 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-01-14 14:23:51.906844
-# With .\get_text.py -d ..\..\.. -t .\translations\fr.yaml -p .\translations\fr.yaml
+# Generated on 2021-07-08 15:50:25.298030
+# With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
+
+# ..\..\..\src\bot\interactions.py
+INTERACTION__CLOSED: "Fermer l'interaction"
+INTERACTION__PICK_OPTION: "Choisissez des options suivantes :"
+INTERACTION__SELECT: "Sélectionnez une option"
+INTERACTION__CLOSE: "Fermer"
 
 # ..\..\..\src\bot\__main__.py
+PLURAL: "{values} et {final}"  # values
+TWO: "{first} et {second}"  # first, second
 ERROR_INSUFFICIENT_KOLUMBAO_PERMISSIONS: "Il vous manque les permissions Kolumbao suivantes : {permissions}."  # permissions
 ERROR_MISSING_PARAMETER: "Le paramètre **{name}** est manquant."  # name
 ERROR_USER_NOT_FOUND: "Utilisateur **{name}** introuvable."  # name
 ERROR_NOT_MANAGING: "Vous ne gérez actuellement aucun flux. Commencez avec **kb!manage**"
+ERROR_BANNED: "Vous êtes banni du bot (sévérité : {severity}). Vous ne pouvez donc exécuter aucune commande."  # severity
 ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: "Il vous faut le niveau {level} pour exécuter cette commande !"  # level
 ERROR_COOLDOWN: "Vous allez trop vite. Réessayez après {retry_after} secondes."  # retry_after
+ERROR_BOT_MISSING_PERMISSIONS: "Il manque au bot les permissions suivantes : {permissions}"  # permissions
+ERROR_USER_MISSING_PERMISSIONS: "Il vous manque les permissions suivantes : {permissions}"  # permissions
 ERROR_UNKNOWN: "Une erreur inconnue s'est produite. Signalez-la aux développeurs avec l'ID `{code}`"  # code
 
 # ..\..\..\src\bot\extensions\blacklist.py
@@ -25,6 +36,8 @@ INFO__OFFICIAL_CHANNEL: "Ceci est un salon officiel de Kolumbao"
 INFO__UNOFFICIAL_CHANNEL: "Ceci est un salon non-officiel de Kolumbao. Soyez prudent !"
 INFO__STAFF_CHANNEL: "Ce salon a été créé par un membre de l'équipe de Kolumbao"
 INFO__LOCKED: "Ce selon est verrouillé par un mot de passe"
+INFO__PUBLIC: "<:channelssuccess:795415724410535976> Ceci est un salon public, modéré par l'équipe Kolumbao"
+INFO__PRIVATE: "<:channelsfail:795415724356927498> Ceci est un salon privé, non modéré par l'équipe Kolumbao"
 INFO__INSTALLED: "Vous avez installé ce flux : <#{channel_id}>"  # channel_id
 INFO__NAME: "Informations pour **{stream_name}**"  # stream_name
 NONE: "Aucune description"
@@ -40,68 +53,91 @@ INFO__MESSAGES_CONTENT: "{amount} messages"  # amount
 INFO__NODES_TITLE: "Salons installés"
 INFO__NODES_CONTENT: "{amount} salons"  # amount
 INFO__INSTALL_WITH: "Installez ce salon avec kb!join {stream_name}"  # stream_name
-MANAGE__NOW_MANAGING: "Vous gérez actuellement {stream_name}. Après 30 minutes, vous aurez besoin de refaire cette commande pour continuer"  # stream_name
+MANAGE__OPTIONS: "Quelle partie du flux voulez-vous modifier ?"
+MANAGE__SETTINGS: "Paramètres"
+MANAGE__STAFF: "Staff"
 MANAGE__NOT_OWNED: "Ce salon ne vous appartient pas"
-MANAGING__STREAM: "Vous gérez {stream_name} (ID : {stream_id})"  # stream_name, stream_id
-NAME__CURRENT: "Le nom actuel de votre flux est `{value}`"  # value
+MANAGE__CLOSED: "Le menu a été fermé"
+MANAGE__RESET_PASSWORD: "Enlevez le mot de passe"
+MANAGE__PUBLICITY: "Marquer comme public"
+MANAGE__NAME: "Modifier le nom"
+MANAGE__DESCRIPTION: "Modifier la description"
+MANAGE__RULES: "Modifier les règles"
+MANAGE__LANG: "Modifier la langue"
+MANAGE__PASSWORD: "Modifier le mot de passe"
+MANAGE__NSFW: "Marquer comme NSFW"
+MANAGE__DELETE: "Supprimer votre flux"
+MANAGE__NEW_STAFF: "Ajouter un staff"
+MANAGE__STAFF_REMOVED: "{staff} ne fait plus partie du staff du flux"  # staff
+NEW_STAFF__MENTION: "Mentionnez ou écrivez l'ID de l'utilisateur pour l'ajouter"
+NEW_STAFF__USER_NOT_FOUND: "Cet utilisateur n'a pas été trouvé"
+NEW_STAFF__SUCCESS: "Succès !"
+NAME__ENTER: "Saisissez un nouveau nom"
 NAME__TAKEN: "Un autre flux utilise déjà ce nom"
 NAME__SET: "Votre flux a désormais le nom `{value}`"  # value
-DESCRIPTION__CURRENT: |
-    La description actuelle de votre flux est ci-dessous :
-
-    >>> {value}
-
-  # value
+DESCRIPTION__ENTER: "Saisissez une nouvelle description"
 DESCRIPTION__SET: |
     La description de votre flux est désormais ci-dessous :
-
+    
     >>> {value}
-
+    
   # value
-LANG__CURRENT: "La langue actuelle de votre flux est `{value}`"  # value
+LANG__ENTER: "Saisissez la langue souhaitée"
 LANG__NOT_FOUND: "Impossible de trouver cette langue"
 LANG__SET: "La langue de votre flux est désormais `{value}`"  # value
-RULES__CURRENT: |
-    Les règles actuelles de votre flux sont ci-dessous :
-
-    >>> {value}
-
-  # value
+RULES__ENTER: "Saisissez les nouvelles règles"
 RULES__SET: |
     Les règles de votre flux sont désormais ci-dessous :
-
+    
     >>> {value}
-
+    
   # value
-PASSWORD__RESET: "Votre flux n'a plus de mot de passe"
+PASSWORD__ENTER: "Saisissez le nouveau mot de passe"
 PASSWORD_SET: "Le mot de passe a été défini. S'il n'est pas supprimé, nous vous recommandons d'effacer votre message pour cacher le mot de passe"
-NSFW__CURRENT: "Votre flux a NSFW défini comme `{value}`"  # value
+PASSWORD_RESET: "Le mot de passe a été enlevé"
+NSFW__OPTIONS: "Voulez-vous que votre salon soit marqué comme NSFW ?"
+NSFW__YES: "Oui"
+NSFW__NO: "Non"
 NSFW__SET: "Votre flux a désormais NSFW défini comme `{value}`"  # value
-CREATE__TOO_MANY: "Vous avez déjà crée autant de flux que possible"
+PUBLIC__OPTIONS: "Voulez-vous que votre salon soit public ?"
+PUBLIC__YES: "Public"
+PUBLIC__NO: "Privé"
+PUBLIC__SET: "Votre flux a désormais public défini comme `{value}`"  # value
+CREATE__TOO_MANY: "Vous avez déjà crée autant de flux que possible."
 CREATE__MADE_GUIDANCE: |
-    Félicitations, vous avez votre nouveux flux, #{stream_name}. C'est super.
-
-    Commencez par mettre en place votre description avec **kb!description**, et vos règles avec **kb!rules**.
-    Si votre flux est NSFW, commencez par la définir avec **kb!nsfw**. Si vous avez besoin d'aide, venez au serveur de support.
-
+    Félicitations, vous avez votre nouveau flux privé, #{stream_name}. **Votre salon n'apparaîtra pas dans les recherches Kolumbao.**
+    
+    Commencez par modifer les informations de votre flux avec `kb!manage {stream_name}`. Si vous avez besoin d'aide, venez au serveur de support.
+    
   # stream_name
-DELETE__CONFIRMATION: "Pour confirmer que vous voulez supprimer ce flux, relancez la commande suivie du code {code}"  # code
-DELETE__SUCCESS: "Votre flux a été supprimé"
+DELETE__ENTER_CODE: "Saisissez le code suivant pour confirmer la suppression du flux : {code}"  # code
 DELETE__CODE_INVALID: "Le code fourni est soit invalide soit expiré (les codes ne durent que 10 secondes)"
+DELETE__SUCCESS: "Votre flux a été supprimé"
 
 # ..\..\..\src\bot\extensions\features.py
 GET_FEATURES__NO_FEATURES: "Ce flux n'a aucune fonctionnalité"
 GET_FEATURES__CONTENT: |
     Fonctionnalités : {features}
     Filtres désactivés : {suppressed_filters}
-
+    
   # features, suppressed_filters
 ADD_FEATURE__ALREADY_ADDED: "Ce flux a déjà cette fonctionnalité"
 ADD_FEATURE__SUCCESS: "Cette fonctionnalité a été ajoutée avec succès"
 REMOVE_FEATURE__NOT_ADDED: "Ce flux n'a pas cette fonctionnalité"
 REMOVE_FEATURE__SUCCESS: "Cette fonctionnalité a été retirée avec succès"
 
+# ..\..\..\src\bot\extensions\help.py
+HELP__DESCRIPTION: "Voici une liste des commandes pour chaque catégorie"
+HELP__TITLE: "Menu d'aide"
+HELP__COMMAND_NOT_FOUND: "Cette commande n'a pas été trouvé"
+HELP__COMMAND_DESCRIPTION: "L'aide pour {name}"  # name
+HELP__SYNTAX: "Syntaxe"
+HELP__SUBCOMMANDS: "Sous-commandes"
+HELP__PARENTS: "Commandes parents"
+
 # ..\..\..\src\bot\extensions\installation.py
+COLLECTING_DATA: "En cours de collection des informations nécessaires..."
+INSTALLED__TITLE: "Salon installé"
 JOIN__NO_STREAM: "Impossible de trouver un flux avec ce nom"
 JOIN__ENTER_PASSWORD: "Il faut saisir le mot de passe de ce flux. Vous n'avez que 30 secondes pour répondre"
 JOIN__PASSWORD_INCORRECT: "Ce mot de passe n'est pas correct"
@@ -119,40 +155,77 @@ SEARCH__NOT_FOUND: "Aucun résultat"
 DIAGNOSE__WEBHOOK_DELETED: "Le webhook a été supprimé. Essayez de le reinstaller!"
 DIAGNOSE__NOT_AUTHORIZED: "Les autorisations pour le webhook ont changé de manière inattendue. Vous devez reinstaller le flux."
 DIAGNOSE__OTHER_UNKNOWN: "Une autre erreur s'est produite, et nous ne sommes pas sûrs de ce que c'était. Essayez de le reinstaller."
+DIAGNOSE__GUILD_DISABLED: "Votre serveur a été désactivé sur le reseau à cause d'un membre sévèrement banni."
+DIAGNOSE__GUILD_AWAITING_DISABLE: "Votre serveur sera désactivé sur le reseau à cause d'un membre sévèrement banni. Vous aurez dû recevoir un avertissement"
 DIAGNOSE__NO_ERROR: "Il n'y a pas d'erreur enregistrée pour votre instance du flux. Si l'erreur persiste, n'hésitez pas à réinstaller le flux."
-
+INVITE__TITLE: "Invite"
+INVITE__CONTENT: "Inviter le bot [avec ce lien]({url})"  # url
+INSTALLED: |
+    Bienvenue à Kolumbao ! <:kb:726849082710032484>
+    
+    Kolumbao est un bot qui connecte les salons des serveurs Discord entre eux, créant ainsi un réseau de canaux partagés.
+    Commencez par installer notre salon principal, kb-general : `kb!join kb-general`.
+    
+    Pour toute autre aide :
+    <:shieldstaff:796049352841101378> Contactez notre support : https://discord.gg/9UBdZHu
+    <:channelssuccess:795415724410535976> Consultez notre site web : https://kolumbao.com/
+    
+  # locale
 
 # ..\..\..\src\bot\extensions\kolumbao.py
+ANNOUNCE__ALL: "Tous les flux"
+ANNOUNCE__DONE: "Le message a été envoyé !"
 DELAY_CONTENT: "Les retards actuels à Kolumbao"
 ERROR_AUTO_MUTED: "Vous êtes automatiquement mute pour 5 minutes"
 
 # ..\..\..\src\bot\extensions\moderation.py
+INFRACTION__START: |
+    Vous avez une nouvelle punition (`{name}`) pour la raison suivante. Vous recevrez un nouveau quand elle est finie.
+    > {reason}
+    
+  # name, reason, locale
+INFRACTION__END: "Votre punition pour {reason} qui a commencé le {start} a fini."  # name, start
 SEARCH_INF__BY_USER: "Cherche pour l'utilisateur {user_id}"  # user_id
 SEARCH_INF__BY_DURATION: "Cherche pour la durée {user_id}"  # duration
 SEARCH_INF__BY_REASON: "Cherche pour la raison {reason}"  # reason
-WARN__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
-MUTE__ALREADY_MUTED: "Cet utilisateur est déjà mute, #{mute_id}"  # mute_id
-MUTE__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
-UNMUTE__SUCCESS: "Cet utilisateur n'est plus mute"
-UNMUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
 SEARCH_INF__NO_RESULTS: "Aucun résultat"
 SEARCH_INF__TITLE: "Résultats de la recherche"
 SEARCH_INF__FIRST_N: "Les {n} premiers résultats sur {tot}"  # n, tot
-SEARCH_INF__ID_NOT_FOUND: "Aucune infraction trouvée avec l'ID {inf_id}"  # inf_id
-INF__ID: "ID"
-INF__START_TIME: "Début"
-INF__END_TIME: "Fin"
-INF__USER: "Utilisateur"
-INF__MOD: "Modérateur"
-EDIT_INF__NOT_FOUND: "Aucune infraction trouvée"
-EDIT_INF__INVALID_FIELD: "Champ invalid"
-EDIT_INF__SUCCESS: "Succès. `{field}` est désormais défini comme `{value}`"  # field, value
+MUTE__ALREADY_MUTED: "Cet utilisateur est déjà mute, #{mute_id}"  # mute_id
+MUTE__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
+MUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
+UNMUTE__SUCCESS: "Cet utilisateur n'est plus mute"  # inf_id
+WARN__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
+BAN__ALREADY_BANNED: ""  # mute_id
+BAN__SEVERITY_UNKNOWN: "Sévérité inconnue donnée"
+BAN__ADDED: "Bannisement #{inf_id} ajouté"  # inf_id
+BAN__NOT_BANNED: "Cet utilisateur n'est pas ban"
+UNBAN__SUCCESS: "Débanni avec succès"  # inf_id
+SERVER_BAN__BANNED: "Ce serveur est déjà banni"
+SERVER_BAN__ADDED: "Ce serveur a été banni"
+SERVER_BAN__BANNED_FOR: "Votre serveur a été banni du reseau à cause de la raison suivante :\n> {reason}"  # reason
+SERVER_BAN__NOT_BANNED: "Ce serveur n'est pas banni"
+SERVER_BAN__UNBANNED: "Ce serveur a été débanni"
+LOCKDOWN__FULL: "A cause du nouveau confinement, il est impossible d'envoyer un message dans ce flux"  # stream, locale
 LOCKDOWN__LEVEL: "A cause du nouveau confinement, il faut être du niveau {level} pour que vos messages soient envoyés"  # level, stream, locale
 LOCKDOWN__SLOWMODE: "A cause du nouveau confinement, vous ne pouvez envoyer qu'un message chaque {limit} secondes"  # limit, stream, locale
 LOCKDOWN__DISACTIVATED: "Le confinement a été désactivé dans **{stream}**"  # stream, locale
 LOCKDOWN__INVALID_TYPE: "Type de confinement non valable"
+GUILD__BANNED_USER: "Votre serveur a été banni en raison de la présence d'un membre sévèrement banni. Vous pouvez débannir votre serveur en bannissant l'utilisateur mentionné"
+GUILD__NO_LONGER_BANNED: "Votre serveur ne contient plus de membres bannis. Il est donc débanni !"
+GUILD__WARNING_BANNED_USERS_PRESENT: "**Avertissement!** Si vous n'agissez pas rapidement, votre serveur sera banni en raison de la présence des membres suivants : {users}"  # users
 
 # ..\..\..\src\bot\extensions\roles.py
+INSPECT_CHANNELS: "Consultez des salons"
+MANAGE_ROLES: "Gérer les rôles"
+MANAGE_PERMISSIONS: "Gérer les permissions"
+MANAGE_SNIPPETS: "Gérer les snippets"
+MANAGE_FEATURES: "Gérer les fonctionnalités"
+MANAGE_WARNS: "Gérer les warns"
+MANAGE_MUTES: "Gérer les mutes"
+MANAGE_LOCKDOWN: "Gérer le lockdown"
+MANAGE_BLACKLISTS: "Gérer le blacklist"
+VIEW_ADVANCED_STATS: "Voir les statistiques avancés"
 GET_ROLES__NO_ROLES: "Cet utilisateur n'a aucun rôle"
 GET_ROLES__CONTENT: "Cet utilisateur a les rôles suivants : {roles}"  # roles
 ROLE_NOT_FOUND: "Le rôle {role} est introuvable"  # name
@@ -177,6 +250,7 @@ REMOVE_ROLE_PERMISSION__SUCCESS: "Permission retirée avec succès. Nouvelles pe
 CREATE_PERMISSION__ALREADY_EXISTS: "Cette permission existe déjà"
 CREATE_PERMISSION__SUCCESS: "Permission créée avec succès"
 DELETE_PERMISSION__SUCCESS: "Permission supprimée avec succès"
+LIST_PERMISSIONS__CONTENT: "{permissions}"  # permissions
 
 # ..\..\..\src\bot\extensions\snippets.py
 CREATE_SNIPPET__ALREADY_EXISTS: "Un texte avec ce nom existe déjà"
@@ -187,7 +261,7 @@ VIEW_SNIPPET__CONTENT: |
     ```
     {snippet}
     ```
-
+    
   # snippet
 VIEW_SNIPPET__TITLE: "Contenu de `{name}`"  # name
 SNIPPETS__TITLE: "Textes"
@@ -198,6 +272,8 @@ LANGUAGE__UPDATED: "Langue mise à jour !"
 USER_STAFF_NOTICE: "*Cet utilisateur fait parti du staff de Kolumbao*"
 USER_ELEVATED_PERMISSIONS: "*Cet utilisateur a des permissions élevées*"
 PROFILE__LAST_SEEN_NEVER: "Jamais"
+PROFILE__NONE: "Aucun"
+PROFILE__KOLUMBAO_STAFF: "Tout (Staff du Kolumbao)"
 PROFILE__BASIC_INFO: "Informations Basiques"
 PROFILE__PROFILE: "Profil"
 PROFILE__ID: "ID"
@@ -207,24 +283,28 @@ PROFILE__ROLES: "Rôles"
 PROFILE__LAST_SEEN: "Vu pour la dernière fois"
 PROFILE__NUMBER_MESSAGES: "Nombre de messages"
 PROFILE__POINTS: "Points"
+PROFILE__OWNS: "Est proprietaire de"
+PROFILE__STAFF_IN: "Est staff dans"
 POINTS__LEVEL_UP: "**{user}** a passé au niveau supérieur. Désormais niveau {level}"  # level, user
 POINTS__WELCOME: "Bienvenue sur Kolumbao, **{user}**. Vous semblez d'être niveau"  # user
 POINTS__LEVEL: "Niveau"
 POINTS__AMOUNT: "Points"
+LEADERBOARD__TITLE: "Classement"
 
 # ..\..\..\src\core\i18n\i18n.py
 LANGUAGE_NAME: "Français"  # locale
 MISSING_TRANSLATION_TITLE: "Traductions manquantes!"
 MISSING_TRANSLATION_CONTENT: |
     <:missingtranslations:783791460112662538> Cette commande semble manquer de traduction / texte en **{language}**.
-
+    
     *<:shieldsuccess:783294498776154142> Contribuez aujourd'hui et obtenez un badge "contributor" !*
-
+    
     <:gitrepo:796052700961701909> Lien du dépôt : https://github.com/Kolumbao/translations.
-
+    
   # language
 
 # ..\..\..\src\core\repeater\client.py
 CLICK_TO_SEE: "Clique pour voir le message"
 UNKNOWN_MESSAGE: "Message inconnu"
-REPLYING_TO: "<:reply:797578040292016188> [**{username}** {content}](<{link}>)"  # username, link, content, locale
+REPLYING_TO: "<:reply:797578040292016188> [**{username}** {content}](<{link}>)"  # username, link, content
+

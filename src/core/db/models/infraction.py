@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
+from datetime import datetime, timedelta
+import pytz
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -10,62 +11,104 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import synonym
 
-from . import Base
+from . import Base, SharedAttributes
 
 
-class Infraction(Base):
-    __tablename__ = "infs"
+# There are 3 types of infraction:
+# - mute: Stops speaking.
+# - warn: Verbal warning.
+# - ban:  Stops usage of bot and depending on severity, also prevents bot
+#         working in servers you're in.
+
+class Mute(Base, SharedAttributes):
+    __tablename__ = "mutes"
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    user = relationship("User", backref="infs", foreign_keys=[user_id])
+    user = relationship("User", backref="mutes", foreign_keys=[user_id])
 
     mod_id = Column(Integer, ForeignKey("users.id"))
-    mod = relationship("User", backref="infs_made", foreign_keys=[mod_id])
+    mod = relationship("User", backref="mutes_made", foreign_keys=[mod_id])
 
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime)
+    start_time = Column("start_time", DateTime(timezone=pytz.utc), nullable=False)
+    end_time = Column("end_time", DateTime(timezone=pytz.utc))
 
-    _reason = Column("reason", String)
-    _type_ = Column("type_", String)
+    reason = Column("reason", String)
 
-    @hybrid_property
-    def duration(self):
-        return self.end_time - self.start_time
+    @classmethod
+    def create(cls, user: "User", mod: "User", reason: str, duration: timedelta):
+        start_time = datetime.now(pytz.utc)
+        end_time = None
+        if duration is not None:
+            end_time = start_time + duration
+        
+        return cls(
+            user_id = user.id,
+            mod_id = mod.id,
+            start_time = start_time,
+            end_time = end_time,
+            reason = reason
+        )
 
-    @duration.setter
-    def duration(self, value: timedelta):
-        if isinstance(value, timedelta):
-            self.end_time = self.start_time + value
-        elif value is None:
-            self.end_time = None
-        else:
-            raise TypeError("EDIT_INF__INVALID_TYPE")
+class Warn(Base, SharedAttributes):
+    __tablename__ = "warns"
 
-    # https://gist.github.com/luhn/4170996
-    # info on why property is used and not hybrid_property
-    @property
-    def type_(self):
-        return self._type_
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", backref="warns", foreign_keys=[user_id])
 
-    @type_.setter
-    def type_(self, value):
-        if isinstance(value, str) or value is None:
-            self._type_ = value
-        else:
-            raise TypeError("EDIT_INF__INVALID_TYPE")
+    mod_id = Column(Integer, ForeignKey("users.id"))
+    mod = relationship("User", backref="warns_made", foreign_keys=[mod_id])
 
-    type_ = synonym("_type_", descriptor=type_)
+    reason = Column("reason", String)
 
-    @property
-    def reason(self):
-        return self._reason
+    @classmethod
+    def create(cls, user: "User", mod: "User", reason: str):
+        return cls(
+            user_id = user.id,
+            mod_id = mod.id,
+            reason = reason
+        )
 
-    @reason.setter
-    def reason(self, value):
-        if isinstance(value, str) or value is None:
-            self._reason_ = value
-        else:
-            raise TypeError("EDIT_INF__INVALID_TYPE")
+class BanSeverity:
+    # User can not use bot or commands
+    USER = 0
 
-    reason = synonym("_reason", descriptor=reason)
+    # Server made by user can not use bot
+    SERVER = 1
+
+    # User can not be in server with Kolumbao
+    BLANKET = 2
+
+
+class Ban(Base, SharedAttributes):
+    __tablename__ = "bans"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", backref="bans", foreign_keys=[user_id])
+
+    mod_id = Column(Integer, ForeignKey("users.id"))
+    mod = relationship("User", backref="bans_made", foreign_keys=[mod_id])
+
+    start_time = Column("start_time", DateTime(timezone=pytz.utc), nullable=False)
+    end_time = Column("end_time", DateTime(timezone=pytz.utc))
+
+    reason = Column("reason", String)
+    severity = Column("severity", Integer, default=BanSeverity.USER)
+
+    @classmethod
+    def create(cls, user: "User", mod: "User", reason: str, severity: int, duration: timedelta):
+        start_time = datetime.now(pytz.utc)
+        end_time = None
+        if duration is not None:
+            end_time = start_time + duration
+        
+        return cls(
+            user_id = user.id,
+            mod_id = mod.id,
+            start_time = start_time,
+            end_time = end_time,
+            reason = reason,
+            severity = severity
+        )

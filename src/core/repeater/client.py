@@ -4,6 +4,7 @@ import json
 import re
 import typing as t
 from dataclasses import dataclass
+import discord
 
 from discord.ext import commands
 from discord.message import MessageReference
@@ -82,9 +83,9 @@ class Client(RabbitMQClient):
 
         return content
 
-    async def formatted_stasis(self, message_body: dict) -> callable:
+    async def all_factories(self, message_body: dict) -> callable:
         """
-        Handle both reference stasis (for replies) and mention stasis
+        Handle both reference factory (for replies) and mention factory
 
         Parameters
         ----------
@@ -96,23 +97,23 @@ class Client(RabbitMQClient):
         callable
             The wrapper
         """
-        referenced = await self._get_reference_stasis(
+        referenced = await self._get_reference_factory(
             message_body.pop("reference", None)
         )
-        mentioned = await self._get_mention_stasis(message_body["content"])
+        mentioned = await self._get_mention_factory(message_body["content"])
 
         async def _format(target: Node):
             return await mentioned(await referenced(message_body, target), target)
 
         return _format
 
-    async def _get_mention_stasis(self, content: str) -> callable:
+    async def _get_mention_factory(self, content: str) -> callable:
         """
         Create a function that takes the raw message data and target node to
         correctly format mentions.
 
         .. seealso::
-            You should use `formatted_statis` to handle both these correctly.
+            You should use `all_factories` to handle both these correctly.
 
         Parameters
         ----------
@@ -152,13 +153,13 @@ class Client(RabbitMQClient):
 
         return _format_mentions
 
-    async def _get_reference_stasis(self, reference: MessageReference) -> callable:
+    async def _get_reference_factory(self, reference: MessageReference) -> callable:
         """
         Create a function that takes the raw message data and target node to
         correctly targeted message replies.
 
         .. seealso::
-            You should use `formatted_statis` to handle both these correctly.
+            You should use `all_factories` to handle both these correctly.
 
         Parameters
         ----------
@@ -170,12 +171,15 @@ class Client(RabbitMQClient):
         callable
             The function
         """
+
         async def _ret(message_body: dict, _: Node):
             return message_body
 
+        # If there is no message reference
         if reference is None:
             return _ret
 
+        # Find the message quoted
         quoted_message = await self.bot.loop.run_in_executor(
             None,
             (
@@ -192,9 +196,11 @@ class Client(RabbitMQClient):
             ),
         )
 
+        # If the quoted message wasn't found...
         if quoted_message is None:
             return _ret
 
+        # Add the quotation pointing to the target node
         async def _add_quotation(message_body: dict, target: Node):
             if quoted_message.node == target:
                 # tq is target quoted message
@@ -202,9 +208,9 @@ class Client(RabbitMQClient):
             else:
                 tq = get(quoted_message.result_messages, node=target)
             content = self._message_reply_content(tq)
-            user = self.bot.get_user(
+            user = quoted_message.user.discord or await self.bot.fetch_user(
                 quoted_message.user.discord_id
-            ) or await self.bot.fetch_user(quoted_message.user.discord_id)
+            )
 
             this_body = message_body.copy()
             this_body["content"] = (
@@ -269,21 +275,29 @@ class Client(RabbitMQClient):
         body = json.dumps(self._build_body(message))
         await self.send_raw(body)
 
-    def _get_target_urls(self, target: t.Union[Node, Stream]):
+    def _get_target_urls(self, target: t.Union[Node, Stream]) -> t.List[str]:
+        """
+        Get all URLs for the target
+
+        Parameters
+        ----------
+        target : t.Union[Node, Stream]
+            The target, either a node or a stream
+
+        Returns
+        -------
+        List[str]
+            List of URLs
+        """
         targets = []
         if isinstance(target, Node):
+            # Get single node target
             targets.append(target.webhook_url())
         else:
+            # Get targets for all nodes in this stream
             targets.extend(node.webhook_url() for node in target.nodes)
 
         return targets
-
-    async def _prepare_message_body_reply(self, message_body: dict, target: Node):
-        ref = message_body.pop("reference", None)
-        if ref is not None:
-            message_body["content"] = (
-                await self._reply_pretext(ref, target) + message_body["content"]
-            )
 
     async def update(
         self,
@@ -311,26 +325,33 @@ class Client(RabbitMQClient):
         if not isinstance(target, (Node, Stream)):
             raise TypeError("Target is not of type Node or Stream")
 
-        origin_id = None
-        original_id = None
+        origin_id = None  # ID of origin
+        original_id = None  # Original message ID
         if origin:
             origin_id = origin.node_id
             original_id = origin.id
 
+        # Get all target, regardless of Node/Stream
         targets = self._get_target_urls(target)
+
+        # Create tasks and set up event loops
         tasks = []
         loop = asyncio.get_event_loop()
 
-        formatted = await self.formatted_stasis(message_body)
+        # Get the reference and mentions factories together
+        all_factories = await self.all_factories(message_body)
         for result_message in origin.result_messages:
             if result_message.node.disabled:
                 continue
+
+            # If the node isn't disabled, and the target node still exists as
+            # a target on the network
             target_url = result_message.node.webhook_url()
             if target_url in targets:
                 task = loop.create_task(
                     self._send_one(
                         Message(
-                            message_body=await formatted(result_message.node),
+                            message_body=await all_factories(result_message.node),
                             target_url=target_url,
                             target_id=result_message.node.id,
                             origin_id=origin_id,
@@ -373,12 +394,15 @@ class Client(RabbitMQClient):
         if not isinstance(target, (Node, Stream)):
             raise TypeError("Target is not of type Node or Stream")
 
-        origin_id = None
-        original_id = None
+        origin_id = None  # ID of origin
+        original_id = None  # Original message ID
         if origin:
             origin_id = origin.node_id
             original_id = origin.id
 
+        # Get all target, regardless of Node/Stream
+        # This can't be done with _get_target_urls as we must know whether the
+        # node is disabled when selecting targets.
         targets = []
         if isinstance(target, Node):
             targets.append(target)
@@ -389,17 +413,21 @@ class Client(RabbitMQClient):
                 if not exclude_origin or node != origin.node
             )
 
+        # Create tasks and set up event loops
         tasks = []
         loop = asyncio.get_event_loop()
-        formatted = await self.formatted_stasis(message_body)
+
+        # Create the factory
+        all_factories = await self.all_factories(message_body)
         for targ in targets:
             if targ.disabled:
                 continue
 
+            # Create the task
             task = loop.create_task(
                 self._send_one(
                     Message(
-                        message_body=await formatted(targ),
+                        message_body=await all_factories(targ),
                         target_url=targ.webhook_url(),
                         target_id=targ.id,
                         origin_id=origin_id,
@@ -430,14 +458,24 @@ class Client(RabbitMQClient):
             The user to send this message as, by default None.
             If no user is specified, this is sent as ``Client._default_user``
             but displayed with the username ``Client._default_username``.
+        **fields : dict
+            Extra fields that should be considered, such as:
+             - username: The username to use, otherwise ``Client._default_username``
+             - avatar_url: The avatar URL to use, otherwise ``Client._default_avatar_url``
+             - original: The original message in the database, otherwise one is created
         """
+        # Get username and avatar URL
         username = fields.pop("username", self._default_username)
         avatar_url = fields.pop("avatar_url", self._default_avatar_url)
-
+         
+        # Whether to make an 'original' message or if one exists
         original = fields.pop("original", None)
         if original is None:
             original = OriginMessage(
-                user=user or get_user(self._default_user), message_id=0, content=content
+                user=user or User.create(discord.Object(self._default_user)),
+                message_id=0,
+                content=content,
+                stream_id=target.stream_id if isinstance(target, Node) else target.id
             )
             session.add(original)
             session.commit()

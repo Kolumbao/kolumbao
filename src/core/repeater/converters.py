@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-from datetime import datetime
 from datetime import timedelta
 from typing import Optional
 
@@ -8,13 +7,15 @@ import discord
 from discord.ext import commands
 from discord.utils import find
 
+from core.db.models.infraction import Mute
+from core.db.models.role import Permissions
+
 from ..db.utils import get_user
 from ..utils.download import download
 from .filters import FilterError
 from .filters import FILTERS
 from core.db.models.stream import Stream
 from core.db.models.user import User
-from core.moderation.infraction import add_mute
 from core.utils.ratelimit import RateLimit
 
 
@@ -181,7 +182,7 @@ class Discord:
         dict
             The message body
         """
-        user = get_user(message.author.id)
+        user = User.create(message.author)
 
         await cls.check_filters(user, message, stream)
 
@@ -235,7 +236,7 @@ class Discord:
             The user has failed a filter
         """
         try:
-            if user.has_permissions("MANAGE_MUTES"):
+            if user.has_permissions(Permissions.MANAGE_MUTES):
                 return True
         except Exception:
             pass
@@ -303,10 +304,10 @@ class Discord:
         if excess > 0 and automute:
             try:
                 limit = cls._filter_ratelimit.limit
-                last_mute = add_mute(
+                last_mute = Mute.create(
                     user,
                     user,
-                    datetime.now() + timedelta(minutes=5),
+                    timedelta(minutes=5),
                     f"Violating filter restrictions ({limit+excess}/{limit})"
                     f" - `{filter_name}`",
                 )

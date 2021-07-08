@@ -27,6 +27,26 @@ class Permission(Base):
     name = Column(String, nullable=False)
 
 
+class Permissions:
+    """
+    Basic permissions list
+    """
+    INSPECT_CHANNELS = "INSPECT_CHANNELS"
+    MANAGE_ROLES = "MANAGE_ROLES"
+    MANAGE_MESSAGES = "MANAGE_MESSAGES"
+    MANAGE_PERMISSIONS = "MANAGE_PERMISSIONS"
+    MANAGE_SNIPPETS = "MANAGE_SNIPPETS"
+    MANAGE_FEATURES = "MANAGE_FEATURES"
+    MANAGE_MUTES = "MANAGE_MUTES"
+    MANAGE_BLACKLISTS = "MANAGE_BLACKLISTS"
+    MANAGE_PUBLICITY = "MANAGE_PUBLICITY"
+    VIEW_ADVANCED_STATS = "VIEW_ADVANCED_STATS"
+
+    def get(self, name: str) -> Permission:
+        from .. import query
+
+        return query(Permission).filter(Permission.name == name).first() or Permission(name=name)
+
 class Role(Base):
     __tablename__ = "roles"
 

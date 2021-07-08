@@ -3,8 +3,6 @@ import asyncio
 from typing import Optional
 
 import discord
-import psycopg2
-import sqlalchemy
 from discord.channel import TextChannel
 from discord.errors import Forbidden
 from discord.errors import NotFound
@@ -25,13 +23,13 @@ from bot.response import resp
 from core.db import session
 from core.db.database import query
 from core.db.models import Stream
-from core.db.models.guild import Guild
+from core.db.models.guild import Guild, StatusCode as GuildStatusCode
 from core.db.models.node import Node
 from core.db.utils import get_guild
 from core.db.utils import get_stream
 from core.db.utils import get_user
 from core.i18n.i18n import _
-from repeater.handlers import StatusCode
+from repeater.handlers import StatusCode as NodeStatusCode
 
 
 class Installation(commands.Cog):
@@ -43,26 +41,34 @@ class Installation(commands.Cog):
         self.bot = bot
 
     @commands.command("all")
-    async def all_(self, ctx):
-        streams = query(Stream).all()
-        streams.sort(key=lambda stream: stream.message_count, reverse=True)
+    async def all_(self, ctx, private_included: bool = False):
+        message = await ctx.send(_("COLLECTING_DATA"))
+        async with ctx.typing():
+            q = query(Stream)
+            if not private_included:
+                q = q.filter(Stream.public == True)
+            
+            streams = await self.bot.loop.run_in_executor(None, q.all)
+            streams.sort(key=lambda stream: stream.message_count, reverse=True)
 
-        embeds = []
-        for stream in streams:
-            embed = make_stream_embed(stream, get_guild(ctx.guild.id))
-            embeds.append(embed)
+            embeds = []
+            for stream in streams:
+                embed = make_stream_embed(stream, Guild.create(ctx.guild))
+                embeds.append(embed)
 
-        await EmbedPaginatorSession(ctx, *embeds).run()
+            await EmbedPaginatorSession(ctx, *embeds).run()
+        
+        await message.delete()
 
     @commands.command()
     async def installed(self, ctx):
-        dbguild = get_guild(ctx.guild.id)
-        nodes = (
+        dbguild = Guild.create(ctx.guild)
+        nodes = await self.bot.loop.run_in_executor(None, (
             query(Node)
             .filter(Node.guild_id == dbguild.id)
             .order_by(Node.webhook_id.asc())
-            .all()
-        )
+            .all
+        ))
 
         embeds = []
         for node in nodes:
@@ -263,7 +269,7 @@ class Installation(commands.Cog):
             await EmbedPaginatorSession(
                 ctx,
                 *[
-                    make_stream_embed(stream, get_guild(ctx.guild.id))
+                    make_stream_embed(stream, Guild.create(ctx.guild))
                     for stream in found_streams
                 ],
             ).run()
@@ -275,16 +281,26 @@ class Installation(commands.Cog):
         stream = query(Stream).filter(Stream.name == stream_name).first()
         if stream is None:
             raise ItemNotFound(Stream)
+        
+        dbguild = Guild.create(ctx.guild)
+        node = get_local_node(stream, dbguild)
+        if node is None:
+            raise ItemNotFound(Node)
 
-        node = get_local_node(stream, get_guild(ctx.guild.id))
-
-        error = {
-            StatusCode.WEBHOOK_NOT_FOUND.value: _("DIAGNOSE__WEBHOOK_DELETED"),
-            StatusCode.WEBHOOK_NOT_AUTHORIZED.value: _("DIAGNOSE__NOT_AUTHORIZED"),
-            StatusCode.WEBHOOK_HTTP_EXCEPTION.value: _("DIAGNOSE__OTHER_UNKNOWN"),
+        node_error = {
+            NodeStatusCode.WEBHOOK_NOT_FOUND: _("DIAGNOSE__WEBHOOK_DELETED"),
+            NodeStatusCode.WEBHOOK_NOT_AUTHORIZED: _("DIAGNOSE__NOT_AUTHORIZED"),
+            NodeStatusCode.WEBHOOK_HTTP_EXCEPTION: _("DIAGNOSE__OTHER_UNKNOWN"),
         }
         if node.status != 0:
-            return await bad(ctx, error[node.status])
+            return await bad(ctx, node_error[node.status])
+        
+        guild_error = {
+            GuildStatusCode.DISABLED: _("DIAGNOSE__GUILD_DISABLED"),
+            GuildStatusCode.AWAITING_DISABLE: _("DIAGNOSE__GUILD_AWAITING_DISABLE"),
+        }
+        if dbguild.status == GuildStatusCode.DISABLED:
+            return await bad(ctx, guild_error)
 
         return await good(ctx, _("DIAGNOSE__NO_ERROR"))
 
@@ -335,25 +351,6 @@ class Installation(commands.Cog):
             return
 
         await target.send(_("INSTALLED", locale=language))
-
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild: discord.Guild):
-        dbguild = get_guild(guild.id)
-        session.commit()
-        self.bot.logger.info(
-            "{0.name} ({0.id}) kicked the bot ({1})".format(guild, dbguild.id)
-        )
-
-        try:
-            session.delete(dbguild)
-        except sqlalchemy.exc.InvalidRequestError:
-            # Not persisted.
-            pass
-        except psycopg2.errors.ForeignKeyViolation:
-            # Error with foreign keys
-            pass
-        else:
-            session.commit()
 
 
 def setup(bot):

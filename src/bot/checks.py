@@ -4,7 +4,7 @@ from discord.ext import commands
 from core.db.database import query
 from core.db.database import session
 from core.db.models import Permission
-from core.db.utils import get_user
+from core.db.models.user import User
 
 
 class InsufficientPermissions(commands.CommandError):
@@ -30,14 +30,14 @@ def has_permission(*permissions: list):
         if (permission,) not in names:
             session.add(Permission(name=permission))
 
-    session.commit()
+            session.commit()
 
     async def predicate(ctx):
-        if len(permissions) == 0:
+        if len(permissions) == 0 or await ctx.bot.is_owner(ctx.author):
             return True
 
-        user = get_user(ctx.author.id)
-        if user.has_permissions(*permissions, bot=ctx.bot):
+        user = User.create(ctx.author)
+        if user.has_permissions(*permissions):
             return True
 
         raise InsufficientPermissions(list(user.missing_permissions(*permissions)))
@@ -47,10 +47,12 @@ def has_permission(*permissions: list):
 
 def requires_level(level: int):
     async def predicate(ctx):
-        user = get_user(ctx.author.id)
-        if user.level >= level or await ctx.bot.is_owner(ctx.author):
-            return True
+        # While levels are disabled
+        return True
+        # user = User.create(ctx.author)
+        # if user.level >= level or await ctx.bot.is_owner(ctx.author):
+        #     return True
 
-        raise InsufficientLevel(level)
+        # raise InsufficientLevel(level)
 
     return commands.check(predicate)

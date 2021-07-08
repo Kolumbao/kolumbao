@@ -10,6 +10,7 @@ from operator import attrgetter
 from os import getenv
 from typing import List
 from typing import Tuple
+import discord
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -57,12 +58,25 @@ class StatSync(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.update_top.start()
+        self.update_status.start()
 
     @tasks.loop(seconds=60)
     async def update_top(self):
         await self._update_top_streams()
         await self._update_hot_streams()
         await self._update_message_stats()
+
+    @tasks.loop(minutes=60)
+    async def update_status(self):
+        streams = await self.bot.loop.run_in_executor(None, query(Stream).count)
+        messages = await self.bot.loop.run_in_executor(None, query(OriginMessage).count)
+
+        await self.bot.change_presence(
+            activity=discord.Activity(
+                name=f"{streams} streams | {messages} messages",
+                type=discord.ActivityType.watching,
+            )
+        )
 
     async def _update_hot_streams(self):
         if getenv("HOT_CHANNELS_STATS") is None:
@@ -143,7 +157,7 @@ class StatSync(commands.Cog):
 
     def _create_graph(self, *graphs, options: GraphOptions = GraphOptions()):
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-            "", ["#947bd3", "#f26caf", "#5e4ae3"]
+            "", ["#e4572e", "#ffb20f", "#ffe548"]
         )
 
         if options.plot_same or len(graphs) == 1:
@@ -173,49 +187,57 @@ class StatSync(commands.Cog):
     @has_permission("VIEW_ADVANCED_STATS")
     @commands.command("avg-time-month")
     async def avg_time_month(self, ctx):
-        dts: List[Tuple[datetime.datetime]] = query(OriginMessage.sent_at).all()
+        async with ctx.typing():
+            dts: List[Tuple[datetime.datetime]] = await self.bot.loop.run_in_executor(
+                None,
+                query(OriginMessage.sent_at).all
+            )
 
-        data = {}
-        for k in range(1, 13):
-            data[k] = {}
-            for i in range(24):
-                for j in range(60):
-                    data[k][i + math.floor(j / 60 * 10) / 10] = 0
+            data = {}
+            for k in range(1, 13):
+                data[k] = {}
+                for i in range(24):
+                    for j in range(60):
+                        data[k][i + math.floor(j / 60 * 10) / 10] = 0
 
-        for dt in dts:
-            idx = dt[0].hour + math.floor(dt[0].minute / 60 * 10) / 10
-            data[dt[0].month][idx] += 1
+            for dt in dts:
+                idx = dt[0].hour + math.floor(dt[0].minute / 60 * 10) / 10
+                data[dt[0].month][idx] += 1
 
-        graphs = []
-        for month in sorted(data.keys()):
-            xs = list(sorted(data[month].keys()))
-            # tot = sum(data[month].values())
-            # if tot == 0:
-            #     continue
-            ys = [data[month][x] for x in xs]
-            graphs.append((xs, ys))
+            graphs = []
+            for month in sorted(data.keys()):
+                xs = list(sorted(data[month].keys()))
+                # tot = sum(data[month].values())
+                # if tot == 0:
+                #     continue
+                ys = [data[month][x] for x in xs]
+                graphs.append((xs, ys))
 
         await ctx.send(file=self._create_graph(*graphs))
 
     @has_permission("VIEW_ADVANCED_STATS")
     @commands.command("avg-time-all")
     async def avg_time_all(self, ctx):
-        dts: List[Tuple[datetime.datetime]] = query(OriginMessage.sent_at).all()
+        async with ctx.typing():
+            dts: List[Tuple[datetime.datetime]] = await self.bot.loop.run_in_executor(
+                None,
+                query(OriginMessage.sent_at).all
+            )
 
-        graphs = []
-        data = {}
-        for i in range(24):
-            for j in range(60):
-                data[i + math.floor(j / 60 * 10) / 10] = 0
+            graphs = []
+            data = {}
+            for i in range(24):
+                for j in range(60):
+                    data[i + math.floor(j / 60 * 10) / 10] = 0
 
-        for dt in dts:
-            idx = dt[0].hour + math.floor(dt[0].minute / 60 * 10) / 10
-            data[idx] += 1
+            for dt in dts:
+                idx = dt[0].hour + math.floor(dt[0].minute / 60 * 10) / 10
+                data[idx] += 1
 
-        keys = sorted(data.keys())
-        xs = list(keys)
-        ys = [data[x] for x in xs]
-        graphs.append((xs, ys))
+            keys = sorted(data.keys())
+            xs = list(keys)
+            ys = [data[x] for x in xs]
+            graphs.append((xs, ys))
 
         await ctx.send(file=self._create_graph(*graphs, options=GraphOptions(scalex=3)))
 
@@ -234,12 +256,10 @@ class StatSync(commands.Cog):
                 .all,
             )
 
-            print("query")
             ids = [message.id for message in messages]
             result_messages = await self.bot.loop.run_in_executor(
                 None, query(ResultMessage).filter(ResultMessage.origin_id.in_(ids)).all
             )
-            print("res")
 
             def _get_delays(message):
                 def _wrapped():
@@ -272,16 +292,11 @@ class StatSync(commands.Cog):
                     )
                 )
 
-            print("tasks made")
 
             res = await asyncio.gather(*tasks)
-            print("to sum")
             results = sum(res, [])
 
-            print(len(results))
             xs, ys = await self.bot.loop.run_in_executor(None, lambda: zip(*results))
-            print("spread")
-            print("making graph")
             await ctx.send(
                 file=self._create_graph(
                     (xs, ys),
