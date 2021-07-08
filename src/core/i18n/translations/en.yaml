@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 12:27:11.773179
+# Generated on 2021-07-08 12:41:50.399487
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -149,6 +149,8 @@ SEARCH__NOT_FOUND: "No results found for your query"
 DIAGNOSE__WEBHOOK_DELETED: "The webhook was deleted. Try reinstalling!"
 DIAGNOSE__NOT_AUTHORIZED: "The credentials for the webhook somehow changed. You should reinstall the channel."
 DIAGNOSE__OTHER_UNKNOWN: "Another error occured, and we're not sure what is was. Try reinstalling."
+DIAGNOSE__GUILD_DISABLED: "Your guild is currently disabled (possibly due to highly banned members)"
+DIAGNOSE__GUILD_AWAITING_DISABLE: "Your guild is going to be disabled (due to highly banned members). You should have received a warning."
 DIAGNOSE__NO_ERROR: "There's no recorded error for your instance of the shared channel. If it continues to fail, feel free to reinstall the channel."
 INVITE__TITLE: "Invite"
 INVITE__CONTENT: "Invite the bot [with this link]({url})"  # url

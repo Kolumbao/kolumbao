@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 12:27:19.840201
+# Generated on 2021-07-08 12:41:54.383688
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -149,6 +149,8 @@ SEARCH__NOT_FOUND: "Aucun résultat"
 DIAGNOSE__WEBHOOK_DELETED: "Le webhook a été supprimé. Essayez de le reinstaller!"
 DIAGNOSE__NOT_AUTHORIZED: "Les autorisations pour le webhook ont changé de manière inattendue. Vous devez reinstaller le flux."
 DIAGNOSE__OTHER_UNKNOWN: "Une autre erreur s'est produite, et nous ne sommes pas sûrs de ce que c'était. Essayez de le reinstaller."
+DIAGNOSE__GUILD_DISABLED: "Votre serveur a été désactivé sur le reseau à cause d'un membre sévèrement banni."
+DIAGNOSE__GUILD_AWAITING_DISABLE: "Votre serveur sera désactivé sur le reseau à cause d'un membre sévèrement banni. Vous aurez dû recevoir un avertissement"
 DIAGNOSE__NO_ERROR: "Il n'y a pas d'erreur enregistrée pour votre instance du flux. Si l'erreur persiste, n'hésitez pas à réinstaller le flux."
 INVITE__TITLE: "Invite"
 INVITE__CONTENT: "Inviter le bot [avec ce lien]({url})"  # url

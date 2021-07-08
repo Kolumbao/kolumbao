@@ -10,9 +10,8 @@ from ._types import Snowflake
 
 class StatusCode:
     NONE = 0
-    MANUALLY_DISABLED = 1
-    AUTO_USER_DISABLED = 2
-    AWAITING_AUTO_DISABLE = 3
+    DISABLED = 1
+    AWAITING_DISABLE = 2
 
 class Guild(Base, SharedAttributes):
     __tablename__ = "guilds"
@@ -28,4 +27,4 @@ class Guild(Base, SharedAttributes):
 
     @property
     def disabled(self):
-        return self.status != 0
+        return self.status == StatusCode.DISABLED

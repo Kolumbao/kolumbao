@@ -497,7 +497,7 @@ class Moderation(commands.Cog):
             query(Guild)
             .filter(
                 (Guild.status == StatusCode.NONE)
-                | (Guild.status == StatusCode.AWAITING_AUTO_DISABLE)
+                | (Guild.status == StatusCode.AWAITING_DISABLE)
             )
             .all()
         ):
@@ -510,14 +510,14 @@ class Moderation(commands.Cog):
                 if len(banned_users_in_guild) > 0:
                     if dbguild.status == StatusCode.NONE:
                         # Disable
-                        dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
+                        dbguild.status = StatusCode.AWAITING_DISABLE
                         session.commit()
 
                         await self.send_user_warning_to_guild(
                             dbguild, banned_users_in_guild
                         )
-                    elif dbguild.status == StatusCode.AWAITING_AUTO_DISABLE:
-                        dbguild.status = StatusCode.AUTO_USER_DISABLED
+                    elif dbguild.status == StatusCode.AWAITING_DISABLE:
+                        dbguild.status = StatusCode.DISABLED
                         await target.send(_("GUILD__BANNED_USER"))
                 elif dbguild.status != StatusCode.NONE:
                     dbguild.status = StatusCode.NONE
@@ -547,7 +547,7 @@ class Moderation(commands.Cog):
                 dbguild = Guild.create(member.guild)
 
                 # Set to warning
-                dbguild.status = StatusCode.AWAITING_AUTO_DISABLE
+                dbguild.status = StatusCode.AWAITING_DISABLE
                 session.commit()
 
                 if dbguild.discord:

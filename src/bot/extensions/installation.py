@@ -3,8 +3,6 @@ import asyncio
 from typing import Optional
 
 import discord
-import psycopg2
-import sqlalchemy
 from discord.channel import TextChannel
 from discord.errors import Forbidden
 from discord.errors import NotFound
@@ -25,13 +23,13 @@ from bot.response import resp
 from core.db import session
 from core.db.database import query
 from core.db.models import Stream
-from core.db.models.guild import Guild
+from core.db.models.guild import Guild, StatusCode as GuildStatusCode
 from core.db.models.node import Node
 from core.db.utils import get_guild
 from core.db.utils import get_stream
 from core.db.utils import get_user
 from core.i18n.i18n import _
-from repeater.handlers import StatusCode
+from repeater.handlers import StatusCode as NodeStatusCode
 
 
 class Installation(commands.Cog):
@@ -279,18 +277,26 @@ class Installation(commands.Cog):
         stream = query(Stream).filter(Stream.name == stream_name).first()
         if stream is None:
             raise ItemNotFound(Stream)
-
-        node = get_local_node(stream, get_guild(ctx.guild.id))
+        
+        dbguild = Guild.create(ctx.guild)
+        node = get_local_node(stream, dbguild)
         if node is None:
             raise ItemNotFound(Node)
 
-        error = {
-            StatusCode.WEBHOOK_NOT_FOUND: _("DIAGNOSE__WEBHOOK_DELETED"),
-            StatusCode.WEBHOOK_NOT_AUTHORIZED: _("DIAGNOSE__NOT_AUTHORIZED"),
-            StatusCode.WEBHOOK_HTTP_EXCEPTION: _("DIAGNOSE__OTHER_UNKNOWN"),
+        node_error = {
+            NodeStatusCode.WEBHOOK_NOT_FOUND: _("DIAGNOSE__WEBHOOK_DELETED"),
+            NodeStatusCode.WEBHOOK_NOT_AUTHORIZED: _("DIAGNOSE__NOT_AUTHORIZED"),
+            NodeStatusCode.WEBHOOK_HTTP_EXCEPTION: _("DIAGNOSE__OTHER_UNKNOWN"),
         }
         if node.status != 0:
-            return await bad(ctx, error[node.status])
+            return await bad(ctx, node_error[node.status])
+        
+        guild_error = {
+            GuildStatusCode.DISABLED: _("DIAGNOSE__GUILD_DISABLED"),
+            GuildStatusCode.AWAITING_DISABLE: _("DIAGNOSE__GUILD_AWAITING_DISABLE"),
+        }
+        if dbguild.status == GuildStatusCode.DISABLED:
+            return await bad(ctx, guild_error)
 
         return await good(ctx, _("DIAGNOSE__NO_ERROR"))
 
