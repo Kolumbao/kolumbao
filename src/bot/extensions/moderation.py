@@ -417,6 +417,48 @@ class Moderation(commands.Cog):
         await self.log_end(last_ban, intended_end)
         await self.ban_manage.requeue(last_ban)
 
+
+    @has_permission("MANAGE_MUTES")
+    @commands.command("server-ban")
+    async def server_ban(
+        self,
+        ctx: commands.Context,
+        guild_id: int,
+        *,
+        reason: Optional[str] = None,
+    ):
+        dbguild = Guild.create(discord.Object(guild_id))
+        if dbguild.disabled:
+            # Create warn
+            return await bad(ctx, _("SERVER_BAN__BANNED"))
+        
+        dbguild.status = StatusCode.MANUALLY_DISABLED
+        session.commit()
+
+        await good(ctx, _("SERVER_BAN__ADDED"))
+        target = find_target(dbguild.discord)
+        await target.send(_("SERVER_BAN__BANNED_FOR", reason=reason))
+
+    @has_permission("MANAGE_MUTES")
+    @commands.command("server-ban")
+    async def server_unban(
+        self,
+        ctx: commands.Context,
+        guild_id: int
+    ):
+        dbguild = Guild.create(discord.Object(guild_id))
+        if not dbguild.disabled:
+            # Create warn
+            return await bad(ctx, _("SERVER_BAN__NOT_BANNED"))
+        
+        dbguild.status = StatusCode.NONE
+        session.commit()
+
+        await good(ctx, _("SERVER_BAN__UNBANNED"))
+        
+        target = find_target(dbguild.discord)
+        await target.send(_("SERVER_BAN__UNBANNED"))
+
     # Search commands
     @mute.command("search")
     async def mute__search(

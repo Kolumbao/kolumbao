@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 15:37:54.957350
+# Generated on 2021-07-08 15:50:25.298030
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -75,7 +75,7 @@ NEW_STAFF__SUCCESS: "Succès !"
 NAME__ENTER: "Saisissez un nouveau nom"
 NAME__TAKEN: "Un autre flux utilise déjà ce nom"
 NAME__SET: "Votre flux a désormais le nom `{value}`"  # value
-DESCRIPTION__ENTER: ""
+DESCRIPTION__ENTER: "Saisissez une nouvelle description"
 DESCRIPTION__SET: |
     La description de votre flux est désormais ci-dessous :
     
@@ -201,6 +201,11 @@ BAN__SEVERITY_UNKNOWN: "Sévérité inconnue donnée"
 BAN__ADDED: "Bannisement #{inf_id} ajouté"  # inf_id
 BAN__NOT_BANNED: "Cet utilisateur n'est pas ban"
 UNBAN__SUCCESS: "Débanni avec succès"  # inf_id
+SERVER_BAN__BANNED: "Ce serveur est déjà banni"
+SERVER_BAN__ADDED: "Ce serveur a été banni"
+SERVER_BAN__BANNED_FOR: "Votre serveur a été banni du reseau à cause de la raison suivante :\n> {reason}"  # reason
+SERVER_BAN__NOT_BANNED: "Ce serveur n'est pas banni"
+SERVER_BAN__UNBANNED: "Ce serveur a été débanni"
 LOCKDOWN__FULL: "A cause du nouveau confinement, il est impossible d'envoyer un message dans ce flux"  # stream, locale
 LOCKDOWN__LEVEL: "A cause du nouveau confinement, il faut être du niveau {level} pour que vos messages soient envoyés"  # level, stream, locale
 LOCKDOWN__SLOWMODE: "A cause du nouveau confinement, vous ne pouvez envoyer qu'un message chaque {limit} secondes"  # limit, stream, locale

@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 15:37:57.704713
+# Generated on 2021-07-08 15:50:23.438205
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -75,7 +75,7 @@ NEW_STAFF__SUCCESS: "Success!"
 NAME__ENTER: "Enter a name for your channel!"
 NAME__TAKEN: "That name is already taken"
 NAME__SET: "Your channel now has the name `{value}`"  # value
-DESCRIPTION__ENTER: ""
+DESCRIPTION__ENTER: "Enter a new description"
 DESCRIPTION__SET: |
     The description was set to the following
     
@@ -201,6 +201,11 @@ BAN__SEVERITY_UNKNOWN: "Unknown severity given"
 BAN__ADDED: "Ban #{inf_id} added"  # inf_id
 BAN__NOT_BANNED: "That user is not banned"
 UNBAN__SUCCESS: "Unbanned successfully"  # inf_id
+SERVER_BAN__BANNED: "That server is already disabled/banned"
+SERVER_BAN__ADDED: "That server has now been disabled/banned"
+SERVER_BAN__BANNED_FOR: "Your server has been manually disabled from the network for:\n> {reason}"  # reason
+SERVER_BAN__NOT_BANNED: "That server is not banned"
+SERVER_BAN__UNBANNED: "That server has been unbanned."
 LOCKDOWN__FULL: "Lockdown now prohibits any discussion in **{stream}**"  # stream, locale
 LOCKDOWN__LEVEL: "Lockdown now requires level {level} to talk in **{stream}**"  # level, stream, locale
 LOCKDOWN__SLOWMODE: "Lockdown now restricts users to a slowmode of {limit}s in **{stream}**"  # limit, stream, locale

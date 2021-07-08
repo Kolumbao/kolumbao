@@ -12,6 +12,7 @@ class StatusCode:
     NONE = 0
     DISABLED = 1
     AWAITING_DISABLE = 2
+    MANUALLY_DISABLED = 3
 
 class Guild(Base, SharedAttributes):
     __tablename__ = "guilds"
@@ -27,4 +28,4 @@ class Guild(Base, SharedAttributes):
 
     @property
     def disabled(self):
-        return self.status == StatusCode.DISABLED
+        return self.status in [StatusCode.DISABLED, StatusCode.MANUALLY_DISABLED]
