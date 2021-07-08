@@ -68,7 +68,7 @@ MANAGE__NEW_STAFF: "Ajouter un staff"
 MANAGE__STAFF_REMOVED: "{staff} ne fait plus partie du staff du flux"  # staff
 NEW_STAFF__MENTION: "Mentionnez ou écrivez l'ID de l'utilisateur pour l'ajouter"
 NEW_STAFF__USER_NOT_FOUND: "Cet utilisateur n'a pas été trouvé"
-NEW_STAFF__SUCCESS: "Succès ! Maintenant, continuez à ajouter du staff ou fermez ce menu"
+NEW_STAFF__SUCCESS: "Succès !"
 NAME__ENTER: "Saisissez un nouveau nom"
 NAME__TAKEN: "Un autre flux utilise déjà ce nom"
 NAME__SET: "Votre flux a désormais le nom `{value}`"  # value
@@ -100,8 +100,7 @@ CREATE__TOO_MANY: "Vous avez déjà crée autant de flux que possible"
 CREATE__MADE_GUIDANCE: |
     Félicitations, vous avez votre nouveux flux, #{stream_name}. C'est super.
     
-    Commencez par mettre en place votre description avec **kb!description**, et vos règles avec **kb!rules**.
-    Si votre flux est NSFW, commencez par la définir avec **kb!nsfw**. Si vous avez besoin d'aide, venez au serveur de support.
+    Commencez par modifer les informations de votre flux avec `kb!manage {stream_name}`. Si vous avez besoin d'aide, venez au serveur de support.
     
   # stream_name
 DELETE__ENTER_CODE: "Saisissez le code suivant pour confirmer la suppression du flux : {code}"  # code

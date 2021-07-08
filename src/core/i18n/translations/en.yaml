@@ -68,7 +68,7 @@ MANAGE__NEW_STAFF: "Add new staff"
 MANAGE__STAFF_REMOVED: "{staff} was removed from the staff for this stream"  # staff
 NEW_STAFF__MENTION: "Either mention the user or provide their ID"
 NEW_STAFF__USER_NOT_FOUND: "That user was not found!"
-NEW_STAFF__SUCCESS: "Success! Now continue adding staff or close this menu"
+NEW_STAFF__SUCCESS: "Success!"
 NAME__ENTER: "Enter a name for your channel!"
 NAME__TAKEN: "That name is already taken"
 NAME__SET: "Your channel now has the name `{value}`"  # value
@@ -100,8 +100,7 @@ CREATE__TOO_MANY: "You have already created the maximum number of shared channel
 CREATE__MADE_GUIDANCE: |
     Congrats, you have your new shared channel, #{stream_name}. This is great.
     
-    Get started by setting up your description with **kb!description**, and your rules with **kb!rules**.
-    If your channel is NSFW, go ahead and set that with **kb!nsfw**. If you need any help, come to the support server.
+    Get started by editing your rules and description with `kb!manage {stream_name}`. If you need any help, come to the support server.
     
   # stream_name
 DELETE__ENTER_CODE: "Enter the following code in order to confirm the deletion of your channel: {code}"  # code

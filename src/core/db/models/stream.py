@@ -144,7 +144,7 @@ class Stream(Base, SharedAttributes):
             return True
 
         # Based on channel staff
-        if user in self.staff and required_perms == [Permissions.MANAGE_MESSAGES]:
+        if user in self.staff and required_perms == (Permissions.MANAGE_MESSAGES,):
             return True
         
         return False

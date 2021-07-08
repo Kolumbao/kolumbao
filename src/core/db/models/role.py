@@ -41,15 +41,10 @@ class Permissions:
     MANAGE_BLACKLISTS = "MANAGE_BLACKLISTS"
     VIEW_ADVANCED_STATS = "VIEW_ADVANCED_STATS"
 
-    def __getattribute__(self, name: str) -> Permission:
+    def get(self, name: str) -> Permission:
         from .. import query
-
-        try:
-            raw = object.__getattribute__(self, name)
-        except AttributeError as exc:
-            raise exc
-        else:
-            return query(Permission).filter(Permission.name == name).first() or Permission(name=name)
+        
+        return query(Permission).filter(Permission.name == name).first() or Permission(name=name)
 
 class Role(Base):
     __tablename__ = "roles"

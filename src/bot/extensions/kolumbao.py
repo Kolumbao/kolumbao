@@ -15,6 +15,7 @@ from discord.raw_models import RawReactionActionEvent
 from discord_components.component import Select, SelectOption
 from discord_components.interaction import Interaction
 from bot.interactions import selection
+from core.db.models.role import Permissions
 
 from core.db.models.user import User
 
@@ -356,7 +357,7 @@ Guild: {guild}
         # Does the user have the right to manage messages in this channel?
         # Checks staff status and general permissions.
         manage_messages = quoted_message.stream.has_permissions(
-            User.create(discord.Object(payload.user_id)), "MANAGE_MESSAGES"
+            User.create(discord.Object(payload.user_id)), Permissions.MANAGE_MESSAGES
         )
         if quoted_message.user.discord_id != payload.user_id and not manage_messages:
             return
