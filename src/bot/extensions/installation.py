@@ -41,10 +41,14 @@ class Installation(commands.Cog):
         self.bot = bot
 
     @commands.command("all")
-    async def all_(self, ctx):
+    async def all_(self, ctx, private_included: bool = False):
         message = await ctx.send(_("COLLECTING_DATA"))
         async with ctx.typing():
-            streams = await self.bot.loop.run_in_executor(None, query(Stream).all)
+            q = query(Stream)
+            if not private_included:
+                q = q.filter(Stream.public == True)
+            
+            streams = await self.bot.loop.run_in_executor(None, q.all)
             streams.sort(key=lambda stream: stream.message_count, reverse=True)
 
             embeds = []

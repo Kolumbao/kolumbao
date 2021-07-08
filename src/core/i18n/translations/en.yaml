@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 12:41:50.399487
+# Generated on 2021-07-08 15:19:36.261891
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -36,6 +36,8 @@ INFO__OFFICIAL_CHANNEL: "<:shieldverified:783307418159022081> This is an officia
 INFO__UNOFFICIAL_CHANNEL: "This is an unofficial Kolumbao channel. Be safe!"
 INFO__STAFF_CHANNEL: "<:shieldstaff:796049352841101378> This channel was created by a member of Kolumbao's staff team"
 INFO__LOCKED: "<:lockedchannel:796049353022242876> This channel is locked with a password"
+INFO__PUBLIC: "<:channelssuccess:795415724410535976> This is a public channel, moderated in part by Kolumbao staff"
+INFO__PRIVATE: "<:channelsfail:795415724356927498> This is a private channel, not moderated by Kolumbao staff"
 INFO__INSTALLED: "<:installationsuccess:795413869727186964> You have installed this channel: <#{channel_id}>"  # channel_id
 INFO__NAME: "Information for **#{stream_name}**"  # stream_name
 NONE: "No description"
@@ -57,6 +59,7 @@ MANAGE__STAFF: "Staff"
 MANAGE__NOT_OWNED: "You don't own this shared channel"
 MANAGE__CLOSED: "The interaction menu has been closed"
 MANAGE__RESET_PASSWORD: "Reset password"
+MANAGE__PUBLICITY: "Manage public/private"
 MANAGE__NAME: "Edit name"
 MANAGE__DESCRIPTION: "Edit description"
 MANAGE__RULES: "Edit rules"
@@ -96,9 +99,13 @@ NSFW__OPTIONS: "Would you like your channel to be marked as NSFW?"
 NSFW__YES: "Yes"
 NSFW__NO: "No"
 NSFW__SET: "Your shared channel now has NSFW set to `{value}`"  # value
+PUBLIC__OPTIONS: "Do you want the channel to appear public?"
+PUBLIC__YES: "Public"
+PUBLIC__NO: "Private"
+PUBLIC__SET: "Your shared channel now has public set to `{value}`"  # value
 CREATE__TOO_MANY: "You have already created the maximum number of shared channels!"
 CREATE__MADE_GUIDANCE: |
-    Congrats, you have your new shared channel, #{stream_name}. This is great.
+    Congrats, you have your new private shared channel, #{stream_name}. **Your channel will not show up on default Kolumbao searches.**
     
     Get started by editing your rules and description with `kb!manage {stream_name}`. If you need any help, come to the support server.
     

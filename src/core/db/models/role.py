@@ -39,11 +39,12 @@ class Permissions:
     MANAGE_FEATURES = "MANAGE_FEATURES"
     MANAGE_MUTES = "MANAGE_MUTES"
     MANAGE_BLACKLISTS = "MANAGE_BLACKLISTS"
+    MANAGE_PUBLICITY = "MANAGE_PUBLICITY"
     VIEW_ADVANCED_STATS = "VIEW_ADVANCED_STATS"
 
     def get(self, name: str) -> Permission:
         from .. import query
-        
+
         return query(Permission).filter(Permission.name == name).first() or Permission(name=name)
 
 class Role(Base):

@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 12:41:54.383688
+# Generated on 2021-07-08 15:19:38.019775
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -36,6 +36,8 @@ INFO__OFFICIAL_CHANNEL: "Ceci est un salon officiel de Kolumbao"
 INFO__UNOFFICIAL_CHANNEL: "Ceci est un salon non-officiel de Kolumbao. Soyez prudent !"
 INFO__STAFF_CHANNEL: "Ce salon a été créé par un membre de l'équipe de Kolumbao"
 INFO__LOCKED: "Ce selon est verrouillé par un mot de passe"
+INFO__PUBLIC: "<:channelssuccess:795415724410535976> Ceci est un salon public, modéré par l'équipe Kolumbao"
+INFO__PRIVATE: "<:channelsfail:795415724356927498> Ceci est un salon privé, non modéré par l'équipe Kolumbao"
 INFO__INSTALLED: "Vous avez installé ce flux : <#{channel_id}>"  # channel_id
 INFO__NAME: "Informations pour **{stream_name}**"  # stream_name
 NONE: "Aucune description"
@@ -57,6 +59,7 @@ MANAGE__STAFF: "Staff"
 MANAGE__NOT_OWNED: "Ce salon ne vous appartient pas"
 MANAGE__CLOSED: "Le menu a été fermé"
 MANAGE__RESET_PASSWORD: "Enlevez le mot de passe"
+MANAGE__PUBLICITY: "Marquer comme public"
 MANAGE__NAME: "Modifier le nom"
 MANAGE__DESCRIPTION: "Modifier la description"
 MANAGE__RULES: "Modifier les règles"
@@ -96,9 +99,13 @@ NSFW__OPTIONS: "Voulez-vous que votre salon soit marqué comme NSFW ?"
 NSFW__YES: "Oui"
 NSFW__NO: "Non"
 NSFW__SET: "Votre flux a désormais NSFW défini comme `{value}`"  # value
-CREATE__TOO_MANY: "Vous avez déjà crée autant de flux que possible"
+PUBLIC__OPTIONS: "Voulez-vous que votre salon soit public ?"
+PUBLIC__YES: "Public"
+PUBLIC__NO: "Privé"
+PUBLIC__SET: "Votre flux a désormais public défini comme `{value}`"  # value
+CREATE__TOO_MANY: "Vous avez déjà crée autant de flux que possible."
 CREATE__MADE_GUIDANCE: |
-    Félicitations, vous avez votre nouveux flux, #{stream_name}. C'est super.
+    Félicitations, vous avez votre nouveau flux privé, #{stream_name}. **Votre salon n'apparaîtra pas dans les recherches Kolumbao.**
     
     Commencez par modifer les informations de votre flux avec `kb!manage {stream_name}`. Si vous avez besoin d'aide, venez au serveur de support.
     

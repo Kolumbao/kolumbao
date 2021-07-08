@@ -77,6 +77,7 @@ class Stream(Base, SharedAttributes):
     lockdown = Column(Integer, server_default="0")
     nsfw = Column(Boolean, server_default="0")
     password = Column(LargeBinary)
+    public = Column(Boolean, server_default="0")
 
     feats = relationship("Feature", secondary=stream_features)
     features = association_proxy("feats", "name")

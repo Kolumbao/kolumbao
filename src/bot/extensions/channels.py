@@ -12,6 +12,7 @@ from discord_components.component import ActionRow, ButtonStyle
 from discord_components.interaction import Interaction, InteractionType
 from expiring_dict import ExpiringDict
 from bot.interactions import selection
+from core.db.models.role import Permissions
 
 from core.db.models.user import User
 
@@ -61,6 +62,11 @@ def make_stream_embed(stream: Stream, guild: Optional[Guild] = None) -> discord.
 
     if stream.password is not None:
         description += "\n" + _("INFO__LOCKED")
+    
+    if stream.public:
+        description += "\n" + _("INFO__PUBLIC")
+    else:
+        description += "\n" + _("INFO__PRIVATE")
 
     if guild:
         node = get_local_node(stream, guild)
@@ -188,9 +194,12 @@ class Channels(commands.Cog):
         interaction: Interaction
     ):
         # If the stream has password, give option to reset it
-        reset_password_options = {}
+        extras = {}
         if stream.password is not None:
-            reset_password_options["reset-password"] = _("MANAGE__RESET_PASSWORD")
+            extras["reset-password"] = _("MANAGE__RESET_PASSWORD")
+        
+        if User.create(ctx.author).has_permissions(Permissions.MANAGE_PUBLICITY):
+            extras["set-public"] = _("MANAGE__PUBLICITY")
 
         value, interaction = await selection(
             self.bot,
@@ -201,7 +210,7 @@ class Channels(commands.Cog):
                 "rules": _("MANAGE__RULES"),
                 "lang": _("MANAGE__LANG"),
                 "password": _("MANAGE__PASSWORD"),
-                **reset_password_options,
+                **extras,
                 "nsfw": _("MANAGE__NSFW"),
                 "delete": _("MANAGE__DELETE"),
             }
@@ -217,6 +226,7 @@ class Channels(commands.Cog):
             "lang": self.lang,
             "password": self.password,
             "reset-password": self.reset_password,
+            "set-public": self.public,
             "nsfw": self.nsfw,
             "delete": self.delete,
         }
@@ -405,14 +415,50 @@ class Channels(commands.Cog):
         await good(interaction, _("NSFW__SET", value=stream.nsfw))
         self.bot.logger.info("Set nsfw to {} for {}".format(stream.nsfw, stream.name))
 
-    @requires_level(8)
+    async def public(
+        self, ctx: commands.Context, stream: Stream, interaction: Interaction
+    ):
+        await interaction.respond(
+            content=_("PUBLIC__OPTIONS"),
+            components=[
+                ActionRow(
+                    Button(
+                        emoji=self.bot.get_emoji(860846678944776212),
+                        style=ButtonStyle.green,
+                        label=_("PUBLIC__YES"),
+                        custom_id="yes",
+                    ),
+                    Button(
+                        emoji=self.bot.get_emoji(860846700360105984),
+                        style=ButtonStyle.red,
+                        label=_("PUBLIC__NO"),
+                        custom_id="no",
+                    )
+                )
+            ],
+            ephemeral=False,
+        )
+
+        interaction: Interaction = await self.bot.wait_for(
+            "button_click", check=lambda i: i.user == ctx.author, timeout=60
+        )
+        if interaction.component.custom_id == "yes":
+            stream.public = True
+        else:
+            stream.public = False
+
+        session.commit()
+
+        await good(interaction, _("PUBLIC__SET", value=stream.public))
+        self.bot.logger.info("Set public to {} for {}".format(stream.public, stream.name))
+
     @commands.command()
     async def create(self, ctx, *, stream_name: str):
         if get_stream(stream_name) is not None:
             return await bad(ctx, _("NAME__TAKEN"))
 
         dbuser = get_user(ctx.author.id)
-        if len(dbuser.streams) >= 2 and not dbuser.staff:
+        if len(dbuser.streams) >= 25 and not dbuser.staff:
             return await bad(ctx, _("CREATE__TOO_MANY"))
 
         stream = Stream(name=stream_name, user=dbuser)
