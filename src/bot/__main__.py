@@ -53,7 +53,7 @@ bot = commands.Bot(
     command_prefix=commands.when_mentioned_or("kb!", "Kb!"),
     description="Kolumbao is the bot that lets users talk across servers",
     # help_command=PrettyHelp(color=discord.Color.from_rgb(217, 48, 158)),
-    intents=discord.Intents.all(),
+    intents=discord.Intents.default(),
     allowed_mentions=discord.AllowedMentions(users=True, roles=True),
 )
 bot.loop.set_default_executor(concurrent.futures.ThreadPoolExecutor())
