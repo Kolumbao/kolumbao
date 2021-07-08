@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 15:19:38.019775
+# Generated on 2021-07-08 15:37:54.957350
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -201,6 +201,7 @@ BAN__SEVERITY_UNKNOWN: "Sévérité inconnue donnée"
 BAN__ADDED: "Bannisement #{inf_id} ajouté"  # inf_id
 BAN__NOT_BANNED: "Cet utilisateur n'est pas ban"
 UNBAN__SUCCESS: "Débanni avec succès"  # inf_id
+LOCKDOWN__FULL: "A cause du nouveau confinement, il est impossible d'envoyer un message dans ce flux"  # stream, locale
 LOCKDOWN__LEVEL: "A cause du nouveau confinement, il faut être du niveau {level} pour que vos messages soient envoyés"  # level, stream, locale
 LOCKDOWN__SLOWMODE: "A cause du nouveau confinement, vous ne pouvez envoyer qu'un message chaque {limit} secondes"  # limit, stream, locale
 LOCKDOWN__DISACTIVATED: "Le confinement a été désactivé dans **{stream}**"  # stream, locale

@@ -76,6 +76,10 @@ async def _lockdown_filter(user: User, _, __, stream: Stream):
     if stream.lockdown == 0:
         return True
 
+    # Full lockdown
+    if stream.lockdown == 9999:
+        return False
+
     if stream.lockdown < 0:
         return user.level >= abs(stream.lockdown)
 

@@ -441,7 +441,14 @@ class Moderation(commands.Cog):
         if stream is None:
             raise ItemNotFound(Stream)
 
-        if type_ == "level":
+        if type_ == "full":
+            stream.lockdown = 9999
+            text = _(
+                "LOCKDOWN__FULL",
+                stream=stream.name,
+                locale=stream.language,
+            )
+        elif type_ == "level":
             stream.lockdown = -value
             text = _(
                 "LOCKDOWN__LEVEL",

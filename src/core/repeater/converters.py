@@ -8,6 +8,7 @@ from discord.ext import commands
 from discord.utils import find
 
 from core.db.models.infraction import Mute
+from core.db.models.role import Permissions
 
 from ..db.utils import get_user
 from ..utils.download import download
@@ -235,7 +236,7 @@ class Discord:
             The user has failed a filter
         """
         try:
-            if user.has_permissions("MANAGE_MUTES"):
+            if user.has_permissions(Permissions.MANAGE_MUTES):
                 return True
         except Exception:
             pass

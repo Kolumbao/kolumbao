@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 15:19:36.261891
+# Generated on 2021-07-08 15:37:57.704713
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -201,6 +201,7 @@ BAN__SEVERITY_UNKNOWN: "Unknown severity given"
 BAN__ADDED: "Ban #{inf_id} added"  # inf_id
 BAN__NOT_BANNED: "That user is not banned"
 UNBAN__SUCCESS: "Unbanned successfully"  # inf_id
+LOCKDOWN__FULL: "Lockdown now prohibits any discussion in **{stream}**"  # stream, locale
 LOCKDOWN__LEVEL: "Lockdown now requires level {level} to talk in **{stream}**"  # level, stream, locale
 LOCKDOWN__SLOWMODE: "Lockdown now restricts users to a slowmode of {limit}s in **{stream}**"  # limit, stream, locale
 LOCKDOWN__DISACTIVATED: "Lockdown has been disactivated in **{stream}**"  # stream, locale
