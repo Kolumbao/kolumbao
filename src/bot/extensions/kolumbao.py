@@ -14,6 +14,7 @@ from discord.raw_models import RawMessageUpdateEvent
 from discord.raw_models import RawReactionActionEvent
 from discord_components.component import Select, SelectOption
 from discord_components.interaction import Interaction
+from bot.interactions import selection
 
 from core.db.models.user import User
 
@@ -31,7 +32,6 @@ from core.db.models import OriginMessage
 from core.db.models.message import ResultMessage
 from core.db.models.stream import Stream
 from core.db.utils import get_stream
-from core.db.utils import get_user
 from core.i18n.i18n import _
 from core.logs.log import GlobalDiscordHandler
 from core.repeater.converters import Discord
@@ -72,49 +72,33 @@ class Kolumbao(commands.Cog):
         streams.sort(key=lambda stream: stream.message_count, reverse=True)
         stream_to_announce_to = []
 
-        # Use buttons
-        await ctx.send(
-            content=_("ANNOUNCE__PICK_STREAM"),
-            components=[
-                Select(
-                    placeholder=_("ANNOUNCE__SELECT"),
-                    options=[
-                        SelectOption(label=_("ANNOUNCE__ALL"), value="ALL"),
-                        *[
-                            SelectOption(label=stream.name, value=stream.name)
-                            for stream in streams
-                        ],
-                        SelectOption(label=_("ANNOUNCE__CLOSE"), value="close")
-                    ],
-                )
-            ],
-            ephemeral=False
-        )
-        
-        interaction = None
-        try:
-            interaction: Interaction = await self.bot.wait_for(
-                "select_option", check=lambda i: i.user == ctx.author, timeout=60
-            )
+        values, interaction = await selection(self.bot, ctx, {
+            "ALL": _("ANNOUNCE__ALL"),
+            **{
+                stream.name: stream.name
+                for stream in streams[:22]
+            }
+        }, max_values=len(streams[:22]) + 1)
 
-            value = interaction.component[0].value
-
-            if value == "close":
-                raise asyncio.TimeoutError()
-        except asyncio.TimeoutError:
+        if values is None:
             return
-        else:
-            if value == "ALL":
-                stream_to_announce_to = streams
-            else:
-                stream_to_announce_to = [Stream.create(value)]
         
+        if "ALL" in values:
+            stream_to_announce_to = streams
+        else:
+            stream_to_announce_to = [
+                stream for stream in streams
+                if stream.name in values
+            ]
+        
+        tasks = []
         for stream in stream_to_announce_to:
-            await self.bot.client.send_art(
+            tasks.append(self.bot.client.send_art(
                 content, stream
-            )
+            ))
 
         await interaction.respond(content=_("ANNOUNCE__DONE"), ephemeral=False)
+        await asyncio.gather(*tasks)
 
     @commands.command()
     async def delay(self, ctx):

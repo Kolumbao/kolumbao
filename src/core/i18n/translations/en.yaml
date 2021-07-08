@@ -1,6 +1,12 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-06 21:04:06.972986
+# Generated on 2021-07-08 12:27:11.773179
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
+
+# ..\..\..\src\bot\interactions.py
+INTERACTION__CLOSED: "Closed interaction"
+INTERACTION__PICK_OPTION: "Pick from the following options"
+INTERACTION__SELECT: "Select an option"
+INTERACTION__CLOSE: "Close"
 
 # ..\..\..\src\bot\__main__.py
 PLURAL: "{values}, and {final}"  # values
@@ -51,8 +57,6 @@ MANAGE__STAFF: "Staff"
 MANAGE__NOT_OWNED: "You don't own this shared channel"
 MANAGE__CLOSED: "The interaction menu has been closed"
 MANAGE__RESET_PASSWORD: "Reset password"
-MANAGE__PICK_OPTION: "Pick an option to manage your stream"
-MANAGE__SELECT: "Select an option..."
 MANAGE__NAME: "Edit name"
 MANAGE__DESCRIPTION: "Edit description"
 MANAGE__RULES: "Edit rules"
@@ -60,8 +64,6 @@ MANAGE__LANG: "Edit language"
 MANAGE__PASSWORD: "Edit password"
 MANAGE__NSFW: "Mark/unmark as NSFW"
 MANAGE__DELETE: "Delete"
-MANAGE__CLOSE: "Close menu"
-MANAGE__REMOVE_STAFF: "Click a staff member to remove them, or add another!"
 MANAGE__NEW_STAFF: "Add new staff"
 MANAGE__STAFF_REMOVED: "{staff} was removed from the staff for this stream"  # staff
 NEW_STAFF__MENTION: "Either mention the user or provide their ID"
@@ -163,10 +165,7 @@ INSTALLED: |
   # locale
 
 # ..\..\..\src\bot\extensions\kolumbao.py
-ANNOUNCE__PICK_STREAM: "Pick a stream to announce to"
-ANNOUNCE__SELECT: "Stream selection"
 ANNOUNCE__ALL: "All streams"
-ANNOUNCE__CLOSE: "Close"
 ANNOUNCE__DONE: "Message was sent!"
 DELAY_CONTENT: "The current delays across Kolumbao, measured in milliseconds"
 ERROR_AUTO_MUTED: "You were automatically muted for 5 minutes"
@@ -175,6 +174,7 @@ ERROR_AUTO_MUTED: "You were automatically muted for 5 minutes"
 INFRACTION__START: |
     You've received a `{name}` for the following reason. You will receive another message when it's finished.
     > {reason}
+    
   # name, reason, locale
 INFRACTION__END: "Your `{name}` that started on the {start} has ended."  # name, start
 SEARCH_INF__BY_USER: "Searching for user {user_id}"  # user_id

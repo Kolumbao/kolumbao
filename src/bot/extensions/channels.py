@@ -11,6 +11,7 @@ from discord.ext.commands.errors import UserNotFound
 from discord_components.component import ActionRow, ButtonStyle
 from discord_components.interaction import Interaction, InteractionType
 from expiring_dict import ExpiringDict
+from bot.interactions import selection
 
 from core.db.models.user import User
 
@@ -29,7 +30,7 @@ from core.db.utils import get_stream
 from core.db.utils import get_user
 from core.i18n.i18n import _
 from core.i18n.i18n import I18n
-from discord_components import DiscordComponents, Button, Select, SelectOption
+from discord_components import Button
 
 
 def get_local_node(stream: Stream, guild: Guild) -> Optional[Node]:
@@ -187,62 +188,41 @@ class Channels(commands.Cog):
         interaction: Interaction
     ):
         # If the stream has password, give option to reset it
-        reset_password_options = []
+        reset_password_options = {}
         if stream.password is not None:
-            reset_password_options.append(
-                SelectOption(label=_("MANAGE__RESET_PASSWORD"), value="reset-password")
-            )
+            reset_password_options["reset-password"] = _("MANAGE__RESET_PASSWORD")
 
-        # Use buttons
-        await interaction.respond(
-            content=_("MANAGE__PICK_OPTION"),
-            components=[
-                Select(
-                    placeholder=_("MANAGE__SELECT"),
-                    options=[
-                        SelectOption(label=_("MANAGE__NAME"), value="name"),
-                        SelectOption(
-                            label=_("MANAGE__DESCRIPTION"), value="description"
-                        ),
-                        SelectOption(label=_("MANAGE__RULES"), value="rules"),
-                        SelectOption(label=_("MANAGE__LANG"), value="lang"),
-                        SelectOption(label=_("MANAGE__PASSWORD"), value="password"),
-                        *reset_password_options,
-                        SelectOption(label=_("MANAGE__NSFW"), value="nsfw"),
-                        SelectOption(label=_("MANAGE__DELETE"), value="delete"),
-                        SelectOption(label=_("MANAGE__CLOSE"), value="close"),
-                    ],
-                )
-            ],
-            ephemeral=False
+        value, interaction = await selection(
+            self.bot,
+            interaction,
+            {
+                "name": _("MANAGE__NAME"),
+                "description": _("MANAGE__DESCRIPTION"),
+                "rules": _("MANAGE__RULES"),
+                "lang": _("MANAGE__LANG"),
+                "password": _("MANAGE__PASSWORD"),
+                **reset_password_options,
+                "nsfw": _("MANAGE__NSFW"),
+                "delete": _("MANAGE__DELETE"),
+            }
         )
         
-        interaction = None
-        try:
-            interaction: Interaction = await self.bot.wait_for(
-                "select_option", check=lambda i: i.user == ctx.author, timeout=60
-            )
+        if value is None:
+            return
 
-            value = interaction.component[0].value
+        functions = {
+            "name": self.name,
+            "description": self.description,
+            "rules": self.rules,
+            "lang": self.lang,
+            "password": self.password,
+            "reset-password": self.reset_password,
+            "nsfw": self.nsfw,
+            "delete": self.delete,
+        }
 
-            if value == "close":
-                raise asyncio.TimeoutError()
-        except asyncio.TimeoutError:
-            return await self.handle_interaction_end(ctx, interaction)
-        else:
-            functions = {
-                "name": self.name,
-                "description": self.description,
-                "rules": self.rules,
-                "lang": self.lang,
-                "password": self.password,
-                "reset-password": self.reset_password,
-                "nsfw": self.nsfw,
-                "delete": self.delete,
-            }
-
-            f = functions.get(value)
-            await f(ctx, stream, interaction)
+        f = functions.get(value)
+        await f(ctx, stream, interaction)
 
     async def manage_stream_staff(
         self,
@@ -250,56 +230,35 @@ class Channels(commands.Cog):
         stream: Stream,
         interaction: Interaction
     ):
-        staff_options = [
-            SelectOption(
-                label=str(user.discord), value=str(user.discord.id)
-            ) for user in stream.staff
+        staff_options = {
+            str(user.discord.id): str(user.discord)
+            for user in stream.staff
             if user.discord is not None
-        ]
+        }
 
-        await interaction.respond(
-            content=_("MANAGE__REMOVE_STAFF"),
-            components=[
-                Select(
-                    placeholder=_("MANAGE__SELECT"),
-                    options=[
-                        SelectOption(
-                            label=_("MANAGE__NEW_STAFF"), value="new"
-                        ),
-                        *staff_options,
-                        SelectOption(label=_("MANAGE__CLOSE"), value="close"),
-                    ],
-                )
-            ],
-            ephemeral=False
+        value, interaction = await selection(
+            self.bot,
+            interaction,
+            {
+                "new": _("MANAGE__NEW_STAFF"),
+                **staff_options
+            }
         )
 
-        interaction = None
-        while True:
-            try:
-                interaction: Interaction = await self.bot.wait_for(
-                    "select_option", check=lambda i: i.user == ctx.author, timeout=60
-                )
-
-                value = interaction.component[0].value
-
-                if value == "close":
-                    raise asyncio.TimeoutError()
-                elif value == "new":
-                    await self.new_staff(ctx, stream, interaction)
-                else:
-                    user = User.create(discord.Object(value), create_default=False)
-                    if user:
-                        stream.staff.remove(user)
-                    
-                    session.commit()
-                    await interaction.respond(
-                        content=_("MANAGE__STAFF_REMOVED", staff=str(user.discord)), ephemeral=False
-                    )
-            except asyncio.TimeoutError:
-                return await self.handle_interaction_end(ctx, interaction)
-            else:
-                pass
+        if value is None:
+            return
+        
+        if value == "new":
+            await self.new_staff(ctx, stream, interaction)
+        else:
+            user = User.create(discord.Object(value), create_default=False)
+            if user:
+                stream.staff.remove(user)
+            
+            session.commit()
+            await interaction.respond(
+                content=_("MANAGE__STAFF_REMOVED", staff=str(user.discord)), ephemeral=False
+            )
     
     async def new_staff(
         self,

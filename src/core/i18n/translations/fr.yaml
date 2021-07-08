@@ -1,6 +1,12 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-06 21:04:15.612049
+# Generated on 2021-07-08 12:27:19.840201
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
+
+# ..\..\..\src\bot\interactions.py
+INTERACTION__CLOSED: "Fermer l'interaction"
+INTERACTION__PICK_OPTION: "Choisissez des options suivantes :"
+INTERACTION__SELECT: "Sélectionnez une option"
+INTERACTION__CLOSE: "Fermer"
 
 # ..\..\..\src\bot\__main__.py
 PLURAL: "{values} et {final}"  # values
@@ -51,8 +57,6 @@ MANAGE__STAFF: "Staff"
 MANAGE__NOT_OWNED: "Ce salon ne vous appartient pas"
 MANAGE__CLOSED: "Le menu a été fermé"
 MANAGE__RESET_PASSWORD: "Enlevez le mot de passe"
-MANAGE__PICK_OPTION: "Choisissez une option pour configurer votre flux"
-MANAGE__SELECT: "Choisissez une option"
 MANAGE__NAME: "Modifier le nom"
 MANAGE__DESCRIPTION: "Modifier la description"
 MANAGE__RULES: "Modifier les règles"
@@ -60,8 +64,6 @@ MANAGE__LANG: "Modifier la langue"
 MANAGE__PASSWORD: "Modifier le mot de passe"
 MANAGE__NSFW: "Marquer comme NSFW"
 MANAGE__DELETE: "Supprimer votre flux"
-MANAGE__CLOSE: "Fermer ce menu"
-MANAGE__REMOVE_STAFF: "Cliquez sur un membre du staff pour le supprimer ou en ajouter un autre !"
 MANAGE__NEW_STAFF: "Ajouter un staff"
 MANAGE__STAFF_REMOVED: "{staff} ne fait plus partie du staff du flux"  # staff
 NEW_STAFF__MENTION: "Mentionnez ou écrivez l'ID de l'utilisateur pour l'ajouter"
@@ -163,10 +165,7 @@ INSTALLED: |
   # locale
 
 # ..\..\..\src\bot\extensions\kolumbao.py
-ANNOUNCE__PICK_STREAM: "Choisissez un flux auquel on devrait envoyer l'annonce"
-ANNOUNCE__SELECT: "Selection du flux"
 ANNOUNCE__ALL: "Tous les flux"
-ANNOUNCE__CLOSE: "Fermer"
 ANNOUNCE__DONE: "Le message a été envoyé !"
 DELAY_CONTENT: "Les retards actuels à Kolumbao"
 ERROR_AUTO_MUTED: "Vous êtes automatiquement mute pour 5 minutes"
@@ -175,6 +174,7 @@ ERROR_AUTO_MUTED: "Vous êtes automatiquement mute pour 5 minutes"
 INFRACTION__START: |
     Vous avez une nouvelle punition (`{name}`) pour la raison suivante. Vous recevrez un nouveau quand elle est finie.
     > {reason}
+    
   # name, reason, locale
 INFRACTION__END: "Votre punition pour {reason} qui a commencé le {start} a fini."  # name, start
 SEARCH_INF__BY_USER: "Cherche pour l'utilisateur {user_id}"  # user_id
