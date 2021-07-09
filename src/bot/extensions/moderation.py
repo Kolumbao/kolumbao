@@ -440,7 +440,7 @@ class Moderation(commands.Cog):
         await target.send(_("SERVER_BAN__BANNED_FOR", reason=reason))
 
     @has_permission("MANAGE_MUTES")
-    @commands.command("server-ban")
+    @commands.command("server-unban")
     async def server_unban(
         self,
         ctx: commands.Context,
