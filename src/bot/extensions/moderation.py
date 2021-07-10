@@ -484,7 +484,7 @@ class Moderation(commands.Cog):
             raise ItemNotFound(Stream)
 
         if type_ == "full":
-            stream.lockdown = 9999
+            stream.lockdown = 999
             text = _(
                 "LOCKDOWN__FULL",
                 stream=stream.name,
