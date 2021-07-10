@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 15:50:23.438205
+# Generated on 2021-07-10 15:08:31.168698
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -20,6 +20,11 @@ ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: "You need level {level} to run this command!"
 ERROR_COOLDOWN: "You're going too fast! Retry after {retry_after} seconds."  # retry_after
 ERROR_BOT_MISSING_PERMISSIONS: "The bot is missing the following permissions: {permissions}"  # permissions
 ERROR_USER_MISSING_PERMISSIONS: "You are missing the following server permissions: {permissions}."  # permissions
+ERROR_FORBIDDEN: |
+  The bot does not have the required permissions to perform an action.
+
+  Have you considered checking my add reactions/manage channels permissions?
+
 ERROR_UNKNOWN: "An unknown error occured. Report it to the developers with the ID `{code}`"  # code
 
 # ..\..\..\src\bot\extensions\blacklist.py
@@ -203,7 +208,10 @@ BAN__NOT_BANNED: "That user is not banned"
 UNBAN__SUCCESS: "Unbanned successfully"  # inf_id
 SERVER_BAN__BANNED: "That server is already disabled/banned"
 SERVER_BAN__ADDED: "That server has now been disabled/banned"
-SERVER_BAN__BANNED_FOR: "Your server has been manually disabled from the network for:\n> {reason}"  # reason
+SERVER_BAN__BANNED_FOR: |
+    Your server has been manually disabled from the network for:
+    > {reason}
+  # reason
 SERVER_BAN__NOT_BANNED: "That server is not banned"
 SERVER_BAN__UNBANNED: "That server has been unbanned."
 LOCKDOWN__FULL: "Lockdown now prohibits any discussion in **{stream}**"  # stream, locale

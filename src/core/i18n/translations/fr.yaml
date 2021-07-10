@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-08 15:50:25.298030
+# Generated on 2021-07-10 15:08:18.759187
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -20,6 +20,11 @@ ERROR_INSUFFICIENT_KOLUMBAO_LEVEL: "Il vous faut le niveau {level} pour exécute
 ERROR_COOLDOWN: "Vous allez trop vite. Réessayez après {retry_after} secondes."  # retry_after
 ERROR_BOT_MISSING_PERMISSIONS: "Il manque au bot les permissions suivantes : {permissions}"  # permissions
 ERROR_USER_MISSING_PERMISSIONS: "Il vous manque les permissions suivantes : {permissions}"  # permissions
+ERROR_FORBIDDEN: |
+  Le bot n'a pas des permissions nécessaires pour effectuer une action.
+
+  Avez-vous vérifié mes permissions pour ajouter des réactions/gérer les salons ?
+
 ERROR_UNKNOWN: "Une erreur inconnue s'est produite. Signalez-la aux développeurs avec l'ID `{code}`"  # code
 
 # ..\..\..\src\bot\extensions\blacklist.py
@@ -203,7 +208,10 @@ BAN__NOT_BANNED: "Cet utilisateur n'est pas ban"
 UNBAN__SUCCESS: "Débanni avec succès"  # inf_id
 SERVER_BAN__BANNED: "Ce serveur est déjà banni"
 SERVER_BAN__ADDED: "Ce serveur a été banni"
-SERVER_BAN__BANNED_FOR: "Votre serveur a été banni du reseau à cause de la raison suivante :\n> {reason}"  # reason
+SERVER_BAN__BANNED_FOR: |
+    Votre serveur a été banni du reseau à cause de la raison suivante :
+    > {reason}
+  # reason
 SERVER_BAN__NOT_BANNED: "Ce serveur n'est pas banni"
 SERVER_BAN__UNBANNED: "Ce serveur a été débanni"
 LOCKDOWN__FULL: "A cause du nouveau confinement, il est impossible d'envoyer un message dans ce flux"  # stream, locale
