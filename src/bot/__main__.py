@@ -177,6 +177,9 @@ errors_messages = {
         "ERROR_USER_MISSING_PERMISSIONS",
         permissions=format_missing_perms(error.missing_perms),
     ),
+    discord.Forbidden: lambda error: _(
+        "ERROR_FORBIDDEN",
+    )
 }
 
 
