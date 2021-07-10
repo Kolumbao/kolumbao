@@ -5,7 +5,7 @@ from typing import Optional
 from . import query
 from . import session
 from .models import Feature
-from .models import Guild
+from .models import Guild, StatusCode
 from .models import Stream
 from .models import User
 from core.db.models.blacklist import Blacklist
@@ -67,7 +67,7 @@ def get_user(snowflake: int, make_if_missing: bool = True) -> Optional[User]:
     )
 
 
-_default_guild_kwargs = dict(banned=False)
+_default_guild_kwargs = dict(status=StatusCode.NONE)
 
 
 def get_guild(snowflake: int, make_if_missing: bool = True) -> Optional[Guild]:
