@@ -2,6 +2,7 @@
 import logging
 
 import aio_pika
+import aiormq
 
 
 class RabbitMQClient:
@@ -11,12 +12,14 @@ class RabbitMQClient:
     _url = None
     _routing_key = None
     _logger = logging
+    _listeners_registered = None
 
     def __init__(
         self, rabbitmq_url: str, rabbitmq_routing: str, logger: logging.Logger = None
     ):
         self._url = rabbitmq_url
         self._routing_key = rabbitmq_routing
+        self._listeners_registered = []
         if logger:
             self.set_logger(logger)
 
@@ -33,7 +36,7 @@ class RabbitMQClient:
 
     async def connect(self) -> aio_pika.RobustConnection:
         """
-        Connect to the RabbitMQ exchange
+        Connect to the RabbitMQ exchange.
 
         Returns
         -------
@@ -61,6 +64,30 @@ class RabbitMQClient:
 
         return self._connection
 
+    async def reconnect(self) -> aio_pika.RobustConnection:
+        """
+        Reconnect to the exchange if an error occurs. Also reconfigures
+        listeners.
+
+        Returns
+        -------
+        aio_pika.RobustConnection
+            The connection created
+        """
+        self._logger.debug("Reconnect initiated. Terminating old connection and recreating")
+        if self._connection:
+            await self._connection.close()
+            self._connection = None
+
+        await self.connect()
+        
+        # Re-register listeners
+        self._logger.debug("Re-registering old listeners")
+        for listener in self._listeners_registered:
+            await self.listen(**listener)
+
+        self._logger.info("Reconnect complete")
+
     async def send_raw(self, content: str, target: str = None):
         """
         Send a message with this client. `RabbitMQClient.connect` must have
@@ -75,7 +102,44 @@ class RabbitMQClient:
         """
         target = target or self._routing_key
         body = content.encode()
-        await self._exchange.publish(aio_pika.Message(body=body), routing_key=target)
+        await self.__exchange_publish(aio_pika.Message(body=body), routing_key=target)
+
+    async def __exchange_publish(self, *args, retry_times: int = 5, **kwargs) -> None:
+        """
+        Attempt to publish to the exchange, and reconnect when there is a
+        channel invalid state error (usually after a channel being closed
+        due to an internal error).
+
+        Parameters
+        ----------
+        *args
+            Args to pass to ``self._exchange.publish``
+        retry_times : int, optional
+            The number of times to retry, by default 5
+        **kwargs
+            Kwargs to pass to ``self._exchange.publish``
+        """
+        success = False
+        tries = 0
+        while not success:
+            tries += 1
+            try:
+                await self._exchange.publish(*args, **kwargs)
+            except aiormq.exceptions.ChannelInvalidStateError:
+                if tries > retry_times:
+                    # Report error and cancel
+                    self.logger.critical(
+                        "Retried connection max times, error was unrecoverable. Exception follows"
+                    )
+                    self.logger.exception("Critical error")
+                    return
+
+                self._logger.critical(
+                    f"Channel invalid state error... reconnecting ({tries}/{retry_times})"
+                )
+                await self.reconnect()
+            else:
+                success = True
 
     async def listen(
         self,
@@ -83,6 +147,7 @@ class RabbitMQClient:
         target: str = None,
         prefetch_count: int = 100,
         auto_delete: bool = True,
+        register_listener: bool = True,
     ):
         """
         Listen to messages from RabbitMQ using a function
@@ -97,6 +162,8 @@ class RabbitMQClient:
             How many messages to fetch in advance, by default 100
         auto_delete : bool, optional
             Whether to delete messages once finished with them, by default True
+        register_listener : bool, optional
+            Whether to save the register for reconnect, by default True
         """
         await self._channel.set_qos(prefetch_count=prefetch_count)
 
@@ -104,3 +171,15 @@ class RabbitMQClient:
         queue = await self._channel.declare_queue(target, auto_delete=auto_delete)
 
         await queue.consume(func)
+
+        if register_listener:
+            # Add the kwargs for the listen function
+            self._listeners_registered.append(
+                dict(
+                    func=func,
+                    target=target,
+                    prefetch_count=prefetch_count,
+                    auto_delete=auto_delete,
+                    register_listener=False,
+                )
+            )
