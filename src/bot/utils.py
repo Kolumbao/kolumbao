@@ -13,6 +13,7 @@ def find_target(guild: discord.Guild):
     if not guild:
         return FakeTarget(guild)
 
+    target = None
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
             target = channel
