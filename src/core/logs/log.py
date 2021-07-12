@@ -130,8 +130,8 @@ class GlobalDiscordHandler(logging.Handler):
 
                 try:
                     await webhook.send(embed=embed, wait=True)
-                except aiohttp.ClientOSError:
-                    pass
+                except aiohttp.ClientOSError as exc:
+                    print(exc)
                     
                     
 
