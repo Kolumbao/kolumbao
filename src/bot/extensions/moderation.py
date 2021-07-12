@@ -4,6 +4,7 @@ from os import getenv
 from typing import Any, List, Optional, Tuple, TypeVar, Union
 
 import discord
+from discord.errors import Forbidden, HTTPException
 import pytz
 from bot.checks import has_permission
 from bot.converters import DurationConverter
@@ -325,9 +326,9 @@ class Moderation(commands.Cog):
         # Add to database
         session.commit()
 
-        await good(ctx, _("UNMUTE__SUCCESS", inf_id=last_mute.id))
         await self.log_end(last_mute, intended_end)
         await self.mute_manage.requeue(last_mute)
+        await good(ctx, _("UNMUTE__SUCCESS", inf_id=last_mute.id))
 
     @has_permission("MANAGE_MUTES")
     @commands.group("warn", invoke_without_command=True)
@@ -352,8 +353,12 @@ class Moderation(commands.Cog):
             session.add(warn)
             session.commit()
 
-            await good(ctx, _("WARN__ADDED", inf_id=warn.id))
             await self.log_infraction(warn)
+            await good(ctx, _("WARN__ADDED", inf_id=warn.id))
+            try:
+                await warn.user.discord.send(_("WARN__MESSAGE", reason=reason))
+            except (AttributeError, Forbidden, HTTPException):
+                pass
 
     @has_permission("MANAGE_MUTES")
     @commands.group("ban", invoke_without_command=True)
@@ -389,9 +394,9 @@ class Moderation(commands.Cog):
             session.add(ban)
             session.commit()
 
-            await good(ctx, _("BAN__ADDED", inf_id=ban.id))
             await self.log_infraction(ban)
             await self.ban_manage.queue(ban)
+            await good(ctx, _("BAN__ADDED", inf_id=ban.id))
 
     @has_permission("MANAGE_MUTES")
     @commands.command()

@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-10 15:08:31.168698
+# Generated on 2021-07-12 17:37:44.888781
 # With ./get_text.py -d ../../.. -t ./translations/en.yaml -p ./translations/en.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -21,10 +21,11 @@ ERROR_COOLDOWN: "You're going too fast! Retry after {retry_after} seconds."  # r
 ERROR_BOT_MISSING_PERMISSIONS: "The bot is missing the following permissions: {permissions}"  # permissions
 ERROR_USER_MISSING_PERMISSIONS: "You are missing the following server permissions: {permissions}."  # permissions
 ERROR_FORBIDDEN: |
-  The bot does not have the required permissions to perform an action.
-
-  Have you considered checking my add reactions/manage channels permissions?
-
+    The bot does not have the required permissions to perform an action.
+    
+    Have you considered checking my add reactions/manage channels permissions?
+    
+  # 
 ERROR_UNKNOWN: "An unknown error occured. Report it to the developers with the ID `{code}`"  # code
 
 # ..\..\..\src\bot\extensions\blacklist.py
@@ -201,7 +202,11 @@ MUTE__ADDED: "Infraction #{inf_id} added"  # inf_id
 MUTE__NOT_MUTED: "That user is not muted"
 UNMUTE__SUCCESS: "Successfully unmuted this user"  # inf_id
 WARN__ADDED: "Infraction #{inf_id} added"  # inf_id
-BAN__ALREADY_BANNED: ""  # mute_id
+WARN__MESSAGE: |
+    You have been warned for the following reason:
+    > {reason}
+  # reason
+BAN__ALREADY_BANNED: "That user is already banned"  # mute_id
 BAN__SEVERITY_UNKNOWN: "Unknown severity given"
 BAN__ADDED: "Ban #{inf_id} added"  # inf_id
 BAN__NOT_BANNED: "That user is not banned"
@@ -211,6 +216,7 @@ SERVER_BAN__ADDED: "That server has now been disabled/banned"
 SERVER_BAN__BANNED_FOR: |
     Your server has been manually disabled from the network for:
     > {reason}
+    
   # reason
 SERVER_BAN__NOT_BANNED: "That server is not banned"
 SERVER_BAN__UNBANNED: "That server has been unbanned."

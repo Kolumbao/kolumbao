@@ -1,5 +1,5 @@
 # NOTE: This is an automatically generated file.
-# Generated on 2021-07-10 15:08:18.759187
+# Generated on 2021-07-12 17:37:06.367485
 # With ./get_text.py -d ../../.. -t ./translations/fr.yaml -p ./translations/fr.yaml
 
 # ..\..\..\src\bot\interactions.py
@@ -21,10 +21,11 @@ ERROR_COOLDOWN: "Vous allez trop vite. Réessayez après {retry_after} secondes.
 ERROR_BOT_MISSING_PERMISSIONS: "Il manque au bot les permissions suivantes : {permissions}"  # permissions
 ERROR_USER_MISSING_PERMISSIONS: "Il vous manque les permissions suivantes : {permissions}"  # permissions
 ERROR_FORBIDDEN: |
-  Le bot n'a pas des permissions nécessaires pour effectuer une action.
-
-  Avez-vous vérifié mes permissions pour ajouter des réactions/gérer les salons ?
-
+    Le bot n'a pas des permissions nécessaires pour effectuer une action.
+    
+    Avez-vous vérifié mes permissions pour ajouter des réactions/gérer les salons ?
+    
+  # 
 ERROR_UNKNOWN: "Une erreur inconnue s'est produite. Signalez-la aux développeurs avec l'ID `{code}`"  # code
 
 # ..\..\..\src\bot\extensions\blacklist.py
@@ -201,7 +202,12 @@ MUTE__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
 MUTE__NOT_MUTED: "Cet utilisateur n'est pas mute"
 UNMUTE__SUCCESS: "Cet utilisateur n'est plus mute"  # inf_id
 WARN__ADDED: "L'infraction {inf_id} a été ajoutée avec succès"  # inf_id
-BAN__ALREADY_BANNED: ""  # mute_id
+WARN__MESSAGE: |
+    Vous avez été averti pour la raison suivante :
+    > {reason}
+    
+  # reason
+BAN__ALREADY_BANNED: "L'utilisateur est déjà banni"  # mute_id
 BAN__SEVERITY_UNKNOWN: "Sévérité inconnue donnée"
 BAN__ADDED: "Bannisement #{inf_id} ajouté"  # inf_id
 BAN__NOT_BANNED: "Cet utilisateur n'est pas ban"
@@ -211,6 +217,7 @@ SERVER_BAN__ADDED: "Ce serveur a été banni"
 SERVER_BAN__BANNED_FOR: |
     Votre serveur a été banni du reseau à cause de la raison suivante :
     > {reason}
+    
   # reason
 SERVER_BAN__NOT_BANNED: "Ce serveur n'est pas banni"
 SERVER_BAN__UNBANNED: "Ce serveur a été débanni"

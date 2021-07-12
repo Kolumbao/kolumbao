@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-from typing import Any
-from typing import Optional
+from typing import Any, Optional
 
-from . import query
-from . import session
-from .models import Feature
-from .models import Guild, StatusCode
-from .models import Stream
-from .models import User
 from core.db.models.blacklist import Blacklist
+
+from . import query, session
+from .models import Feature, Guild, Stream, User
+from .models.guild import StatusCode
 
 
 def _get_discord_equivalent(
