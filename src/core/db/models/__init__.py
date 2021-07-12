@@ -28,7 +28,7 @@ class SharedAttributes:
         # Try to get from all getter functions. Ideally overriden
         if hasattr(self, 'discord_id'):
             _id = self.discord_id
-            return self.bot.get_channel(_id) or self.bot.get_user(_id) or self.bot.get_guild(_id)
+            return self.bot.get_guild(_id) or self.bot.get_channel(_id) or self.bot.get_user(_id)
         
         raise TypeError("This database object is not discord affiliated")
     
