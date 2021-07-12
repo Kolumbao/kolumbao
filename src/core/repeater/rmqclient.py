@@ -126,6 +126,14 @@ class RabbitMQClient:
             try:
                 await self._exchange.publish(*args, **kwargs)
             except aiormq.exceptions.ChannelInvalidStateError:
+                if tries > retry_times:
+                    # Report error and cancel
+                    self.logger.critical(
+                        "Retried connection max times, error was unrecoverable. Exception follows"
+                    )
+                    self.logger.exception("Critical error")
+                    return
+
                 self._logger.critical(
                     f"Channel invalid state error... reconnecting ({tries}/{retry_times})"
                 )
