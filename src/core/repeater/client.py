@@ -207,24 +207,31 @@ class Client(RabbitMQClient):
                 tq = quoted_message
             else:
                 tq = get(quoted_message.result_messages, node=target)
-            content = self._message_reply_content(tq)
+
             user = quoted_message.user.discord or await self.bot.fetch_user(
                 quoted_message.user.discord_id
             )
+            
+            if tq is None:
+                # Not found locally
+                return message_body
+            else:
+                # Show reply tooltip
+                content = self._message_reply_content(tq)
 
-            this_body = message_body.copy()
-            this_body["content"] = (
-                _(
-                    "REPLYING_TO",
-                    username=f"@{user}",
-                    link=f"https://discord.com/channels/{tq.node.guild.discord_id}"
-                    f"/{tq.node.channel_id}/{tq.message_id}",
-                    content=escape_mentions(content),
-                    locale=target.stream.language,
-                )
-                + "\n"
-            ) + this_body["content"]
-            return this_body
+                this_body = message_body.copy()
+                this_body["content"] = (
+                    _(
+                        "REPLYING_TO",
+                        username=f"@{user}",
+                        link=f"https://discord.com/channels/{tq.node.guild.discord_id}"
+                        f"/{tq.node.channel_id}/{tq.message_id}",
+                        content=escape_mentions(content),
+                        locale=target.stream.language,
+                    )
+                    + "\n"
+                ) + this_body["content"]
+                return this_body
 
         return _add_quotation
 
