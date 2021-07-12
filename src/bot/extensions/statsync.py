@@ -58,7 +58,7 @@ class StatSync(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.update_top.start()
-        self.update_status.start()
+        # self.update_status.start()
 
     @tasks.loop(seconds=60)
     async def update_top(self):
