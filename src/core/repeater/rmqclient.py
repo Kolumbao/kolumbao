@@ -74,11 +74,19 @@ class RabbitMQClient:
         aio_pika.RobustConnection
             The connection created
         """
+        self._logger.debug("Reconnect initiated. Terminating old connection and recreating")
         if self._connection:
             await self._connection.close()
             self._connection = None
 
         await self.connect()
+        
+        # Re-register listeners
+        self._logger.debug("Re-registering old listeners")
+        for listener in self._listeners_registered:
+            await self.listen(**listener)
+
+        self._logger.info("Reconnect complete")
 
     async def send_raw(self, content: str, target: str = None):
         """
@@ -124,13 +132,6 @@ class RabbitMQClient:
                 await self.reconnect()
             else:
                 success = True
-                
-                # Re-register listeners
-                self._logger.debug("Re-registering old listeners")
-                for listener in self._listeners_registered:
-                    await self.listen(**listener)
-
-                self._logger.info("Reconnect complete")
 
     async def listen(
         self,
