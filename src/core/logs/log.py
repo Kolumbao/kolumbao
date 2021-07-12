@@ -128,7 +128,12 @@ class GlobalDiscordHandler(logging.Handler):
                 self._idx += 1
                 embed.timestamp = datetime.datetime.now()
 
-                await webhook.send(embed=embed, wait=True)
+                try:
+                    await webhook.send(embed=embed, wait=True)
+                except aiohttp.ClientOSError:
+                    pass
+                    
+                    
 
 
 class UUIDFilter(logging.Filter):
