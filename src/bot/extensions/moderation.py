@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 from operator import attrgetter
 from os import getenv
@@ -535,26 +536,29 @@ class Moderation(commands.Cog):
             "Auditing all guilds to ensure banned members are not on servers"
         )
         # Get members
-        query_result = (
+        query_result = await self.bot.loop.run_in_executor(None,
             query(Ban)
             .filter(
                 ((Ban.end_time == None) | (Ban.end_time > datetime.now(pytz.utc)))
                 & (Ban.severity == BanSeverity.BLANKET)
             )
-            .all()
+            .all
         )
 
         banned_users = set(map(lambda b: b.user.discord, query_result))
 
         # Check guilds that aren't already banned
-        for dbguild in (
+        for dbguild in await self.bot.loop.run_in_executor(None, (
             query(Guild)
             .filter(
                 (Guild.status == StatusCode.NONE)
                 | (Guild.status == StatusCode.AWAITING_DISABLE)
             )
-            .all()
-        ):
+            .all
+        )):
+            # Await to give control to event loop!
+            await asyncio.sleep(0.001)
+            
             if dbguild.discord:
                 target = find_target(dbguild.discord)
                 members = set(dbguild.discord.members)
