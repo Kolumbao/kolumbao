@@ -7,7 +7,7 @@ from os import getenv
 import discord
 from discord.ext import commands
 from discord.ext.commands.core import is_owner
-from discord.ext.commands.errors import CommandNotFound
+from discord.ext.commands.errors import CommandNotFound, ExtensionAlreadyLoaded
 from discord_components.client import DiscordComponents
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -68,7 +68,6 @@ database = db.Database(getenv("DB_URI"))
 async def on_ready():
     bot.logger = create_general_logger("bot", bot=bot, level=logging.INFO)
     bot.logger.info(f"Ready as {bot.user} in {len(bot.guilds)} guilds...")
-    bot.remove_command("help")
 
     database.init_bot(bot)
     SharedAttributes.init_bot(bot)
@@ -112,7 +111,12 @@ async def on_ready():
 
     for extension in EXTENSIONS:
         bot.logger.debug("Loading extension %s", extension)
-        bot.load_extension(extension)
+
+        try:
+            bot.load_extension(extension)
+        except ExtensionAlreadyLoaded:
+            # If we reconnect, make sure the help command is reloaded.
+            bot.reload_extension(extension)
 
 
 @is_owner()

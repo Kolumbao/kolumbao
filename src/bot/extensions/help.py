@@ -7,6 +7,9 @@ from tri import atri
 class Help(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        
+        # Remove default command
+        bot.remove_command("help")
 
     @commands.command()
     async def help(self, ctx: commands.Context, *, command: Optional[str]):
