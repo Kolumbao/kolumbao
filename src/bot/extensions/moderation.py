@@ -263,7 +263,7 @@ class Moderation(commands.Cog):
             colour=discord.Colour.invisible(),
         )
 
-        found.sort(key=attrgetter("start_time"), reverse=True)
+        found.sort(key=attrgetter("id"), reverse=True)
         if len(found) > 6:
             embed.set_footer(text=_("SEARCH_INF__FIRST_N", n=6, tot=len(found)))
             found = found[:6]
