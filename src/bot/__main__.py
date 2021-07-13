@@ -59,7 +59,7 @@ bot = commands.Bot(
 bot.loop.set_default_executor(concurrent.futures.ThreadPoolExecutor())
 multiple_after_invoke(bot)
 multiple_before_invoke(bot)
-cache_users_self(bot)
+# cache_users_self(bot)
 
 database = db.Database(getenv("DB_URI"))
 
