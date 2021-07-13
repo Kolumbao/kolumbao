@@ -60,6 +60,10 @@ class StatSync(commands.Cog):
         self.update_top.start()
         # self.update_status.start()
 
+    def cog_unload(self):
+        self.update_top.stop()
+        # self.update_status.stop()
+
     @tasks.loop(seconds=60)
     async def update_top(self):
         await self._update_top_streams()

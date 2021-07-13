@@ -156,6 +156,11 @@ class Moderation(commands.Cog):
         self.mute_manage = ModerationNotifier(bot, Mute)
         self.ban_manage = ModerationNotifier(bot, Ban)
 
+    def cog_unload(self):
+        self.mute_manage.notification_loop.stop()
+        self.ban_manage.notification_loop.stop()
+        self._ensure_banned.stop()
+
     async def log_infraction(self, inf: Union[Mute, Warn, Ban]):
         """Log the creation of an infraction. Does this regardless of actual
         creation time
