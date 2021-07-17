@@ -69,10 +69,10 @@ class ResultMessage(Base):
     message_id = Column(Snowflake, nullable=False)
 
     node_id = Column(ForeignKey("nodes.id"))
-    node = relationship("Node", backref="result_messages")
+    node = relationship("Node", backref="result_messages", cascade="all, delete", passive_deletes=True)
 
     origin_id = Column(ForeignKey("origin_messages.id", ondelete="CASCADE"))
-    origin = relationship("OriginMessage", back_populates="result_messages")
+    origin = relationship("OriginMessage", back_populates="result_messages",  cascade="all, delete", passive_deletes=True)
 
     @property
     def channel_id(self):

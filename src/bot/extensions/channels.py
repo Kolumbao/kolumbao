@@ -480,8 +480,14 @@ class Channels(commands.Cog):
         if message.content != code:
             return await bad(ctx, _("DELETE__CODE_INVALID"))
 
-        session.delete(stream)
-        session.commit()
+        await self.bot.loop.run_in_executor(
+            None,
+            lambda: session.delete(stream))
+        
+        await self.bot.loop.run_in_executor(
+            None,
+            session.commit)
+        
         await good(ctx, _("DELETE__SUCCESS"))
 
         self.bot.logger.info("Deleted {}".format(stream.name))
