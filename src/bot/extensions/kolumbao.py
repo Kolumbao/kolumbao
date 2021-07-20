@@ -370,8 +370,8 @@ Guild: {guild}
                 await self.delete_queue.put((message.message_id, message.node.channel_id))
                 amount += 1
 
-        session.delete(quoted_message)
-        session.commit()
+        # session.delete(quoted_message)
+        # session.commit()
         try:
             message = await self.bot.get_channel(payload.channel_id).fetch_message(
                 payload.message_id
