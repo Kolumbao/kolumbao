@@ -15,7 +15,6 @@ from ..db import session
 from ..db.models import Node
 from ..db.models import OriginMessage
 from ..db.models import Stream
-from ..db.utils import get_user
 from ..i18n.i18n import _
 from .rmqclient import RabbitMQClient
 from core.db.database import query
@@ -37,7 +36,7 @@ class Message:
 
 class Client(RabbitMQClient):
     bot = None
-    _default_username = "Thibault"
+    _default_username = "Thibault ⚙"
     _default_avatar_url = "https://i.discord.fr/kdE.png"
     _default_user = 705422266649018398
 
@@ -85,7 +84,10 @@ class Client(RabbitMQClient):
 
     async def all_factories(self, message_body: dict) -> callable:
         """
-        Handle both reference factory (for replies) and mention factory
+        Handle both reference factory (for replies) and mention factory.
+
+        Factories take one parameter (the Node) and produce a message body
+        valid for the given target.
 
         Parameters
         ----------
@@ -132,7 +134,6 @@ class Client(RabbitMQClient):
             mentions.append((match, default, snowflake, int(target_node_id)))
 
         if len(mentions) == 0:
-
             async def _ret(message_body: dict, _: Node):
                 return message_body
 
