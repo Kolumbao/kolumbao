@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from collections import defaultdict
-from datetime import time
 import threading
 import types
 from os import getenv
+from time import time
 
 import discord
 from discord.ext import commands
@@ -92,10 +91,10 @@ def cache_users_self(bot: commands.Bot, expiry_time_seconds: float = 30 * 60):
         bot._seperate_http.static_login(getenv("TOKEN"), bot=bot), new_loop
     )
 
-    _cache = defaultdict(lambda: 0)
+    _cache = {}
     def _get_user(self, user_id) -> discord.User:
         user = self._connection.get_user(user_id)
-        cache_age = time() - _cache.get(user_id)
+        cache_age = time() - _cache.get(user_id, 0)
 
         # If the user doesn't exist or the cache is expired
         if user is None or cache_age > expiry_time_seconds:
