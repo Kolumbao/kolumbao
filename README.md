@@ -163,6 +163,8 @@ You will need to create the permissions that the bot uses, and the roles that
 use them. If you are the bot owner, you should be able to bypass the majority of permission checks (the bot checks initially if you are the owner, then if you have the permissions).
 
 ## Structure
+As of [`627d9f5`](https://github.com/Kolumbao/kolumbao/commit/627d9f58ae4558b28f592e570e3bc8b83d363958), this is incorrect. It will be updated in due course once current developments come to a close.
+ 
 ```tree
 src
 |   __init__.py: Specifies version as __version__
