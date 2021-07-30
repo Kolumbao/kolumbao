@@ -86,7 +86,9 @@ class StatSync(commands.Cog):
         if getenv("HOT_CHANNELS_STATS") is None:
             return
 
-        streams = await self.bot.loop.run_in_executor(None, query(Stream).all)
+        streams = await self.bot.loop.run_in_executor(
+            None, query(Stream).filter(Stream.public == True).all
+        )
 
         def filt(messages):
             def _filt(m):
@@ -124,7 +126,9 @@ class StatSync(commands.Cog):
         if getenv("TOP_CHANNELS_STATS") is None:
             return
 
-        streams = await self.bot.loop.run_in_executor(None, query(Stream).all)
+        streams = await self.bot.loop.run_in_executor(
+            None, query(Stream).filter(Stream.public == True).all
+        )
 
         await self.bot.loop.run_in_executor(
             None,
@@ -193,8 +197,7 @@ class StatSync(commands.Cog):
     async def avg_time_month(self, ctx):
         async with ctx.typing():
             dts: List[Tuple[datetime.datetime]] = await self.bot.loop.run_in_executor(
-                None,
-                query(OriginMessage.sent_at).all
+                None, query(OriginMessage.sent_at).all
             )
 
             data = {}
@@ -224,8 +227,7 @@ class StatSync(commands.Cog):
     async def avg_time_all(self, ctx):
         async with ctx.typing():
             dts: List[Tuple[datetime.datetime]] = await self.bot.loop.run_in_executor(
-                None,
-                query(OriginMessage.sent_at).all
+                None, query(OriginMessage.sent_at).all
             )
 
             graphs = []
@@ -295,7 +297,6 @@ class StatSync(commands.Cog):
                         _get_delays(message),
                     )
                 )
-
 
             res = await asyncio.gather(*tasks)
             results = sum(res, [])
