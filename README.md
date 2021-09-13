@@ -1,3 +1,5 @@
+This repository will now only be modified for security updates — "active" development of Kolumbao is currently paused until further notice.
+
 # Kolumbao
 
 See [Structure](#structure) for an explanation of the file structure.
