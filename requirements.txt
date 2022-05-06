@@ -3,7 +3,7 @@ sqlalchemy==1.3.*
 discord==1.7.*
 python-dotenv==0.19.*
 discord-pretty-help==1.3.3
-prettytable==2.2.0
+prettytable==3.3.0
 aio-pika
 expiring-dict
 psycopg2
